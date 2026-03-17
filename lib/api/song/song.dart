@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../config/util.dart';
 import '../request/request.dart';
 /// 获取音乐urls
@@ -11,7 +13,7 @@ import '../request/request.dart';
 // subwoofer 乐器
 // ancient 尤克里里
 // dj dj
-Future getMusicUrls({
+Future<ResponseOptions<Map<String, dynamic>>> getMusicUrls({
   required String hash,
   /// enum SongURLQuality 'piano', 'acappella', 'subwoofer', 'ancient', 'surnay', 'dj', '128' '320' 'flac' 'high' 'viper_atmos' 'viper_clear' 'viper_tape'
   String? quality,
@@ -119,7 +121,7 @@ Future getPrivMusicUrls({
 }
 
 /// 搜索歌词search
-Future searchLyrics({
+Future<ResponseOptions<Map<String, dynamic>>> searchLyrics({
   /// 搜索关键字
   String? keyword,
   /// 搜索hash
@@ -129,11 +131,11 @@ Future searchLyrics({
 }) {
   final dataMap = {
     'album_audio_id': album_audio_id,
-    'appid': appid,
-    'clientver': clientver,
+    'appid': isLite ? liteAppid : appid,
+    'clientver': isLite ? liteClientver : clientver,
     'duration': 0,
     'hash': hash,
-    'keyword': keyword,
+    'keyword': keyword ?? '',
     'lrctxt': 1,
     'man': man ?? 'no',
   };
@@ -150,7 +152,7 @@ Future searchLyrics({
 }
 
 /// 获取音乐歌词
-Future getMusicLyrics({
+Future<Map<String, dynamic>> getMusicLyrics({
   /// 歌词ID、从搜索接口中获取
   required String id,
   /// 歌词密钥，从搜索接口中获取
@@ -168,24 +170,24 @@ Future getMusicLyrics({
     'fmt': fmt ?? 'krc',
     'charset': 'utf8',
   };
-  return createRequest(RequestOptions(
+  final response = await createRequest<Map<String, dynamic>>(RequestOptions(
     baseURL: 'https://lyrics.kugou.com',
     url: '/download',
     method: 'GET',
     params: dataMap,
     encryptType: 'android',
   ));
-  /// #todo 解码歌词
-  //     .then((res) => {
-  //       if (params?.decode) {
-  //         if (res.body?.content) {
-  //           res.body['decodeContent'] = params?.fmt == 'lrc' || Number(res.body?.contenttype) !== 0 ? Buffer.from(res.body?.content, 'base64').toString() : decodeLyrics(res.body.content);
-  //           resolve(res);
-  //           return;
-  //         }
-  //       }
-  //       resolve(res);
-  //     })
-  //     .catch((e) => reject(e));
-  // });
+  var body  = response.body!;
+  if (body['content'] != null) {
+    body['content'] = (dataMap['fmt'] == 'lrc' || body['contenttype'] != 0) ? decodeBase64String(body['content']) : decodeLyrics(body['content']);
+    // response.body!['decodeContent'] = response.body!['content'];
+  }
+  return body;
+}
+
+String decodeBase64String(String base64String) {
+  // 将base64字符串解码为字节
+  final bytes = base64.decode(base64String);
+  // 将字节转换为字符串
+  return utf8.decode(bytes);
 }

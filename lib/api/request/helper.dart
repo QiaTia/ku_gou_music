@@ -79,3 +79,14 @@ String signParamsKey (String data, [String? aid, String? cli]) {
 
   return cryptoMd5('${aid ?? (isLite ? liteAppid : appid)}$str${cli ?? (isLite ? liteClientver : clientver)}$data');
 }
+
+/// 格式化cookie
+/// 
+/// [cookie] 输入cookie
+String parseCookieString(String cookie) {
+  // 移除 Domain、domain、path、expires 相关属性
+  String result = cookie.replaceAll(RegExp(r'\s*(Domain|domain|path|expires)=[^(;|$)]+;*'), '');
+  // 移除 ;HttpOnly
+  result = result.replaceAll(';HttpOnly', '');
+  return result;
+}

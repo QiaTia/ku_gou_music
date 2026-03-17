@@ -5,8 +5,8 @@ import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart' as enc;
 import 'package:crypto/crypto.dart';
 import 'package:archive/archive.dart';
+import 'package:ku_gou_music/config/encrypt_ext.dart';
 import 'dart:convert';
-
 import 'package:pointycastle/export.dart';
 
 const publicRasKey = '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIAG7QOELSYoIJvTFJhMpe1s/gbjDJX51HBNnEl5HXqTW6lQ7LC8jr9fWZTwusknp+sVGzwd40MwP6U5yDE27M/X1+UR4tvOGOqp94TJtQ1EPnWGWXngpeIW5GxoQGao1rmYWAu6oi1z9XkChrsUdC6DJE5E221wf/4WLFxwAtRQIDAQAB\n-----END PUBLIC KEY-----';
@@ -264,16 +264,8 @@ String cryptoRSAEncrypt(dynamic data, {String? publicKey}) {
   
   // 使用公钥
   final key = publicKey ?? publicLiteRasKey; // (isLite ? publicLiteRasKey : publicRasKey);
-  final rsaParser = enc.RSAKeyParser();
-  final rsaPublicKey = rsaParser.parse(key) as RSAPublicKey;
-  
-  // 创建RSA加密引擎（无填充）
-  final encryptor = PKCS1Encoding(RSAEngine());
-  encryptor.init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
-  
-  // 执行加密
-  final encrypted = encryptor.process(_buffer);
-  return _bytesToHex(encrypted);
+  final rsaPublicKey = enc.RSAKeyParser().parse(key) as RSAPublicKey;
+  return encryptRSANoPadding(_buffer, rsaPublicKey);
 }
 
 /// RSA加密（PKCS1填充）

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/services/audio_service.dart';
+import 'package:ku_gou_music/utils/utils.dart';
+import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import '../../controllers/music_controller.dart';
 
 class PlaylistScreen extends GetView<MusicController> {
@@ -52,7 +54,7 @@ class PlaylistScreen extends GetView<MusicController> {
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    controller.loadSampleMusic();
+                    // controller.loadSampleMusic();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
@@ -80,7 +82,9 @@ class PlaylistScreen extends GetView<MusicController> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
-                    image: NetworkImage(song.coverUrl),
+                    image: song.cover.isEmpty ?
+                      AssetImage('') :
+                      NetworkImage(song.cover),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -96,14 +100,14 @@ class PlaylistScreen extends GetView<MusicController> {
                     : null,
               ),
               title: Text(
-                song.title,
+                song.name,
                 style: TextStyle(
                   color: isPlaying ? Colors.blueAccent : Colors.white,
                   fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
               subtitle: Text(
-                '${song.artist} - ${song.album}',
+                song.author,
                 style: TextStyle(color: Colors.grey[400]),
               ),
               trailing: Row(
@@ -116,7 +120,7 @@ class PlaylistScreen extends GetView<MusicController> {
                     ),
                   SizedBox(width: 8),
                   Text(
-                    '${song.duration.inMinutes}:${(song.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                    formatMilliseconds(song.timelen),
                     style: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 12,
@@ -124,8 +128,8 @@ class PlaylistScreen extends GetView<MusicController> {
                   ),
                 ],
               ),
-              onTap: () {
-                controller.playSong(index);
+              onTap: () async {
+                await controller.playSong(index);
                 Get.back();
               },
               onLongPress: () {
@@ -137,7 +141,7 @@ class PlaylistScreen extends GetView<MusicController> {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          controller.loadSampleMusic();
+          // controller.loadSampleMusic();
         },
         backgroundColor: Colors.blueAccent,
         child: Icon(Icons.add),
@@ -145,7 +149,7 @@ class PlaylistScreen extends GetView<MusicController> {
     );
   }
 
-  void _showSongOptions(MusicItem song, int index) {
+  void _showSongOptions(SongItemStruct song, int index) {
     Get.bottomSheet(
       Container(
         decoration: BoxDecoration(
@@ -161,8 +165,8 @@ class PlaylistScreen extends GetView<MusicController> {
             ListTile(
               leading: Icon(Icons.play_arrow, color: Colors.white),
               title: Text('立即播放', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                controller.playSong(index);
+              onTap: ()async {
+                await controller.playSong(index);
                 Get.back();
                 Get.back();
               },

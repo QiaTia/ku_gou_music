@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/views/music/player_screen.dart';
+import 'package:ku_gou_music/views/my/my.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,7 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<HomePage> {
-  final _counter = 0.obs;
   DateTime? currentBackPressTime;
   final musicController = Get.put(MusicController());
 
@@ -35,15 +35,12 @@ class _MyHomePageState extends State<HomePage> {
     return true;
   }
 
-  void _incrementCounter() {
-    _counter.value++;
-  }
-
   void _onPlayer() {
-    // 加载示例音乐并跳转到播放器
-    if (musicController.playlist.isEmpty) {
-      musicController.loadSampleMusic();
-    }
+    // Get.to(() => const MyScreen());
+    // // 加载示例音乐并跳转到播放器
+    // if (musicController.playlist.isEmpty) {
+    //   musicController.loadSampleMusic();
+    // }
     Get.to(() => const MusicPlayerScreen());
   }
 
@@ -71,14 +68,16 @@ class _MyHomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: .center,
             children: [
-              const Text('You have pushed the button this many times:'),
-              Obx(() => Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              )),
+              TextButton(
+                onPressed: () {
+                  Get.to(() => const MyScreen());
+                },
+                child: const Text('我的歌单'),
+              ),
             ],
           ),
         ),
+        floatingActionButtonLocation: .centerDocked,
         floatingActionButton: FloatingActionButton(
           onPressed: _onPlayer,
           tooltip: 'Increment',

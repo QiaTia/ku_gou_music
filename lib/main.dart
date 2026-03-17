@@ -3,33 +3,36 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/login.dart';
 import 'package:ku_gou_music/api/song/song.dart';
+import 'package:ku_gou_music/api/user/user.dart';
 import 'package:ku_gou_music/views/home/pc/layout.dart';
 import 'bindings/music_binding.dart';
 import 'package:layout/layout.dart';
 import 'controllers/music_controller.dart';
 import 'services/audio_service.dart';
 import 'views/music/player_screen.dart';
+import 'store/user.dart';
 
 void main() async {
   await GetStorage.init();
+  userInstance.init();
 
-  // loginByPassword(username: '15188015196', password: 'ddq136840.')
+  // getUserPlaylist(pagesize: 99)
   //   .then((t) {
   //     print(t);
   //   }).catchError((e) {
   //     print(e);
   //   });
-  // getMusicUrls(hash: 'FBFEA270B82C26E1206FF187F9CFC3EF').then((t) {
+  // getMusicUrls(hash: 'B017A5C57FFF594987236DB3F1499436').then((t) {
   //     print(t);
   //   }).catchError((e) {
   //     print(e);
   //   });
-  searchLyrics(hash: 'FBFEA270B82C26E1206FF187F9CFC3EF')
-    .then((t) {
-      print(t);
-    }).catchError((e) {
-      print(e);
-    });
+  // searchLyrics(hash: 'F460C7B867DCC5F49A0FB9574954CFD7')
+  //   .then((t) {
+  //     print(t);
+  //   }).catchError((e) {
+  //     print(e);
+  //   });
   runApp(MyApp());
 }
 
@@ -38,15 +41,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Layout(
       child: GetMaterialApp(
-      title: '音乐播放器',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      darkTheme: ThemeData.dark(),
-      initialBinding: MusicBinding(),
-      home: const HomePage(),
-    ));
+        title: '音乐播放器',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        ),
+        darkTheme: ThemeData.dark(),
+        initialBinding: MusicBinding(),
+        home: const HomePage(),
+      ));
   }
 }
 
@@ -69,12 +72,6 @@ class MyApp extends StatelessWidget {
 //   // This widget is the root of your application.
 //   @override
 //   Widget build(BuildContext context) {
-//     // loginByPassword(username: '15188015196', password: 'ddq136840.')
-//     //   .then((t) {
-//     //     print(t);
-//     //   }).catchError((e) {
-//     //     print(e);
-//     //   });
 //     // getTopCart().then((t) {
 //     //   print(t);
 //     // }).catchError((e) {

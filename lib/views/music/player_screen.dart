@@ -1,9 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:ku_gou_music/api/song/song.dart';
 import 'package:ku_gou_music/views/music/playlist_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../controllers/music_controller.dart';
@@ -18,19 +18,19 @@ class MusicPlayerScreen extends GetView<MusicController> {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: const Color.fromARGB(255, 44, 41, 51),
       body: SafeArea(
         child: Column(
           children: [
             // 顶部栏
             _buildAppBar(),
             isMobile ?
-              Obx(() => _buildContent(_SongLyric(lyric: controller.currentSong?.lyrics, height: 88,))):
+              _buildContent(_SongLyric(height: 88,)):
               Expanded(child: 
                 Row(children: [
                   _buildContent(),
-                  Expanded(child: Obx(() => _SongLyric(lyric: controller.currentSong?.lyrics))),
-                ]),)
+                  Expanded(child: _SongLyric()),
+                ]))
           ],
         ),
       ),
@@ -120,7 +120,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
     return Obx(() {
       final song = controller.currentSong;
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -132,7 +132,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(500),
           child: song == null
               ? Container(
                   color: Colors.grey[800],
@@ -145,14 +145,8 @@ class MusicPlayerScreen extends GetView<MusicController> {
                   ),
                 )
               : Image.network(
-                  song.coverUrl,
+                  song.cover,
                   fit: BoxFit.cover,
-                  // headers: {
-                  //   'User-Agent': 
-                  //       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0',
-                  //   'Priority': '1',
-                  //   'Referer': 'https://music.163.com/',
-                  // },
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return Container(
@@ -182,7 +176,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              song.album,
+                              song.origin_name,
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 16,
@@ -194,8 +188,15 @@ class MusicPlayerScreen extends GetView<MusicController> {
                     );
                   },
                 ),
-        ),
-      );
+        )
+          .animate(onPlay: (controller) => controller.repeat())
+          .rotate(
+            duration: Duration(milliseconds: 500), // 旋转一圈用时2秒
+            begin: 360, // 开始角度
+            end: 0, // 结束角度（360度）
+            curve: Curves.linear, // 线性曲线（匀速旋转）)
+          )
+        );
     });
   }
 
@@ -207,7 +208,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
         child: Column(
           children: [
             Text(
-              song?.title ?? '暂无播放',
+              song?.name ?? '暂无播放',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -218,7 +219,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
             ),
             SizedBox(height: 8),
             Text(
-              song?.artist ?? '未知艺术家',
+              song?.author ?? '未知艺术家',
               style: TextStyle(color: Colors.grey[400], fontSize: 14),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -438,9 +439,8 @@ class MusicPlayerScreen extends GetView<MusicController> {
 
 
 class _SongLyric extends StatefulWidget {
-  final String? lyric;
   final double? height;
-  const _SongLyric({required this.lyric, this.height });
+  const _SongLyric({ this.height });
 
   @override
   State<StatefulWidget> createState() => _SongLyricState();
@@ -449,32 +449,36 @@ class _SongLyric extends StatefulWidget {
 class _SongLyricState extends State<_SongLyric> {
   final lrcController = LyricController();
   final controller = Get.find<MusicController>();
+  /// 监听歌曲切换
+  late Worker worker;
   @override
   void initState() {
     super.initState();
     onInitLyric();
+    worker = ever(controller.audioService.currentSong, (val) {
+      onInitLyric();
+    });
   }
 
-  void onInitLyric () {
-    print(widget.lyric);
-    lrcController.loadLyric(widget.lyric ?? '[00:00.000] 暂无歌词');
-  }
-
-  @override
-  void didUpdateWidget (widget) {
-    super.didUpdateWidget(widget);
-    onInitLyric();
+  void onInitLyric() async {
+    final song = controller.currentSong;
+    if (song != null) {
+      final lrcPre = ((await searchLyrics(hash: song.hash)).body!['candidates'] ?? [])[0];
+      final lrcContent = await getMusicLyrics(accesskey: lrcPre['accesskey'], id: lrcPre['id'], fmt: 'lrc');
+      lrcController.loadLyric(lrcContent['content'] ?? '[00:00.000] 暂无歌词');
+    }
   }
 
   @override
   void dispose() {
     lrcController.dispose();
+    worker.dispose();
     super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.currentSong?.lyrics != null) {
+      if (controller.currentSong != null) {
         lrcController.setProgress(controller.position);
       }
       return LyricView(
