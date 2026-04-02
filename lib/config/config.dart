@@ -11,5 +11,5 @@ const apiver = 20;
 const clientver = 20489;
 const liteAppid = 3116;
 const liteClientver = 11440;
-// final mid = calculateMid(cryptoMd5(getGuid()));
-const mid = '334689572176563962868706300678062568191';
+final mid = calculateMid(cryptoMd5(getGuid()));
+// const mid = '334689572176563962868706300678062568191';

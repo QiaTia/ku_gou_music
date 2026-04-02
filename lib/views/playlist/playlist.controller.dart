@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/playlist/playlist.dart';
+import 'package:ku_gou_music/api/top/top.dart';
+import 'package:ku_gou_music/utils/utils.dart';
 
 class SongItemStruct {
   /// 歌曲hash
@@ -41,32 +43,44 @@ class SongItemStruct {
       author: names.first.trim(),
       is_sq: goods.length > 2,
       is_hq: goods.length > 1,
-      cover: json['cover'].replaceAll('{size}', '480'),
+      cover: json['cover'] is String ? getImageUri(json['cover'] as String) : '',
     );
   }
 
 }
 
 class PlaylistController extends GetxController {
-  final String id;
-  PlaylistController(this.id); 
 
   List<SongItemStruct> playlist = <SongItemStruct>[].obs;
-  @override
-  void onInit() {
-    super.onInit();
-      getPlaylistTrackAll(id, 1, 99)
-        .then((res) {
-          List<dynamic>? list = res.body!['data']['songs'] ?? [];
-          if (list is List) {
-            playlist.clear();
-            list.forEach((tracks) {
-              if (tracks is Map && tracks.containsKey('hash')) { 
-                playlist.add(SongItemStruct.fromJson(tracks as Map<String, dynamic>));
-              }
-            });
+
+  Rx<PlaylistModel> playListInfo = PlaylistModel().obs;
+
+  /// 获取歌单歌曲列表
+  Future<dynamic> getPlaylist(String id) {
+    return getPlaylistTrackAll(id, 1, 99)
+      .then((res) {
+        List<dynamic>? list = res.body!['data']['songs'] ?? [];
+        if (list is List) {
+          playlist.clear();
+          for (var tracks in list) {
+            if (tracks is Map && tracks.containsKey('hash')) { 
+              playlist.add(SongItemStruct.fromJson(tracks as Map<String, dynamic>));
+            }
           }
-        });
+        }
+        var info = res.body!['data']['list_info'];
+        try {
+          if (info is Map<String, dynamic>) playListInfo.value = PlaylistModel.fromJson(info);
+        }catch (e) {
+          print(e);
+        }
+      });
+  }
+
+  /// 充值内容
+  void reset() {
+    playlist.clear();
+    playListInfo.value = PlaylistModel();
   }
 }
 

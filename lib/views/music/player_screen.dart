@@ -1,10 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:ku_gou_music/api/song/song.dart';
-import 'package:ku_gou_music/views/music/playlist_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../controllers/music_controller.dart';
 
@@ -67,21 +67,13 @@ class MusicPlayerScreen extends GetView<MusicController> {
             icon: Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () => Get.back(),
           ),
-          // Text(
-          //   '',
-          //   style: TextStyle(
-          //     color: Colors.white,
-          //     fontSize: 18,
-          //     fontWeight: FontWeight.bold,
-          //   ),
-          // ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: Colors.white),
             onSelected: (value) {
               // 处理菜单选择
               switch (value) {
                 case 'playlist':
-                  Get.to(() => PlaylistScreen());
+                  Get.toNamed('/playlist');
                   break;
                 case 'share':
                   // 分享
@@ -93,7 +85,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                 value: 'playlist',
                 child: Row(
                   children: [
-                    Icon(Icons.queue_music, color: Colors.black54),
+                    Icon(Icons.queue_music),
                     SizedBox(width: 8),
                     Text('播放列表'),
                   ],
@@ -103,7 +95,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                 value: 'share',
                 child: Row(
                   children: [
-                    Icon(Icons.share, color: Colors.black54),
+                    Icon(Icons.share),
                     SizedBox(width: 8),
                     Text('分享'),
                   ],
@@ -119,7 +111,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
   Widget _buildAlbumCover() {
     return Obx(() {
       final song = controller.currentSong;
-      return Container(
+      return Hero(tag: '_buildAlbumCover', child: Container(
         // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -144,49 +136,12 @@ class MusicPlayerScreen extends GetView<MusicController> {
                     ),
                   ),
                 )
-              : Image.network(
-                  song.cover,
+              : CachedNetworkImage(
+                  imageUrl: song.cover,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    print('Error loading image: $error');
-                    return Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.music_note,
-                              size: 80,
-                              color: Colors.grey[600],
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              song.origin_name,
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    CircularProgressIndicator(value: downloadProgress.progress),
+                  errorWidget: (context, url, error) => const Icon(Icons.music_note),
                 ),
         )
           .animate(onPlay: (controller) => controller.repeat())
@@ -196,7 +151,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
             end: 0, // 结束角度（360度）
             curve: Curves.linear, // 线性曲线（匀速旋转）)
           )
-        );
+        ));
     });
   }
 
@@ -212,7 +167,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                // fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -224,11 +179,6 @@ class MusicPlayerScreen extends GetView<MusicController> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            // SizedBox(height: 4),
-            // Text(
-            //   song?.album ?? '未知专辑',
-            //   style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            // ),
           ],
         ),
       );
@@ -285,7 +235,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
     return Obx(() {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
-        child: Row(
+        child: Hero(tag: 'playControls', child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
@@ -365,7 +315,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
               );
             }),
           ],
-        ),
+        )),
       );
     });
   }
@@ -427,7 +377,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                 size: 24,
               ),
               onPressed: () {
-                Get.to(() => PlaylistScreen());
+                Get.toNamed('/playlist');
               },
             ),
           ],

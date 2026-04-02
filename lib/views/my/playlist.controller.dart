@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/user/user.dart';
+import 'package:ku_gou_music/utils/utils.dart';
 
 class PlaylistItemStruct {
   int count;
@@ -27,7 +28,7 @@ class PlaylistItemStruct {
       list_create_gid: json['list_create_gid'],
       is_publish: json['is_publish'],
       name: json['name'],
-      pic: json['pic'],
+      pic: json['pic'] is String ? getImageUri(json['pic']) : '',
       global_collection_id: json['global_collection_id'],
     );
   }

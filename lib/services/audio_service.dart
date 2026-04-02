@@ -31,45 +31,52 @@ class AudioService extends GetxService {
   }
   
   void _initPlayerListeners() {
+    /// 播放进度监听
     _positionSubscription = player.positionStream.listen((pos) {
       position.value = pos;
     });
-    
+    /// 音频时长监听
     _durationSubscription = player.durationStream.listen((dur) {
       duration.value = dur ?? Duration.zero;
     });
-    
+    /// 播放状态监听
     _playerStateSubscription = player.playerStateStream.listen((state) {
       isBuffering.value = state.processingState == ProcessingState.buffering;
       if (state.playing) {
         audioState.value = AudioState.playing;
       } else if (state.processingState == ProcessingState.completed) {
         audioState.value = AudioState.completed;
+        print('completed');
+        nextLoop();
       } else {
         audioState.value = AudioState.paused;
       }
     });
-    
-    _bufferingSubscription = player.bufferedPositionStream.listen((_) {});
-    
+    /// 缓冲进度监听
+    // _bufferingSubscription = player.bufferedPositionStream.listen((sequence) {
+    //   print(sequence);
+    // });
+
+    /// 当前播放歌曲监听
     _sequenceSubscription = player.sequenceStateStream.listen((sequence) {
-      print(sequence);
-      // if (sequence != null) {
-      //   final index = sequence.currentIndex;
-      //   if (index != null) {
-      //     currentIndex.value = index;
-      //     if (index < playlist.length) {
-      //       currentSong.value = playlist[index];
-      //     }
+      // final index = sequence.currentIndex;
+      // if (index != null) {
+      //   currentIndex.value = index;
+      //   if (index < playlist.length) {
+      //     currentSong.value = playlist[index];
       //   }
       // }
     });
-    
+
     // _currentIndexSubscription = player.currentIndexStream.listen((index) {
     //   if (index != null) {
     //     currentIndex.value = index;
     //   }
     // });
+  }
+  /// 进入循环下一首
+  void nextLoop() {
+    if (loopMode.value != LoopMode.one) next();
   }
   
   Future<void> setPlaylist(List<SongItemStruct> songs, {int index = 0}) async {
@@ -88,7 +95,7 @@ class AudioService extends GetxService {
   }
   
   Future<void> play() async {
-    if(player.audioSource == null && currentSong.value != null) {
+    if(currentSong.value != null) {
       var urls = (await getMusicUrls(hash: currentSong.value!.hash)).body?['url'] ?? [];
       await player.setUrl(urls[0]);
     }

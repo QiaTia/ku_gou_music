@@ -1,5 +1,5 @@
 import 'package:get_storage/get_storage.dart';
-
+import 'package:ku_gou_music/config/config.dart' as config;
 
 class UserStruct {
   String token;
@@ -14,13 +14,13 @@ class UserStruct {
   UserStruct.fromJson(Map<String, dynamic> json)
     : token = json['token'] ?? '',
       dfid = json['dfid'] ?? '',
-      mid = json['mid'],
+      mid = json['mid'] ?? config.mid,
       userid = json['userid'] ?? 0;
   Map<String, dynamic> toJson() => {
     'token': token,
     'dfid': dfid,
     'userid': userid,
-    'mid': mid,
+    'mid': mid ?? config.mid,
   };
 }
 

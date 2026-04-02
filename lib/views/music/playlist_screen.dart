@@ -1,37 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ku_gou_music/services/audio_service.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import '../../controllers/music_controller.dart';
 
+
 class PlaylistScreen extends GetView<MusicController> {
-  const PlaylistScreen({Key? key}) : super(key: key);
+  const PlaylistScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final listViewController = ScrollController();
+    void scrollToIndex(int index, [int ms = 100]) {
+      final targetOffset = index * 64.0;
+      if (ms == 0) {
+        listViewController.jumpTo(targetOffset);
+      } else {
+        listViewController.animateTo(
+          targetOffset,
+          duration: Duration(milliseconds: ms),
+          curve: Curves.easeIn);
+      }
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToIndex(controller.currentSongIndex, 0);
+    });
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          '播放列表 (${controller.playlist.length})',
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.delete_outline, color: Colors.white),
-            onPressed: () {
-              controller.clearPlaylist();
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(),
       body: Obx(() {
         if (controller.playlist.isEmpty) {
           return Center(
@@ -41,40 +36,23 @@ class PlaylistScreen extends GetView<MusicController> {
                 Icon(
                   Icons.queue_music,
                   size: 80,
-                  color: Colors.grey[600],
                 ),
                 SizedBox(height: 20),
                 Text(
                   '播放列表为空',
                   style: TextStyle(
-                    color: Colors.grey[400],
                     fontSize: 18,
                   ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // controller.loadSampleMusic();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text('加载示例音乐'),
-                ),
-              ],
+                ),],
             ),
           );
         }
-
         return ListView.builder(
+          controller: listViewController,
           itemCount: controller.playlist.length,
           itemBuilder: (context, index) {
             final song = controller.playlist[index];
             final isPlaying = index == controller.currentSongIndex;
-            
             return ListTile(
               leading: Container(
                 width: 50,
@@ -102,12 +80,13 @@ class PlaylistScreen extends GetView<MusicController> {
               title: Text(
                 song.name,
                 style: TextStyle(
-                  color: isPlaying ? Colors.blueAccent : Colors.white,
+                  color: isPlaying ? Colors.blueAccent : null,
                   fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
               subtitle: Text(
                 song.author,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: Colors.grey[400]),
               ),
               trailing: Row(
@@ -132,20 +111,11 @@ class PlaylistScreen extends GetView<MusicController> {
                 await controller.playSong(index);
                 Get.back();
               },
-              onLongPress: () {
-                _showSongOptions(song, index);
-              },
+              onLongPress: () =>  _showSongOptions(song, index),
             );
           },
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // controller.loadSampleMusic();
-        },
-        backgroundColor: Colors.blueAccent,
-        child: Icon(Icons.add),
-      ),
     );
   }
 

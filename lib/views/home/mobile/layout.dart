@@ -64,18 +64,18 @@ class _MyHomePageState extends State<HomePage> {
         }
       },
       child: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Get.to(() => const MyScreen());
-                },
-                child: const Text('我的歌单'),
-              ),
-            ],
-          ),
+        body: Column(
+          children: [
+            Expanded(child: Row(children: [
+              Expanded(child: 
+                IndexedStack(
+                  index: 0,
+                  children: [
+                    MyScreen()
+                  ]
+                ))
+            ])),
+          ],
         ),
         floatingActionButtonLocation: .centerDocked,
         floatingActionButton: FloatingActionButton(
