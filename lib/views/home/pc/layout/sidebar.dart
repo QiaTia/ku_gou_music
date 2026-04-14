@@ -53,7 +53,7 @@ class Sidebar extends StatelessWidget {
         content: '广场',
         leading: Icon(Icons.all_inclusive_sharp, size: 30),
         onTap: () {
-          routerController.navigateTo('/albums');
+          routerController.navigateTo('/plaza');
         },
       ),
       // Divider

@@ -57,6 +57,7 @@ class MyPlaylistController extends GetxController {
     super.onInit();
     getUserPlaylist()
       .then((res) {
+        if (!res.body!.containsKey('data')) throw Exception('获取歌单失败');
         var list = res.body!['data']['info'] ?? [];
         if (list is List) {
           playlist.clear();

@@ -399,12 +399,13 @@ class _SongLyric extends StatefulWidget {
 class _SongLyricState extends State<_SongLyric> {
   final lrcController = LyricController();
   final controller = Get.find<MusicController>();
+  String loadHash = '';
   /// 监听歌曲切换
   late Worker worker;
   @override
   void initState() {
     super.initState();
-    onInitLyric();
+    if (loadHash != controller.currentSong?.hash) onInitLyric();
     worker = ever(controller.audioService.currentSong, (val) {
       onInitLyric();
     });
@@ -416,6 +417,7 @@ class _SongLyricState extends State<_SongLyric> {
       final lrcPre = ((await searchLyrics(hash: song.hash)).body!['candidates'] ?? [])[0];
       final lrcContent = await getMusicLyrics(accesskey: lrcPre['accesskey'], id: lrcPre['id'], fmt: 'lrc');
       lrcController.loadLyric(lrcContent['content'] ?? '[00:00.000] 暂无歌词');
+      loadHash = song.hash;
     }
   }
 

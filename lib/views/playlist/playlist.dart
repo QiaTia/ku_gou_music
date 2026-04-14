@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'playlist.controller.dart';
+import 'dart:math' as math;
 
 class PlaylistScreen extends GetWidget {
   final String id;
@@ -32,81 +33,116 @@ class PlaylistScreen extends GetWidget {
 
     return Scaffold(
       // appBar: AppBar(title: Text(name)),
-      body: Column(
-        crossAxisAlignment: .start,
-        children: [
-          Row(
-            spacing: 8,
-            children: [
-              SizedBox(width: 18),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Hero(
-                  tag: id,
-                  child: pic.isEmpty ? Icon(Icons.music_note) : CachedNetworkImage(imageUrl: pic),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  spacing: 8,
-                  mainAxisAlignment: .spaceBetween,
-                  crossAxisAlignment: .start,
-                  children: [
-                    Text(
-                      name.replaceAll(RegExp('\\s+'), ' '),
-                      style: Theme.of(context).textTheme.titleLarge,
+      body: NestedScrollView(
+        floatHeaderSlivers: true, // 允许头部浮动
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            // SliverAppBar(
+            //   expandedHeight: 200,
+            //   pinned: true, // 固定顶部
+            //   // floating: true,
+            //   // snap: true,
+            //   flexibleSpace: FlexibleSpaceBar(
+            //     centerTitle: false,
+            //     title: Text(name, style: Theme.of(context).textTheme.titleSmall),
+            //     background: Stack(
+            //       fit: StackFit.expand,
+            //       children: [
+            //         CachedNetworkImage(
+            //           imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
+            //           fit: .fitHeight,
+            //           repeat: .repeat,
+            //         ),
+            //         Container(
+            //           decoration: BoxDecoration(
+            //             gradient: LinearGradient(
+            //               begin: .bottomCenter,
+            //               end: .topCenter,
+            //               colors: [Colors.white54, Colors.transparent],
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            SliverToBoxAdapter(
+              child: Row(
+                spacing: 8,
+                crossAxisAlignment: .start,
+                children: [
+                  SizedBox(width: 10),
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Hero(
+                      tag: id,
+                      child: pic.isEmpty
+                          ? Icon(Icons.music_note)
+                          : CachedNetworkImage(imageUrl: pic),
                     ),
-                    Obx(() => Text(
-                      controller.playListInfo.value.intro ?? '',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    )),
+                  ),
+                  Expanded(
+                    child: Column(
+                      spacing: 8,
+                      mainAxisAlignment: .spaceBetween,
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text(
+                          name.replaceAll(RegExp('\\s+'), ' '),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Obx(
+                          () => ExpandText(
+                            content: controller.playListInfo.value.intro ?? '',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(left: 8, top: 8, bottom: 20),
+                decoration: BoxDecoration(color: bgCardColor),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    IconButton(
+                      onPressed: onPlayPlaylist,
+                      iconSize: 28,
+                      tooltip: '播放全部',
+                      icon: Icon(Icons.play_circle_outline_rounded),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      iconSize: 28,
+                      tooltip: '收藏',
+                      icon: Icon(Icons.favorite_outline_rounded),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      iconSize: 28,
+                      tooltip: '下载',
+                      icon: Icon(Icons.download_outlined),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      iconSize: 28,
+                      tooltip: '分享',
+                      icon: Icon(Icons.share_outlined),
+                    ),
                   ],
                 ),
-              )
-          ]),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
-            decoration: BoxDecoration(color: bgCardColor),
-            child: Row(
-              spacing: 8,
-              children: [
-                IconButton(
-                  onPressed: onPlayPlaylist,
-                  iconSize: 28,
-                  tooltip: '播放全部',
-                  icon: Icon(Icons.play_circle_outline_rounded),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  iconSize: 28,
-                  tooltip: '收藏',
-                  icon: Icon(Icons.favorite_outline_rounded),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  iconSize: 28,
-                  tooltip: '下载',
-                  icon: Icon(Icons.download_outlined),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  iconSize: 28,
-                  tooltip: '分享',
-                  icon: Icon(Icons.share_outlined),
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: bgCardColor),
-              child: PlaylistView(id: id),
-            ),
-          ),
-        ],
+          ];
+        },
+        body: PlaylistView(id: id),
       ),
     );
   }
@@ -128,38 +164,45 @@ class PlaylistView extends GetView<PlaylistController> {
     controller.getPlaylist(id);
 
     return Obx(() {
-      if (controller.playlist.isEmpty) {
-        return Center(child: CircularProgressIndicator());
-      }
-      return ListView.builder(
-        itemCount: controller.playlist.length,
-        itemBuilder: (context, index) {
-          final item = controller.playlist[index];
-          return ListTile(
-            leading: SizedBox(
-              width: 50,
-              height: 50,
-              child: item.cover.isNotEmpty
-                  ? CachedNetworkImage(imageUrl: item.cover)
-                  : Icon(Icons.music_note),
-            ),
-            title: Text(item.name),
-            subtitle: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: Text(item.author, overflow: .ellipsis)),
-                Text(formatMilliseconds(item.timelen)),
-              ],
-            ),
-            onTap: () async {
-              await musicController.loadPlaylistMusic(controller.playlist);
-              await musicController.playSong(index);
-              musicController.audioService.play();
-              Get.toNamed('/player');
-            },
-            onLongPress: () => _showSongOptions(item, index),
-          );
-        },
+      final len = controller.playlist.length;
+      return CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (len == 0) {
+                return SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()
+                ));
+              }
+              final item = controller.playlist[index];
+              return ListTile(
+                leading: SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: item.cover.isNotEmpty
+                      ? CachedNetworkImage(imageUrl: item.cover)
+                      : Icon(Icons.music_note),
+                ),
+                title: Text(item.name),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: Text(item.author, overflow: .ellipsis)),
+                    Text(formatMilliseconds(item.timelen)),
+                  ],
+                ),
+                onTap: () async {
+                  await musicController.loadPlaylistMusic(controller.playlist);
+                  await musicController.playSong(index);
+                  musicController.audioService.play();
+                  Get.toNamed('/player');
+                },
+                onLongPress: () => _showSongOptions(item, index),
+              );
+            }, childCount: math.max(len, 1)),
+          )
+        ],
       );
     });
   }
@@ -219,6 +262,71 @@ class PlaylistView extends GetView<PlaylistController> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ExpandText extends GetView {
+  final String content;
+  final TextStyle? style;
+  final int numLines;
+  const ExpandText({
+    super.key,
+    required this.content,
+    this.style,
+    this.numLines = 3,
+  });
+  final maxWidth = 950.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final maxHight = numLines * 16.0;
+    var fullIntro = false.obs;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final span = TextSpan(text: content);
+        final tp = TextPainter(text: span, textDirection: TextDirection.ltr);
+        tp.layout(maxWidth: constraints.maxWidth);
+        final nl = tp.computeLineMetrics().length;
+        if (nl > numLines) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Obx(
+                () => SizedBox(
+                  // make intro expandable
+                  height: fullIntro.value ? null : maxHight,
+                  width: MediaQuery.sizeOf(context).width > maxWidth
+                      ? maxWidth
+                      : MediaQuery.sizeOf(context).width - 32,
+                  child: SelectableText(
+                    content,
+                    textAlign: TextAlign.start,
+                    scrollBehavior: const ScrollBehavior().copyWith(
+                      scrollbars: false,
+                    ),
+                    scrollPhysics: NeverScrollableScrollPhysics(),
+                    // selectionHeightStyle: ui.BoxHeightStyle.max,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  fullIntro.value = !fullIntro.value;
+                },
+                child: Text(fullIntro.value ? '加载更少' : '加载更多'),
+              ),
+            ],
+          );
+        } else {
+          return SelectableText(
+            content,
+            textAlign: TextAlign.start,
+            scrollPhysics: NeverScrollableScrollPhysics(),
+            // selectionHeightStyle: ui.BoxHeightStyle.max,
+          );
+        }
+      },
     );
   }
 }

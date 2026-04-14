@@ -75,8 +75,11 @@ class AudioService extends GetxService {
     // });
   }
   /// 进入循环下一首
-  void nextLoop() {
-    if (loopMode.value != LoopMode.one) next();
+  void nextLoop() async {
+    if (loopMode.value != LoopMode.one) {
+      await next();
+      await play();
+    }
   }
   
   Future<void> setPlaylist(List<SongItemStruct> songs, {int index = 0}) async {
