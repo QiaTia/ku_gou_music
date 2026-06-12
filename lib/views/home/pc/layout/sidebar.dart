@@ -108,6 +108,27 @@ class Sidebar extends StatelessWidget {
         },
         leading: Icon(Icons.playlist_play, size: 30),
       ),
+      SidebarItemStruct(
+        label: 'divider_line_3',
+        child: Padding(
+          padding: EdgeInsetsGeometry.symmetric(vertical: 10),
+          child: Divider(
+            thickness: 0.5,
+            height: 1,
+            indent: 20,
+            endIndent: 20,
+            color: dividerColor,
+          ),
+        ),
+      ),
+      SidebarItemStruct(
+        label: 'login',
+        content: '登录',
+        leading: Icon(Icons.login_rounded, size: 30),
+        onTap: () {
+          Get.toNamed('/login');
+        },
+      ),
     ];
 
     return Container(

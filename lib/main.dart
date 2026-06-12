@@ -7,6 +7,7 @@ import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
 import 'views/music/playlist_screen.dart';
 import 'views/home/pc/layout/layout.dart';
+import 'views/login/login_page.dart';
 import 'store/user.dart';
 
 void main() async {
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/player': (context) => MusicPlayerScreen(),
           '/playlist': (context) => const PlaylistScreen(),
+          '/login': (context) => const LoginPage(),
         },
         getPages: [
           GetPage(
@@ -51,6 +53,12 @@ class MyApp extends StatelessWidget {
           GetPage(
             name: '/playlist',
             page: () => const PlaylistScreen()
+          ),
+          GetPage(
+            name: '/login',
+            page: () => const LoginPage(),
+            transition: Transition.fade,
+            transitionDuration: Duration(milliseconds: 300),
           ),
         ],
       ));
