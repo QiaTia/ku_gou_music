@@ -74,11 +74,14 @@ class AudioService extends GetxService {
     //   }
     // });
   }
-  /// 进入循环下一首
+  /// 播放结束，进入下一首
   void nextLoop() async {
-    if (loopMode.value != LoopMode.one) {
+    if (loopMode.value == LoopMode.one) {
+      await player.seek(Duration.zero);
+      await player.play();
+    } else {
       await next();
-      await play();
+      await player.play();
     }
   }
   
@@ -149,7 +152,7 @@ class AudioService extends GetxService {
   }
   
   Future<void> addToQueue(SongItemStruct song) async {
-    var urls = (await getMusicUrls(hash: currentSong.value!.hash)).body?['url'] ?? [];
+    var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: 1)).body?['url'] ?? [];
     await player.setUrl(urls[0]);
     // await player.add(AudioSource.uri(Uri.parse(song.url)));
     playlist.add(song);
