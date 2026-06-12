@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
+import 'package:ku_gou_music/widgets/rotating_album_cover.dart';
 
 final bgColor = const Color.fromARGB(255, 44, 41, 51);
 
@@ -37,54 +36,7 @@ class BottomControl extends GetView<MusicController> {
   }
 
   Widget _buildAlbumCover() {
-    return Obx(() {
-      final song = controller.currentSong;
-      return Hero(
-        tag: '_buildAlbumCover',
-        child: Container(
-          // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                blurRadius: 20,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child:
-              ClipRRect(
-                    borderRadius: BorderRadius.circular(500),
-                    child: song == null
-                        ? Container(
-                            color: Colors.grey[800],
-                            child: Center(
-                              child: Icon(
-                                Icons.music_note,
-                                size: 100,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          )
-                        : CachedNetworkImage(
-                            imageUrl: song.cover,
-                            fit: BoxFit.cover,
-                            progressIndicatorBuilder: (context, url, downloadProgress) =>
-                              CircularProgressIndicator(value: downloadProgress.progress),
-                            errorWidget: (context, url, error) => const Icon(Icons.music_note),
-                          ),
-                  )
-                  .animate(onPlay: (controller) => controller.repeat())
-                  .rotate(
-                    duration: Duration(milliseconds: 500), // 旋转一圈用时2秒
-                    begin: 360, // 开始角度
-                    end: 0, // 结束角度（360度）
-                    curve: Curves.linear, // 线性曲线（匀速旋转）)
-                  ),
-        ),
-      );
-    });
+    return RotatingAlbumCover(musicController: controller);
   }
 
   Widget currentSongTile(BuildContext context) {

@@ -23,6 +23,9 @@ class PlaylistScreen extends GetView<MusicController> {
       }
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.playlist.isEmpty) {
+        return;
+      }
       scrollToIndex(controller.currentSongIndex, 0);
     });
     return Scaffold(
