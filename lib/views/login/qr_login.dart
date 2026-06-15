@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/login/qr.dart';
@@ -13,7 +15,7 @@ class QrLogin extends StatefulWidget {
 
 class _QrLoginState extends State<QrLogin> {
   String? _qrCode;
-  String? _qrImgUrl;
+  Uint8List? _qrImgBytes;
   Timer? _pollTimer;
   bool _isLoading = true;
   String? _error;
@@ -38,9 +40,12 @@ class _QrLoginState extends State<QrLogin> {
 
     try {
       final result = await createQrByLogin();
+      final qrImgStr = result['qrImg'];
       setState(() {
         _qrCode = result['qrCode'];
-        _qrImgUrl = result['qrImg'];
+        _qrImgBytes = qrImgStr != null
+            ? base64Decode(qrImgStr.split(',')[1])
+            : null;
         _isLoading = false;
       });
       _startPolling();
@@ -63,12 +68,18 @@ class _QrLoginState extends State<QrLogin> {
 
         if (status == 4) {
           _pollTimer?.cancel();
-          userInstance.setNewUser(response.body!['data'] ?? {});
+          print(response.body);
+          userInstance.onLogin(response.body!['data'] ?? {});
           Get.back(result: true);
-          Get.showSnackbar(const GetSnackBar(
-            message: 'Login successful',
-            duration: Duration(seconds: 2),
-          ));
+          Get.showSnackbar(
+            const GetSnackBar(
+              message: 'Login successful',
+             
+             
+             
+              duration: Duration(seconds: 2),
+            ),
+          );
         } else if (status == 2) {
           if (mounted) {
             setState(() {});
@@ -145,7 +156,11 @@ class _QrLoginState extends State<QrLogin> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 40),
+            Icon(
+              Icons.error_outline_rounded,
+              color: Colors.redAccent,
+              size: 40,
+            ),
             const SizedBox(height: 8),
             Text(
               _error!,
@@ -160,9 +175,9 @@ class _QrLoginState extends State<QrLogin> {
       );
     }
 
-    if (_qrImgUrl != null) {
-      return Image.network(
-        _qrImgUrl!,
+    if (_qrImgBytes != null) {
+      return Image.memory(
+        _qrImgBytes!,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) => _buildQrPlaceholder(),
       );
@@ -195,10 +210,7 @@ class _QrLoginState extends State<QrLogin> {
         const SizedBox(height: 8),
         Text(
           'Open KuGou app → Me → Scan',
-          style: TextStyle(
-            color: Colors.black.withAlpha(120),
-            fontSize: 13,
-          ),
+          style: TextStyle(color: Colors.black.withAlpha(120), fontSize: 13),
         ),
       ],
     );
@@ -214,10 +226,7 @@ class _QrLoginState extends State<QrLogin> {
       ),
       label: Text(
         'Refresh QR Code',
-        style: TextStyle(
-          color: Colors.cyanAccent.withAlpha(200),
-          fontSize: 14,
-        ),
+        style: TextStyle(color: Colors.cyanAccent.withAlpha(200), fontSize: 14),
       ),
     );
   }

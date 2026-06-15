@@ -15,7 +15,19 @@ class PlaylistItemStruct {
   String pic;
   String global_collection_id;
 
-  PlaylistItemStruct({ required this.count, required this.status, required this.create_time, required this.create_user_pic, required this.tags, required this.list_create_userid, required this.list_create_gid, required this.is_publish, required this.name, required this.global_collection_id, required this.pic });
+  PlaylistItemStruct({
+    required this.count,
+    required this.status,
+    required this.create_time,
+    required this.create_user_pic,
+    required this.tags,
+    required this.list_create_userid,
+    required this.list_create_gid,
+    required this.is_publish,
+    required this.name,
+    required this.global_collection_id,
+    required this.pic,
+  });
 
   factory PlaylistItemStruct.fromJson(Map<String, dynamic> json) {
     return PlaylistItemStruct(
@@ -45,7 +57,7 @@ class PlaylistItemStruct {
       'is_publish': is_publish,
       'name': name,
       'pic': pic,
-      'global_collection_id': global_collection_id
+      'global_collection_id': global_collection_id,
     };
   }
 }
@@ -55,17 +67,18 @@ class MyPlaylistController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getUserPlaylist()
-      .then((res) {
-        if (!res.body!.containsKey('data')) throw Exception('获取歌单失败');
-        var list = res.body!['data']['info'] ?? [];
-        if (list is List) {
-          playlist.clear();
-          list.forEach((e) {
-            playlist.add(PlaylistItemStruct.fromJson(e));
-          });
-        }
-      });
+    getUserPlaylist().then((res) {
+      if (!res.body!.containsKey('data')) {
+        // throw Exception('获取歌单失败');
+        return;
+      }
+      var list = res.body!['data']['info'] ?? [];
+      if (list is List) {
+        playlist.clear();
+        list.forEach((e) {
+          playlist.add(PlaylistItemStruct.fromJson(e));
+        });
+      }
+    });
   }
-
 }

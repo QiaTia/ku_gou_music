@@ -227,7 +227,16 @@ dynamic cryptoAesDecrypt(String data, String key, [String? iv]) {
       (i) => int.parse(data.substring(i * 2, i * 2 + 2), radix: 16)
     );
     
-    final encrypted = enc.Encrypted(Uint8List.fromList(encryptedBytes));
+    // 确保数据长度是AES块大小(16字节)的整数倍
+    final blockSize = 16;
+    final paddedLength = (encryptedBytes.length ~/ blockSize) * blockSize;
+    final validBytes = encryptedBytes.sublist(0, paddedLength);
+    
+    if (validBytes.isEmpty) {
+      throw Exception('解密数据为空');
+    }
+    
+    final encrypted = enc.Encrypted(Uint8List.fromList(validBytes));
     final decrypted = encrypter.decrypt(encrypted, iv: encIv);
     
     // 尝试解析为JSON
@@ -268,14 +277,12 @@ String cryptoRSAEncrypt(dynamic data, {String? publicKey}) {
   return encryptRSANoPadding(_buffer, rsaPublicKey);
 }
 
-/// RSA加密（PKCS1填充）
+/// RSA加密（PKCS1 v1.5填充）
 /// 
-/// [data] 需要加密的数据
+/// [data] 需要加密的数据（Map/List/String）
 /// 
 /// 返回十六进制字符串
 String rsaEncrypt2(dynamic data) {
-  // 判断是否为Lite环境
-  
   // 处理输入数据
   String dataStr = data is Map || data is List
       ? jsonEncode(data)
@@ -287,12 +294,40 @@ String rsaEncrypt2(dynamic data) {
   final rsaParser = enc.RSAKeyParser();
   final rsaPublicKey = rsaParser.parse(key) as RSAPublicKey;
   
-  // 创建RSA加密引擎（PKCS1填充）
-  final encryptor = OAEPEncoding(RSAEngine());
+  // 计算密钥长度（字节）
+  final keySize = (rsaPublicKey.n!.bitLength + 7) ~/ 8;
+  
+  // PKCS1 v1.5 填充: 0x00 + 0x02 + 随机非零字节 + 0x00 + 数据
+  // 最大数据长度 = keySize - 11
+  final maxDataLength = keySize - 11;
+  if (buffer.length > maxDataLength) {
+    throw ArgumentError('Data too long for RSA PKCS1 v1.5 encryption: '
+        '${buffer.length} bytes (max: $maxDataLength)');
+  }
+  
+  // 构建 PKCS1 v1.5 填充
+  final padded = Uint8List(keySize);
+  padded[0] = 0x00;
+  padded[1] = 0x02;
+  
+  // 填充随机非零字节
+  final random = Random.secure();
+  for (int i = 2; i < keySize - buffer.length - 1;) {
+    final byte = random.nextInt(256);
+    if (byte != 0x00) {
+      padded[i] = byte;
+      i++;
+    }
+  }
+  
+  padded[keySize - buffer.length - 1] = 0x00;
+  padded.setRange(keySize - buffer.length, keySize, buffer);
+  
+  // 使用RSA引擎加密（无额外编码）
+  final encryptor = RSAEngine();
   encryptor.init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
   
-  // 执行加密
-  final encrypted = encryptor.process(buffer);
+  final encrypted = encryptor.process(padded);
   return _bytesToHex(encrypted);
 }
 
@@ -343,14 +378,23 @@ dynamic playlistAesDecrypt(Map<String, String> data) {
   final ivStr = cryptoMd5(key).substring(16, 32);
   
   try {
+    // Base64解码
+    final encryptedBytes = base64.decode(encryptedStr);
+    
+    // 确保数据长度是AES块大小(16字节)的整数倍
+    final blockSize = 16;
+    final paddedLength = (encryptedBytes.length ~/ blockSize) * blockSize;
+    final validBytes = encryptedBytes.sublist(0, paddedLength);
+    
+    if (validBytes.isEmpty) {
+      throw Exception('解密数据为空');
+    }
+    
     // 执行AES-128-CBC解密
     final encKey = enc.Key.fromUtf8(encryptKey);
     final encIv = enc.IV.fromUtf8(ivStr);
     final encrypter = enc.Encrypter(enc.AES(encKey, mode: enc.AESMode.cbc));
-    
-    // Base64解码
-    final encryptedBytes = base64.decode(encryptedStr);
-    final encrypted = enc.Encrypted(encryptedBytes);
+    final encrypted = enc.Encrypted(Uint8List.fromList(validBytes));
     final decrypted = encrypter.decrypt(encrypted, iv: encIv);
     
     // 尝试解析为JSON

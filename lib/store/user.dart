@@ -6,11 +6,9 @@ class UserStruct {
   String dfid;
   int userid;
   String? mid;
-  UserStruct({
-    required this.token,
-    required this.dfid,
-    required this.userid,
-  });
+  String? nickname;
+  String? pic;
+  UserStruct({required this.token, required this.dfid, required this.userid});
   UserStruct.fromJson(Map<String, dynamic> json)
     : token = json['token'] ?? '',
       dfid = json['dfid'] ?? '',
@@ -35,6 +33,7 @@ class User {
   get dfid => _user.dfid;
   get userid => _user.userid;
   get mid => _user.mid;
+  get nickname => _user.nickname;
 
   /// 登录成功
   void setNewUser(Map<String, dynamic> json) {
@@ -42,13 +41,18 @@ class User {
     _user = user;
     storage.write(_userStorageKey, user.toJson());
   }
+
+  /// 设置Token
+  void onLogin(Map<String, dynamic> json) {
+    _user.token = json['token'] ?? '';
+    _user.userid = json['userid'] ?? 0;
+    _user.pic = json['pic'] ?? '';
+    _user.nickname = json['nickname'] ?? '';
+  }
+
   /// 登出
   void clearUser() {
-    _user = UserStruct(
-      token: '',
-      dfid: '',
-      userid: 0,
-    );
+    _user = UserStruct(token: '', dfid: '', userid: 0);
     storage.remove(_userStorageKey);
   }
 
@@ -58,14 +62,13 @@ class User {
       _user = UserStruct.fromJson(user);
     } else {
       _user = UserStruct(
-        token: '3f26d402d64d4276dc8ad8cdd50814fdd54b0e8e209ba0a155b6bdc6f88d71ae',
-        dfid: '08U3ic1DdgYU3EsoVb0Ee3GB',
-        userid: 487837317,
+        token: '',
+        dfid: '',
+        userid: 0,
       );
       storage.write(_userStorageKey, _user.toJson());
     }
   }
 }
-
 
 final userInstance = User();

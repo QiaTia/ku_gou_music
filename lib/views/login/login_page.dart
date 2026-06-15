@@ -87,37 +87,17 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildGlassContainer(bool isMobile) {
+    final isWideScreen = MediaQuery.of(context).size.width >= 800;
+
+    if (isWideScreen) {
+      return _buildWideLayout();
+    }
+
     final containerWidth = isMobile ? double.infinity : 450.0;
 
     return Container(
       width: containerWidth,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withAlpha(25),
-            Colors.white.withAlpha(10),
-          ],
-        ),
-        border: Border.all(
-          color: Colors.white.withAlpha(30),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(60),
-            blurRadius: 40,
-            spreadRadius: -10,
-          ),
-          BoxShadow(
-            color: Colors.purpleAccent.withAlpha(20),
-            blurRadius: 60,
-            spreadRadius: -20,
-          ),
-        ],
-      ),
+      decoration: _glassDecoration(),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
@@ -148,6 +128,94 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildWideLayout() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 820),
+      decoration: _glassDecoration(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                          color: Colors.white.withAlpha(20),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 32),
+                        _buildTabBar(),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 6,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(32),
+                    child: SizedBox(
+                      height: 350,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: const [
+                          PasswordLogin(),
+                          QrLogin(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _glassDecoration() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(24),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withAlpha(25),
+          Colors.white.withAlpha(10),
+        ],
+      ),
+      border: Border.all(
+        color: Colors.white.withAlpha(30),
+        width: 1.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withAlpha(60),
+          blurRadius: 40,
+          spreadRadius: -10,
+        ),
+        BoxShadow(
+          color: Colors.purpleAccent.withAlpha(20),
+          blurRadius: 60,
+          spreadRadius: -20,
+        ),
+      ],
     );
   }
 

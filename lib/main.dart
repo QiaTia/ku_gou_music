@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:ku_gou_music/api/login/qr.dart';
+import 'package:ku_gou_music/api/login/register_dev.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
@@ -13,10 +13,11 @@ import 'store/user.dart';
 void main() async {
   await GetStorage.init();
   userInstance.init();
-  createQrByLogin().then((value) {
-    print(value);
+  registerDevice().then((result) {
+    print('Device registered: ${result['body']}');
+  }).catchError((error) {
+    print('Device registration failed: $error');
   });
-
   runApp(MyApp());
 }
 
