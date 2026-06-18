@@ -74,9 +74,6 @@ class _QrLoginState extends State<QrLogin> {
           Get.showSnackbar(
             const GetSnackBar(
               message: 'Login successful',
-             
-             
-             
               duration: Duration(seconds: 2),
             ),
           );

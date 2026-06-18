@@ -13,12 +13,16 @@ class UserStruct {
     : token = json['token'] ?? '',
       dfid = json['dfid'] ?? '',
       mid = json['mid'] ?? config.mid,
+      nickname = json['nickname'] ?? '',
+      pic = json['pic'] ?? '',
       userid = json['userid'] ?? 0;
+      
   Map<String, dynamic> toJson() => {
     'token': token,
     'dfid': dfid,
     'userid': userid,
-    'mid': mid ?? config.mid,
+    'nickname': nickname,
+    'pic': pic,
   };
 }
 
@@ -29,11 +33,11 @@ class User {
   final storage = GetStorage();
   final _userStorageKey = 'user';
   UserStruct _user = UserStruct.fromJson({});
-  get token => _user.token;
-  get dfid => _user.dfid;
-  get userid => _user.userid;
-  get mid => _user.mid;
-  get nickname => _user.nickname;
+  String get token => _user.token;
+  String get dfid => _user.dfid;
+  int get userid => _user.userid;
+  String? get mid => _user.mid;
+  String? get nickname => _user.nickname;
 
   /// 登录成功
   void setNewUser(Map<String, dynamic> json) {
@@ -42,12 +46,18 @@ class User {
     storage.write(_userStorageKey, user.toJson());
   }
 
+  void setDfid(String dfid) {
+    _user.dfid = dfid;
+    storage.write(_userStorageKey, _user.toJson());
+  }
+
   /// 设置Token
   void onLogin(Map<String, dynamic> json) {
     _user.token = json['token'] ?? '';
     _user.userid = json['userid'] ?? 0;
     _user.pic = json['pic'] ?? '';
     _user.nickname = json['nickname'] ?? '';
+    storage.write(_userStorageKey, _user.toJson());
   }
 
   /// 登出

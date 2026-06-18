@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/song/song.dart';
+import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 
 class AudioService extends GetxService {
@@ -102,7 +103,7 @@ class AudioService extends GetxService {
   
   Future<void> play() async {
     if(currentSong.value != null) {
-      var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: 1)).body?['url'] ?? [];
+      var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: userInstance.token.isEmpty ? 1 : 0)).body?['url'] ?? [];
       await player.setUrl(urls[0]);
     }
     await player.play();
@@ -152,7 +153,7 @@ class AudioService extends GetxService {
   }
   
   Future<void> addToQueue(SongItemStruct song) async {
-    var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: 1)).body?['url'] ?? [];
+    var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: userInstance.token.isEmpty ? 1 : 0)).body?['url'] ?? [];
     await player.setUrl(urls[0]);
     // await player.add(AudioSource.uri(Uri.parse(song.url)));
     playlist.add(song);
@@ -162,7 +163,7 @@ class AudioService extends GetxService {
     if (index >= 0 && index < playlist.length) {
       currentIndex.value = index;
       currentSong.value = playlist[index];
-      var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: 1)).body?['url'] ?? [];
+      var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: userInstance.token.isEmpty ? 1 : 0)).body?['url'] ?? [];
       
       await player.setUrl(urls[0]);
       // currentSong.value = playlist[index];

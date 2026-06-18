@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as Dio;
+import 'package:ku_gou_music/api/request/request.dart';
 import 'package:ku_gou_music/config/util.dart';
 import 'package:ku_gou_music/store/user.dart';
-
-final _dio = Dio();
 
 /// 设备信息
 ///
@@ -136,6 +135,42 @@ class DeviceInfo {
     this.temperature = false,
     this.temperatureValue = '',
   });
+
+  Map<String, Object> toJson() {
+    return {
+      'availableRamSize': availableRamSize,
+      'availableRomSize': availableRomSize,
+      'availableSDSize': availableSDSize,
+      'basebandVer': basebandVer,
+      'batteryLevel': batteryLevel,
+      'batteryStatus': batteryStatus,
+      'brand': brand,
+      'buildSerial': buildSerial,
+      'device': device,
+      'imei': imei ?? mid,
+      'imsi': imsi,
+      'manufacturer': manufacturer,
+      'uuid': uuid ?? mid,
+      'accelerometer': accelerometer,
+      'accelerometerValue': accelerometerValue,
+      'gravity': gravity,
+      'gravityValue': gravityValue,
+      'gyroscope': gyroscope,
+      'gyroscopeValue': gyroscopeValue,
+      'light': light,
+      'lightValue': lightValue,
+      'magnetic': magnetic,
+      'magneticValue': magneticValue,
+      'orientation': orientation,
+      'orientationValue': orientationValue,
+      'pressure': pressure,
+      'pressureValue': pressureValue,
+      'step_counter': stepCounter,
+      'step_counterValue': stepCounterValue,
+      'temperature': temperature,
+      'temperatureValue': temperatureValue,
+    };
+  }
 }
 
 /// 设备注册接口
@@ -150,88 +185,34 @@ Future<Map<String, dynamic>> registerDevice({DeviceInfo? deviceInfo}) async {
   final userid = userInstance.userid;
   final token = userInstance.token;
 
-  final dataMap = <String, dynamic>{
-    'availableRamSize': info.availableRamSize,
-    'availableRomSize': info.availableRomSize,
-    'availableSDSize': info.availableSDSize,
-    'basebandVer': info.basebandVer,
-    'batteryLevel': info.batteryLevel,
-    'batteryStatus': info.batteryStatus,
-    'brand': info.brand,
-    'buildSerial': info.buildSerial,
-    'device': info.device,
-    'imei': info.imei ?? '',
-    'imsi': info.imsi,
-    'manufacturer': info.manufacturer,
-    'uuid': info.uuid ?? '',
-    'accelerometer': info.accelerometer,
-    'accelerometerValue': info.accelerometerValue,
-    'gravity': info.gravity,
-    'gravityValue': info.gravityValue,
-    'gyroscope': info.gyroscope,
-    'gyroscopeValue': info.gyroscopeValue,
-    'light': info.light,
-    'lightValue': info.lightValue,
-    'magnetic': info.magnetic,
-    'magneticValue': info.magneticValue,
-    'orientation': info.orientation,
-    'orientationValue': info.orientationValue,
-    'pressure': info.pressure,
-    'pressureValue': info.pressureValue,
-    'step_counter': info.stepCounter,
-    'step_counterValue': info.stepCounterValue,
-    'temperature': info.temperature,
-    'temperatureValue': info.temperatureValue,
-  };
+  final aesEncrypt = playlistAesEncrypt(info.toJson());
 
-  final aesEncrypt = playlistAesEncrypt(dataMap);
-  final p = rsaEncrypt2({'aes': aesEncrypt['key'], 'uid': userid, 'token': token});
+  final p = rsaEncrypt2({
+    'aes': aesEncrypt['key'],
+    'uid': userid,
+    'token': token,
+  });
 
-  final clienttime = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-
-  final params = <String, dynamic>{
-    'part': '1',
-    'platid': '1',
-    'p': p,
-  };
-
-  final paramsWithSignature = <String, dynamic>{
-    ...params,
-    'appid': (isLite ? liteAppid : appid).toString(),
-    'clientver': (isLite ? liteClientver : clientver).toString(),
-    'clienttime': clienttime,
-    'dfid': userInstance.dfid,
-    'mid': mid,
-    'uuid': '-',
-  };
-  paramsWithSignature['signature'] = signatureAndroidParams(paramsWithSignature);
-
-  final userAgent = 'Android15-1070-11083-46-0-DiscoveryDRADProtocol-wifi';
-  final headers = <String, String>{
-    'User-Agent': userAgent,
-    'kg-rc': '1',
-    'kg-thash': '5d816a0',
-    'kg-rec': '1',
-    'kg-rf': 'B9EDA08A64250DEFFBCADDEE00F8F25F',
-    'X-Real-IP': '127.0.0.1',
-    'X-Forwarded-For': '127.0.0.1',
-  };
+  final params = <String, dynamic>{'part': '1', 'platid': '1', 'p': p};
 
   try {
-    final response = await _dio.request(
-      'https://userservice.kugou.com/risk/v2/r_register_dev',
-      data: aesEncrypt['str'],
-      queryParameters: paramsWithSignature,
-      options: Options(
+    final response = await createRequest<Object>(
+      RequestOptions(
+        baseURL: 'https://userservice.kugou.com',
+        url: '/risk/v2/r_register_dev',
+        data: aesEncrypt['str'],
         method: 'POST',
-        headers: headers,
-        responseType: ResponseType.bytes,
+        params: params,
+        encryptType: 'android',
+        responseType: Dio.ResponseType.bytes,
       ),
     );
-
-    final bytes = response.data as Uint8List;
+    final bytes = response.body as Uint8List;
     final base64Body = base64.encode(bytes);
-    final body = playlistAesDecrypt({'str': base64Body, 'key': aesEncrypt['key']!});
+    final body = playlistAesDecrypt({
+      'str': base64Body,
+      'key': aesEncrypt['key']!,
+    });
 
     final cookies = <String>[];
     final responseCookies = response.headers['set-cookie'] ?? [];
@@ -257,15 +238,7 @@ Future<Map<String, dynamic>> registerDevice({DeviceInfo? deviceInfo}) async {
     }
 
     return result;
-  } on DioException catch (e) {
-    throw {
-      'status': 502,
-      'body': {'status': 0, 'msg': e.message},
-      'cookie': <String>[],
-    };
+  } catch (e) {
+    rethrow;
   }
 }
-
-
-
-

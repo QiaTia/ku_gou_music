@@ -13,11 +13,13 @@ import 'store/user.dart';
 void main() async {
   await GetStorage.init();
   userInstance.init();
-  registerDevice().then((result) {
-    print('Device registered: ${result['body']}');
-  }).catchError((error) {
-    print('Device registration failed: $error');
-  });
+  registerDevice()
+      .then((result) {
+        userInstance.setDfid(result['body']['data']['dfid'] ?? '-');
+      })
+      .catchError((error) {
+        print('Device registration failed: $error');
+      });
   runApp(MyApp());
 }
 
@@ -30,9 +32,7 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         title: '音乐播放器',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-        ),
+        theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
         darkTheme: ThemeData.dark(),
         initialBinding: MusicBinding(),
         home: const HomePage(),
@@ -51,10 +51,7 @@ class MyApp extends StatelessWidget {
             fullscreenDialog: true,
             popGesture: true,
           ),
-          GetPage(
-            name: '/playlist',
-            page: () => const PlaylistScreen()
-          ),
+          GetPage(name: '/playlist', page: () => const PlaylistScreen()),
           GetPage(
             name: '/login',
             page: () => const LoginPage(),
@@ -62,7 +59,7 @@ class MyApp extends StatelessWidget {
             transitionDuration: Duration(milliseconds: 300),
           ),
         ],
-      ));
+      ),
+    );
   }
 }
-

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ku_gou_music/store/user.dart';
+
 import '../../config/util.dart';
 import '../request/request.dart';
 /// 获取音乐urls
@@ -58,7 +60,7 @@ Future<ResponseOptions<Map<String, dynamic>>> getMusicUrls({
     encryptKey: true,
     // notSignature: true,
     // notSign: true,
-    cookie: {'dfid': '08U3ic1DdgYU3EsoVb0Ee3GB' },
+    cookie: { 'dfid': userInstance.dfid },
     // cookie: Object.assign({}, {dfid: randomString(24)}, params?.cookie ),
   ));
 }

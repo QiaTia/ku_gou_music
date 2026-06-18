@@ -70,6 +70,7 @@ class MyPlaylistController extends GetxController {
     getUserPlaylist().then((res) {
       if (!res.body!.containsKey('data')) {
         // throw Exception('获取歌单失败');
+        print('获取歌单失败');
         return;
       }
       var list = res.body!['data']['info'] ?? [];
@@ -79,6 +80,8 @@ class MyPlaylistController extends GetxController {
           playlist.add(PlaylistItemStruct.fromJson(e));
         });
       }
+    }).catchError((error) {
+      print('获取歌单失败: $error');
     });
   }
 }

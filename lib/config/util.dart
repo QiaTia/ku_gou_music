@@ -378,6 +378,15 @@ dynamic playlistAesDecrypt(Map<String, String> data) {
   final ivStr = cryptoMd5(key).substring(16, 32);
   
   try {
+    // 首先尝试直接Base64解码（可能是未加密的数据）
+    try {
+      final decodedBytes = base64.decode(encryptedStr);
+      final decodedStr = utf8.decode(decodedBytes);
+      return jsonDecode(decodedStr);
+    } catch (_) {
+      // 不是纯Base64编码的JSON，继续尝试AES解密
+    }
+    
     // Base64解码
     final encryptedBytes = base64.decode(encryptedStr);
     
