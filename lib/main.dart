@@ -13,13 +13,15 @@ import 'store/user.dart';
 void main() async {
   await GetStorage.init();
   userInstance.init();
-  registerDevice()
-      .then((result) {
-        userInstance.setDfid(result['body']['data']['dfid'] ?? '-');
-      })
-      .catchError((error) {
-        print('Device registration failed: $error');
-      });
+  if (userInstance.dfid.isEmpty) {
+    registerDevice()
+        .then((result) {
+          userInstance.setDfid(result['body']['data']['dfid'] ?? '-');
+        })
+        .catchError((error) {
+          print('Device registration failed: $error');
+        });
+  }
   runApp(MyApp());
 }
 

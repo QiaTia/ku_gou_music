@@ -16,7 +16,7 @@ class UserStruct {
       nickname = json['nickname'] ?? '',
       pic = json['pic'] ?? '',
       userid = json['userid'] ?? 0;
-      
+
   Map<String, dynamic> toJson() => {
     'token': token,
     'dfid': dfid,
@@ -36,7 +36,7 @@ class User {
   String get token => _user.token;
   String get dfid => _user.dfid;
   int get userid => _user.userid;
-  String? get mid => _user.mid;
+  String? get mid => _user.mid ?? config.mid;
   String? get nickname => _user.nickname;
 
   /// 登录成功

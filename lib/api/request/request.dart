@@ -81,11 +81,11 @@ class ResponseOptions<T> {
 }
 
 Future<ResponseOptions<T>> createRequest<T>(RequestOptions options) async {
-  String dfid = options.cookie?['dfid'] ?? userInstance.dfid ?? '-'; // 自定义
+  String dfid = options.cookie?['dfid'] ?? userInstance.dfid; // 自定义
   // String mid = options.cookie?['KUGOU_API_MID'] ?? '334689572176563962868706300678062568191'; //'334689572176563962868706300678062568191';
   String uuid = '-'; //cryptoMd5(`${dfid}${mid}`); // 可以自定义
-  String token = options.cookie?['token'] ?? userInstance.token ?? '';
-  int userid = options.cookie?['userid'] ?? userInstance.userid ?? 0;
+  String token = options.cookie?['token'] ?? userInstance.token;
+  int userid = options.cookie?['userid'] ?? userInstance.userid;
   String clienttime = (DateTime.now().millisecondsSinceEpoch ~/ 1000)
       .toString();
   String ip = options.realIP ?? options.ip ?? '127.0.0.1';
@@ -171,7 +171,7 @@ Future<ResponseOptions<T>> createRequest<T>(RequestOptions options) async {
       options: Options(
         method: options.method,
         headers: headers,
-        responseType: options.responseType ?? ResponseType.json,
+        responseType: options.responseType,
       ),
     );
     // if (response.headers?['ssa-code'] != null) {

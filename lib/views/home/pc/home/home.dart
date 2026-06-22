@@ -23,6 +23,7 @@ class _HomePageState extends State<HomeTopPage> {
 
   void initPlayList() {
     controller.initPlayList();
+    controller.initSongList();
   }
 
   @override
@@ -41,7 +42,10 @@ class _HomePageState extends State<HomeTopPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('推荐歌单', style: Theme.of(context).textTheme.headlineSmall),
+            child: Text(
+              '推荐歌单',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
           ),
           Expanded(
             child: Obx(
@@ -122,8 +126,14 @@ class _GridPhotoItem extends StatelessWidget {
           clipBehavior: .hardEdge,
           child: GridTileBar(
             backgroundColor: Colors.black45,
-            title: _GridTitleText(text: (item.specialname ?? '').replaceAll(RegExp('\\s+'), ' ')),
-            subtitle: _GridTitleText(text: item.intro ?? '', style: TextStyle(fontSize: 10), maxLines: 2,),
+            title: _GridTitleText(
+              text: (item.specialname ?? '').replaceAll(RegExp('\\s+'), ' '),
+            ),
+            subtitle: _GridTitleText(
+              text: item.intro ?? '',
+              style: TextStyle(fontSize: 10),
+              maxLines: 2,
+            ),
           ),
         ),
         child: image,
@@ -137,13 +147,18 @@ class _GridTitleText extends StatelessWidget {
   final int maxLines;
   final String text;
 
-  const _GridTitleText({ required this.text, this.style, this.maxLines =1 });
+  const _GridTitleText({required this.text, this.style, this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: text,
-      child: Text(text, maxLines: maxLines, style: style, overflow: TextOverflow.ellipsis),
+      child: Text(
+        text,
+        maxLines: maxLines,
+        style: style,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }
