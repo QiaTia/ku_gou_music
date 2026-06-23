@@ -122,15 +122,15 @@ class Sidebar extends StatelessWidget {
           ),
         ),
       ),
-      SidebarItemStruct(
-        label: 'playlists',
-        content: '我的',
-        leading: Icon(Icons.playlist_play, size: 30),
-        route: '/my_playlist',
-        onTap: () {
-          routerController.navigateTo('/my_playlist');
-        },
-      ),
+      // SidebarItemStruct(
+      //   label: 'playlists',
+      //   content: '我的',
+      //   leading: Icon(Icons.playlist_play, size: 30),
+      //   route: '/my_playlist',
+      //   onTap: () {
+      //     routerController.navigateTo('/my_playlist');
+      //   },
+      // ),
       // SidebarItemStruct(
       //   label: 'divider_line_3',
       //   child: Padding(
