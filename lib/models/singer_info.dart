@@ -7,8 +7,8 @@ part 'singer_info.g.dart';
 abstract class SingerInfo with _$SingerInfo {
   const factory SingerInfo({
     required String name,
-    @JsonKey(name: 'is_publish') required String isPublish,
-    required String id,
+    @JsonKey(name: 'is_publish') required int isPublish,
+    required Object id,
   }) = _SingerInfo;
 
   factory SingerInfo.fromJson(Map<String, dynamic> json) =>

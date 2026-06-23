@@ -8,8 +8,8 @@ part 'recommend_response.g.dart';
 abstract class RecommendResponse with _$RecommendResponse {
   const factory RecommendResponse({
     @JsonKey(name: 'sign') required String sign,
-    @Default(0) int status,
-    // @JsonKey(name: 'song_list')  @Default([]) List<Song> songList,
+    @JsonKey(name: 'song_list_size') required int songListSize,
+    @JsonKey(name: 'song_list')  @Default([]) List<Song> songList,
   }) = _RecommendResponse;
 
   factory RecommendResponse.fromJson(Map<String, dynamic> json) =>

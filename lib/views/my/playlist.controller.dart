@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/user/user.dart';
+import 'package:ku_gou_music/models/user/user_info.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 
 class PlaylistItemStruct {
@@ -64,24 +65,75 @@ class PlaylistItemStruct {
 
 class MyPlaylistController extends GetxController {
   List<PlaylistItemStruct> playlist = <PlaylistItemStruct>[].obs;
+  final Rx<UserInfo?> userInfo = Rx<UserInfo?>(null);
+  final RxInt selectedTab = 0.obs;
+  final RxBool isLoading = true.obs;
+  final RxList<Map<String, dynamic>> likedSongs = <Map<String, dynamic>>[].obs;
+
   @override
   void onInit() {
     super.onInit();
-    getUserPlaylist().then((res) {
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    isLoading.value = true;
+    await Future.wait([
+      _loadUserDetail(),
+      _loadPlaylist(),
+    ]);
+    isLoading.value = false;
+  }
+
+  Future<void> _loadUserDetail() async {
+    try {
+      final detail = await getUserDetail();
+      userInfo.value = detail;
+    } catch (e) {
+      print('获取用户详情失败: $e');
+    }
+  }
+
+  Future<void> _loadPlaylist() async {
+    try {
+      final res = await getUserPlaylist();
       if (!res.body!.containsKey('data')) {
-        // throw Exception('获取歌单失败');
         print('获取歌单失败');
         return;
       }
       var list = res.body!['data']['info'] ?? [];
       if (list is List) {
         playlist.clear();
-        list.forEach((e) {
+        for (var e in list) {
           playlist.add(PlaylistItemStruct.fromJson(e));
-        });
+        }
       }
-    }).catchError((error) {
+      _extractLikedSongs();
+    } catch (error) {
       print('获取歌单失败: $error');
-    });
+    }
+  }
+
+  void _extractLikedSongs() {
+    for (var p in playlist) {
+      if (p.name == '我喜欢' || p.name.contains('喜欢')) {
+        _loadLikedSongItems(p.global_collection_id);
+        break;
+      }
+    }
+  }
+
+  Future<void> _loadLikedSongItems(String playlistId) async {
+    try {
+      final res = await getUserPlaylist(page: 1, pagesize: 12);
+      if (res.body != null && res.body!['data'] != null) {
+        var list = res.body!['data']['info'] ?? [];
+        if (list is List) {
+          likedSongs.value = List<Map<String, dynamic>>.from(list.take(12));
+        }
+      }
+    } catch (e) {
+      print('获取喜欢歌曲失败: $e');
+    }
   }
 }

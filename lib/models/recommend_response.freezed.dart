@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecommendResponse {
 
-@JsonKey(name: 'sign') String get sign; int get status;@JsonKey(name: 'song_list') List<Song> get songList;
+@JsonKey(name: 'sign') String get sign;@JsonKey(name: 'song_list_size') int get songListSize;@JsonKey(name: 'song_list') List<Song> get songList;
 /// Create a copy of RecommendResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RecommendResponseCopyWith<RecommendResponse> get copyWith => _$RecommendRespons
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecommendResponse&&(identical(other.sign, sign) || other.sign == sign)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.songList, songList));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecommendResponse&&(identical(other.sign, sign) || other.sign == sign)&&(identical(other.songListSize, songListSize) || other.songListSize == songListSize)&&const DeepCollectionEquality().equals(other.songList, songList));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,sign,status,const DeepCollectionEquality().hash(songList));
+int get hashCode => Object.hash(runtimeType,sign,songListSize,const DeepCollectionEquality().hash(songList));
 
 @override
 String toString() {
-  return 'RecommendResponse(sign: $sign, status: $status, songList: $songList)';
+  return 'RecommendResponse(sign: $sign, songListSize: $songListSize, songList: $songList)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RecommendResponseCopyWith<$Res>  {
   factory $RecommendResponseCopyWith(RecommendResponse value, $Res Function(RecommendResponse) _then) = _$RecommendResponseCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'sign') String sign, int status,@JsonKey(name: 'song_list') List<Song> songList
+@JsonKey(name: 'sign') String sign,@JsonKey(name: 'song_list_size') int songListSize,@JsonKey(name: 'song_list') List<Song> songList
 });
 
 
@@ -65,10 +65,10 @@ class _$RecommendResponseCopyWithImpl<$Res>
 
 /// Create a copy of RecommendResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? sign = null,Object? status = null,Object? songList = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? sign = null,Object? songListSize = null,Object? songList = null,}) {
   return _then(_self.copyWith(
 sign: null == sign ? _self.sign : sign // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,songListSize: null == songListSize ? _self.songListSize : songListSize // ignore: cast_nullable_to_non_nullable
 as int,songList: null == songList ? _self.songList : songList // ignore: cast_nullable_to_non_nullable
 as List<Song>,
   ));
@@ -155,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'sign')  String sign,  int status, @JsonKey(name: 'song_list')  List<Song> songList)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'sign')  String sign, @JsonKey(name: 'song_list_size')  int songListSize, @JsonKey(name: 'song_list')  List<Song> songList)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RecommendResponse() when $default != null:
-return $default(_that.sign,_that.status,_that.songList);case _:
+return $default(_that.sign,_that.songListSize,_that.songList);case _:
   return orElse();
 
 }
@@ -176,10 +176,10 @@ return $default(_that.sign,_that.status,_that.songList);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'sign')  String sign,  int status, @JsonKey(name: 'song_list')  List<Song> songList)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'sign')  String sign, @JsonKey(name: 'song_list_size')  int songListSize, @JsonKey(name: 'song_list')  List<Song> songList)  $default,) {final _that = this;
 switch (_that) {
 case _RecommendResponse():
-return $default(_that.sign,_that.status,_that.songList);case _:
+return $default(_that.sign,_that.songListSize,_that.songList);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +196,10 @@ return $default(_that.sign,_that.status,_that.songList);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'sign')  String sign,  int status, @JsonKey(name: 'song_list')  List<Song> songList)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'sign')  String sign, @JsonKey(name: 'song_list_size')  int songListSize, @JsonKey(name: 'song_list')  List<Song> songList)?  $default,) {final _that = this;
 switch (_that) {
 case _RecommendResponse() when $default != null:
-return $default(_that.sign,_that.status,_that.songList);case _:
+return $default(_that.sign,_that.songListSize,_that.songList);case _:
   return null;
 
 }
@@ -211,11 +211,11 @@ return $default(_that.sign,_that.status,_that.songList);case _:
 @JsonSerializable()
 
 class _RecommendResponse implements RecommendResponse {
-  const _RecommendResponse({@JsonKey(name: 'sign') required this.sign, this.status = 0, @JsonKey(name: 'song_list') final  List<Song> songList = const []}): _songList = songList;
+  const _RecommendResponse({@JsonKey(name: 'sign') required this.sign, @JsonKey(name: 'song_list_size') required this.songListSize, @JsonKey(name: 'song_list') final  List<Song> songList = const []}): _songList = songList;
   factory _RecommendResponse.fromJson(Map<String, dynamic> json) => _$RecommendResponseFromJson(json);
 
 @override@JsonKey(name: 'sign') final  String sign;
-@override@JsonKey() final  int status;
+@override@JsonKey(name: 'song_list_size') final  int songListSize;
  final  List<Song> _songList;
 @override@JsonKey(name: 'song_list') List<Song> get songList {
   if (_songList is EqualUnmodifiableListView) return _songList;
@@ -237,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecommendResponse&&(identical(other.sign, sign) || other.sign == sign)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._songList, _songList));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecommendResponse&&(identical(other.sign, sign) || other.sign == sign)&&(identical(other.songListSize, songListSize) || other.songListSize == songListSize)&&const DeepCollectionEquality().equals(other._songList, _songList));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,sign,status,const DeepCollectionEquality().hash(_songList));
+int get hashCode => Object.hash(runtimeType,sign,songListSize,const DeepCollectionEquality().hash(_songList));
 
 @override
 String toString() {
-  return 'RecommendResponse(sign: $sign, status: $status, songList: $songList)';
+  return 'RecommendResponse(sign: $sign, songListSize: $songListSize, songList: $songList)';
 }
 
 
@@ -257,7 +257,7 @@ abstract mixin class _$RecommendResponseCopyWith<$Res> implements $RecommendResp
   factory _$RecommendResponseCopyWith(_RecommendResponse value, $Res Function(_RecommendResponse) _then) = __$RecommendResponseCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'sign') String sign, int status,@JsonKey(name: 'song_list') List<Song> songList
+@JsonKey(name: 'sign') String sign,@JsonKey(name: 'song_list_size') int songListSize,@JsonKey(name: 'song_list') List<Song> songList
 });
 
 
@@ -274,10 +274,10 @@ class __$RecommendResponseCopyWithImpl<$Res>
 
 /// Create a copy of RecommendResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? sign = null,Object? status = null,Object? songList = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? sign = null,Object? songListSize = null,Object? songList = null,}) {
   return _then(_RecommendResponse(
 sign: null == sign ? _self.sign : sign // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,songListSize: null == songListSize ? _self.songListSize : songListSize // ignore: cast_nullable_to_non_nullable
 as int,songList: null == songList ? _self._songList : songList // ignore: cast_nullable_to_non_nullable
 as List<Song>,
   ));

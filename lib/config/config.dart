@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import './util.dart';
 
 const isLite = true;
@@ -14,3 +15,6 @@ const liteClientver = 11440;
 final mid = calculateMid(cryptoMd5(getGuid()));
 
 // const mid = '334689572176563962868706300678062568191';
+// 通常放在顶层或路由配置文件中
+
+final RouteObserver<ModalRoute<void>> routeObserver =    RouteObserver<ModalRoute<void>>();

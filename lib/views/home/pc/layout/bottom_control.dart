@@ -17,20 +17,17 @@ class BottomControl extends GetView<MusicController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => Container(
-        color: bgColor,
-        width: constraints.maxWidth,
-        height: 75,
-        child: Row(
-          mainAxisAlignment: .spaceBetween,
-          crossAxisAlignment: .center,
-          children: [
-            currentSongTile(context),
-            playControls(context),
-            otherControls(),
-          ],
-        ),
+    return Container(
+      color: bgColor,
+      height: 75,
+      child: Row(
+        mainAxisAlignment: .spaceBetween,
+        crossAxisAlignment: .center,
+        children: [
+          currentSongTile(context),
+          playControls(context),
+          otherControls(),
+        ],
       ),
     );
   }
@@ -87,7 +84,7 @@ class BottomControl extends GetView<MusicController> {
           children: [
             IconButton(
               icon: Icon(Icons.favorite_border, color: Colors.white, size: 25),
-              tooltip: '收藏',
+              // tooltip: '收藏',
               onPressed: () {
                 Get.snackbar('收藏', '暂未实现');
               },
@@ -152,8 +149,7 @@ class BottomControl extends GetView<MusicController> {
                   }
                 },
               );
-              }
-            ),
+            }),
           ],
         ),
       ),

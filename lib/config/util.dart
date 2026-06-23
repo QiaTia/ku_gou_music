@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:archive/archive.dart';
 import 'package:ku_gou_music/config/encrypt_ext.dart';
 import 'dart:convert';
+import 'package:basic_utils/basic_utils.dart' as StringUtils;
 import 'package:pointycastle/export.dart';
 
 const publicRasKey = '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDIAG7QOELSYoIJvTFJhMpe1s/gbjDJX51HBNnEl5HXqTW6lQ7LC8jr9fWZTwusknp+sVGzwd40MwP6U5yDE27M/X1+UR4tvOGOqp94TJtQ1EPnWGWXngpeIW5GxoQGao1rmYWAu6oi1z9XkChrsUdC6DJE5E221wf/4WLFxwAtRQIDAQAB\n-----END PUBLIC KEY-----';
@@ -262,19 +263,51 @@ String cryptoRSAEncrypt(dynamic data, {String? publicKey}) {
   String dataStr = data is Map || data is List
       ? jsonEncode(data)
       : data.toString();
+
   final buffer = Uint8List.fromList(utf8.encode(dataStr));
-  
-  // 填充到128字节
-  final _buffer = Uint8List(128);
-  _buffer.setAll(0, buffer);
-  for (int i = buffer.length; i < 128; i++) {
-    _buffer[i] = 0;
+ 
+  final pem = publicKey ?? publicLiteRasKey;
+
+  // 2. 解析 PEM 公钥，提取 modulus (n) 和 exponent (e)
+  final RSAPublicKey key = StringUtils.CryptoUtils.rsaPublicKeyFromPem(pem);
+  final BigInt n = key.modulus!;
+  final BigInt e = key.exponent!;
+
+  // 3. 计算密钥长度 (字节数) -> 等同于 JS: Math.ceil(key.n.bitLength() / 8)
+  final int keyLength = (n.bitLength + 7) ~/ 8;
+
+  if (buffer.length > keyLength) {
+    throw ArgumentError('Data length exceeds key size');
   }
-  
-  // 使用公钥
-  final key = publicKey ?? publicLiteRasKey; // (isLite ? publicLiteRasKey : publicRasKey);
-  final rsaPublicKey = enc.RSAKeyParser().parse(key) as RSAPublicKey;
-  return encryptRSANoPadding(_buffer, rsaPublicKey);
+
+  // 4. 自定义填充逻辑：如果数据短于密钥长度，则在【右侧补零】
+  // 注意：JS 的 Uint8Array.set(buffer) 默认从 index 0 开始复制，即数据在左，0 在右。
+  Uint8List padded = buffer;
+  if (buffer.length < keyLength) {
+    padded = Uint8List(keyLength);
+    padded.setRange(0, buffer.length, buffer);
+  }
+
+  return rsaRawEncrypt(padded, e, n, keyLength);
+}
+
+/// 底层 Raw RSA 加密 (等同于 JS 的 rsaRawEncrypt)
+String rsaRawEncrypt(Uint8List buffer, BigInt e, BigInt n, int keyLength) {
+  // 1. 将 Uint8List 转换为 BigInt (大端序 Big-Endian)
+  // 等同于 JS: new forge.jsbn.BigInteger(uint8ArrayToHex(buffer), 16)
+  BigInt message = BigInt.zero;
+  for (int i = 0; i < buffer.length; i++) {
+    message = (message << 8) | BigInt.from(buffer[i]);
+  }
+
+  // 2. 核心 RSA 数学运算: C = M^e mod n
+  // 等同于 JS: message.modPow(publicKey.e, publicKey.n)
+  BigInt encrypted = message.modPow(e, n);
+
+  // 3. 转换为 16 进制字符串，并在左侧补零至指定长度
+  // 等同于 JS: encrypted.toString(16).padStart(keyLength * 2, '0')
+  String hexStr = encrypted.toRadixString(16);
+  return hexStr.padLeft(keyLength * 2, '0');
 }
 
 /// RSA加密（PKCS1 v1.5填充）

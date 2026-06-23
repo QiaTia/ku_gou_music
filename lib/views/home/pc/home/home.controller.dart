@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
+import 'package:ku_gou_music/api/playlist/playlist.dart';
 import 'package:ku_gou_music/api/top/top.dart';
-import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 export 'package:ku_gou_music/api/top/top.dart';
+import 'package:ku_gou_music/models/song.dart';
 
 class HomeTopController extends GetxController {
   final RxBool isFailed = false.obs;
@@ -10,13 +11,13 @@ class HomeTopController extends GetxController {
   final RxList<PlaylistModel> recommendPlayList = <PlaylistModel>[].obs;
 
   /// 推荐歌曲列表
-  final RxList<SongItemStruct> recommendSongList = <SongItemStruct>[].obs;
+  final RxList<Song> recommendSongList = <Song>[].obs;
 
   /// 获取推荐歌曲列表
   void initSongList() {
     getTopCart()
-        .then((t) {
-          print(t);
+        .then((result) {
+          recommendSongList.value = result.songList;
         })
         .catchError((e) {
           print(e);

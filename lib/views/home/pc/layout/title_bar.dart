@@ -89,8 +89,8 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
               },
             ),
             filled: true,
-            fillColor: searchFieldColor,
-            hoverColor: Colors.transparent,
+            // fillColor: searchFieldColor,
+            // hoverColor: Colors.transparent,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -102,12 +102,18 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
   }
 }
 
-class TitleBar extends StatelessWidget {
+class TitleBar extends StatelessWidget implements PreferredSizeWidget {
+  final double height;
+
+  final String? title;
+
+  @override
+  Size get preferredSize => Size.fromHeight(height);
 
   final Widget? searchField;
   final displayCancelNotifier = ValueNotifier(false);
 
-  TitleBar({super.key, this.searchField});
+  TitleBar({super.key, this.title, this.searchField, this.height = kToolbarHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -142,24 +148,9 @@ class TitleBar extends StatelessWidget {
                       IconButton(onPressed: controller.goBack, icon: Icon(Icons.arrow_back))
                     : SizedBox.shrink()
                   ),
-                  // ValueListenableBuilder(
-                  //   valueListenable: isFullScreenNotifier,
-                  //   builder: (context, isFullScreen, child) {
-                  //     return isFullScreen
-                  //         ? SizedBox.shrink()
-                  //         : IconButton(
-                  //             color: Colors.grey.shade50,
-                  //             onPressed: () {
-                  //               displayLyricsPageNotifier.value = false;
-                  //             },
-                  //             icon: ImageIcon(arrowDownImage),
-                  //           );
-                  //   },
-                  // ),
+                  Expanded(child: Text(title ?? '')),
                   SizedBox(child: searchField),
-
                   Spacer(),
-
                   IconButton(
                     onPressed: () {
                       // panelManager.pushPanel('settings');

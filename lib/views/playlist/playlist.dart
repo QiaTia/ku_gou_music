@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/utils/utils.dart';
+import 'package:ku_gou_music/views/home/pc/router/router.dart';
 import 'playlist.controller.dart';
 import 'dart:math' as math;
 
@@ -21,6 +22,7 @@ class PlaylistScreen extends GetWidget {
   Widget build(BuildContext context) {
     final PlaylistController controller = Get.put(PlaylistController());
     final MusicController musicController = Get.find();
+    final LocalRouterController routerController = Get.find();
 
     final bgCardColor = Theme.of(context).cardColor;
 
@@ -32,66 +34,70 @@ class PlaylistScreen extends GetWidget {
     }
 
     return Scaffold(
-      // appBar: AppBar(title: Text(name)),
+      // appBar: TitleBar(title: name),
       body: NestedScrollView(
         floatHeaderSlivers: true, // 允许头部浮动
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
-            // SliverAppBar(
-            //   expandedHeight: 200,
-            //   pinned: true, // 固定顶部
-            //   // floating: true,
-            //   // snap: true,
-            //   flexibleSpace: FlexibleSpaceBar(
-            //     centerTitle: false,
-            //     title: Text(name, style: Theme.of(context).textTheme.titleSmall),
-            //     background: Stack(
-            //       fit: StackFit.expand,
-            //       children: [
-            //         CachedNetworkImage(
-            //           imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
-            //           fit: .fitHeight,
-            //           repeat: .repeat,
-            //         ),
-            //         Container(
-            //           decoration: BoxDecoration(
-            //             gradient: LinearGradient(
-            //               begin: .bottomCenter,
-            //               end: .topCenter,
-            //               colors: [Colors.white54, Colors.transparent],
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            SliverAppBar(
+              leading : IconButton(
+                onPressed: routerController.goBack,
+                icon: Icon(Icons.arrow_back_ios_new_rounded),
+              ),
+              expandedHeight: 300,
+              pinned: true, // 固定顶部
+              // floating: true,
+              // snap: true,
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: false,
+                title: Text(name, style: Theme.of(context).textTheme.titleSmall),
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
+                      fit: .fitHeight,
+                      repeat: .noRepeat,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: .bottomCenter,
+                          end: .topCenter,
+                          colors: [Colors.white54, Colors.transparent],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             SliverToBoxAdapter(
               child: Row(
                 spacing: 8,
                 crossAxisAlignment: .start,
                 children: [
                   SizedBox(width: 10),
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Hero(
-                      tag: id,
-                      child: pic.isEmpty
-                          ? Icon(Icons.music_note)
-                          : CachedNetworkImage(imageUrl: pic),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   width: 100,
+                  //   height: 100,
+                  //   child: Hero(
+                  //     tag: id,
+                  //     child: pic.isEmpty
+                  //         ? Icon(Icons.music_note)
+                  //         : CachedNetworkImage(imageUrl: pic),
+                  //   ),
+                  // ),
                   Expanded(
                     child: Column(
                       spacing: 8,
                       mainAxisAlignment: .spaceBetween,
                       crossAxisAlignment: .start,
                       children: [
-                        Text(
-                          name.replaceAll(RegExp('\\s+'), ' '),
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                        // Text(
+                        //   name.replaceAll(RegExp('\\s+'), ' '),
+                        //   style: Theme.of(context).textTheme.titleLarge,
+                        // ),
                         Obx(
                           () => ExpandText(
                             content: controller.playListInfo.value.intro ?? '',

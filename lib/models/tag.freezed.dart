@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Tag {
 
-@JsonKey(name: 'tag_id') String get tagId;@JsonKey(name: 'parent_id') String? get parentId;@JsonKey(name: 'tag_name') String get tagName;
+@IntFromStringConverter()@JsonKey(name: 'tag_id') int get tagId;@IntFromStringConverter()@JsonKey(name: 'parent_id') int? get parentId;@JsonKey(name: 'tag_name') String get tagName;@JsonKey(name: 'son') List<Tag>? get son;
 /// Create a copy of Tag
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TagCopyWith<Tag> get copyWith => _$TagCopyWithImpl<Tag>(this as Tag, _$identity
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tag&&(identical(other.tagId, tagId) || other.tagId == tagId)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.tagName, tagName) || other.tagName == tagName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Tag&&(identical(other.tagId, tagId) || other.tagId == tagId)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.tagName, tagName) || other.tagName == tagName)&&const DeepCollectionEquality().equals(other.son, son));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,tagId,parentId,tagName);
+int get hashCode => Object.hash(runtimeType,tagId,parentId,tagName,const DeepCollectionEquality().hash(son));
 
 @override
 String toString() {
-  return 'Tag(tagId: $tagId, parentId: $parentId, tagName: $tagName)';
+  return 'Tag(tagId: $tagId, parentId: $parentId, tagName: $tagName, son: $son)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TagCopyWith<$Res>  {
   factory $TagCopyWith(Tag value, $Res Function(Tag) _then) = _$TagCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'tag_id') String tagId,@JsonKey(name: 'parent_id') String? parentId,@JsonKey(name: 'tag_name') String tagName
+@IntFromStringConverter()@JsonKey(name: 'tag_id') int tagId,@IntFromStringConverter()@JsonKey(name: 'parent_id') int? parentId,@JsonKey(name: 'tag_name') String tagName,@JsonKey(name: 'son') List<Tag>? son
 });
 
 
@@ -65,12 +65,13 @@ class _$TagCopyWithImpl<$Res>
 
 /// Create a copy of Tag
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? tagId = null,Object? parentId = freezed,Object? tagName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? tagId = null,Object? parentId = freezed,Object? tagName = null,Object? son = freezed,}) {
   return _then(_self.copyWith(
 tagId: null == tagId ? _self.tagId : tagId // ignore: cast_nullable_to_non_nullable
-as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
-as String?,tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
-as String,
+as int,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
+as int?,tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
+as String,son: freezed == son ? _self.son : son // ignore: cast_nullable_to_non_nullable
+as List<Tag>?,
   ));
 }
 
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'tag_id')  String tagId, @JsonKey(name: 'parent_id')  String? parentId, @JsonKey(name: 'tag_name')  String tagName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'tag_id')  int tagId, @IntFromStringConverter()@JsonKey(name: 'parent_id')  int? parentId, @JsonKey(name: 'tag_name')  String tagName, @JsonKey(name: 'son')  List<Tag>? son)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tag() when $default != null:
-return $default(_that.tagId,_that.parentId,_that.tagName);case _:
+return $default(_that.tagId,_that.parentId,_that.tagName,_that.son);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.tagId,_that.parentId,_that.tagName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'tag_id')  String tagId, @JsonKey(name: 'parent_id')  String? parentId, @JsonKey(name: 'tag_name')  String tagName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'tag_id')  int tagId, @IntFromStringConverter()@JsonKey(name: 'parent_id')  int? parentId, @JsonKey(name: 'tag_name')  String tagName, @JsonKey(name: 'son')  List<Tag>? son)  $default,) {final _that = this;
 switch (_that) {
 case _Tag():
-return $default(_that.tagId,_that.parentId,_that.tagName);case _:
+return $default(_that.tagId,_that.parentId,_that.tagName,_that.son);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.tagId,_that.parentId,_that.tagName);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'tag_id')  String tagId, @JsonKey(name: 'parent_id')  String? parentId, @JsonKey(name: 'tag_name')  String tagName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@IntFromStringConverter()@JsonKey(name: 'tag_id')  int tagId, @IntFromStringConverter()@JsonKey(name: 'parent_id')  int? parentId, @JsonKey(name: 'tag_name')  String tagName, @JsonKey(name: 'son')  List<Tag>? son)?  $default,) {final _that = this;
 switch (_that) {
 case _Tag() when $default != null:
-return $default(_that.tagId,_that.parentId,_that.tagName);case _:
+return $default(_that.tagId,_that.parentId,_that.tagName,_that.son);case _:
   return null;
 
 }
@@ -211,12 +212,21 @@ return $default(_that.tagId,_that.parentId,_that.tagName);case _:
 @JsonSerializable()
 
 class _Tag implements Tag {
-  const _Tag({@JsonKey(name: 'tag_id') required this.tagId, @JsonKey(name: 'parent_id') this.parentId, @JsonKey(name: 'tag_name') required this.tagName});
+  const _Tag({@IntFromStringConverter()@JsonKey(name: 'tag_id') required this.tagId, @IntFromStringConverter()@JsonKey(name: 'parent_id') this.parentId, @JsonKey(name: 'tag_name') required this.tagName, @JsonKey(name: 'son') final  List<Tag>? son}): _son = son;
   factory _Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
-@override@JsonKey(name: 'tag_id') final  String tagId;
-@override@JsonKey(name: 'parent_id') final  String? parentId;
+@override@IntFromStringConverter()@JsonKey(name: 'tag_id') final  int tagId;
+@override@IntFromStringConverter()@JsonKey(name: 'parent_id') final  int? parentId;
 @override@JsonKey(name: 'tag_name') final  String tagName;
+ final  List<Tag>? _son;
+@override@JsonKey(name: 'son') List<Tag>? get son {
+  final value = _son;
+  if (value == null) return null;
+  if (_son is EqualUnmodifiableListView) return _son;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
 
 /// Create a copy of Tag
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tag&&(identical(other.tagId, tagId) || other.tagId == tagId)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.tagName, tagName) || other.tagName == tagName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Tag&&(identical(other.tagId, tagId) || other.tagId == tagId)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.tagName, tagName) || other.tagName == tagName)&&const DeepCollectionEquality().equals(other._son, _son));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,tagId,parentId,tagName);
+int get hashCode => Object.hash(runtimeType,tagId,parentId,tagName,const DeepCollectionEquality().hash(_son));
 
 @override
 String toString() {
-  return 'Tag(tagId: $tagId, parentId: $parentId, tagName: $tagName)';
+  return 'Tag(tagId: $tagId, parentId: $parentId, tagName: $tagName, son: $son)';
 }
 
 
@@ -251,7 +261,7 @@ abstract mixin class _$TagCopyWith<$Res> implements $TagCopyWith<$Res> {
   factory _$TagCopyWith(_Tag value, $Res Function(_Tag) _then) = __$TagCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'tag_id') String tagId,@JsonKey(name: 'parent_id') String? parentId,@JsonKey(name: 'tag_name') String tagName
+@IntFromStringConverter()@JsonKey(name: 'tag_id') int tagId,@IntFromStringConverter()@JsonKey(name: 'parent_id') int? parentId,@JsonKey(name: 'tag_name') String tagName,@JsonKey(name: 'son') List<Tag>? son
 });
 
 
@@ -268,12 +278,13 @@ class __$TagCopyWithImpl<$Res>
 
 /// Create a copy of Tag
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? tagId = null,Object? parentId = freezed,Object? tagName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? tagId = null,Object? parentId = freezed,Object? tagName = null,Object? son = freezed,}) {
   return _then(_Tag(
 tagId: null == tagId ? _self.tagId : tagId // ignore: cast_nullable_to_non_nullable
-as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
-as String?,tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
-as String,
+as int,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
+as int?,tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
+as String,son: freezed == son ? _self._son : son // ignore: cast_nullable_to_non_nullable
+as List<Tag>?,
   ));
 }
 

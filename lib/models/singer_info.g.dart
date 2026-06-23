@@ -8,8 +8,8 @@ part of 'singer_info.dart';
 
 _SingerInfo _$SingerInfoFromJson(Map<String, dynamic> json) => _SingerInfo(
   name: json['name'] as String,
-  isPublish: json['is_publish'] as String,
-  id: json['id'] as String,
+  isPublish: (json['is_publish'] as num).toInt(),
+  id: json['id'] as Object,
 );
 
 Map<String, dynamic> _$SingerInfoToJson(_SingerInfo instance) =>

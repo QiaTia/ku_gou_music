@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SingerInfo {
 
- String get name;@JsonKey(name: 'is_publish') String get isPublish; String get id;
+ String get name;@JsonKey(name: 'is_publish') int get isPublish; Object get id;
 /// Create a copy of SingerInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,12 +28,12 @@ $SingerInfoCopyWith<SingerInfo> get copyWith => _$SingerInfoCopyWithImpl<SingerI
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SingerInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish)&&(identical(other.id, id) || other.id == id));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SingerInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish)&&const DeepCollectionEquality().equals(other.id, id));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,isPublish,id);
+int get hashCode => Object.hash(runtimeType,name,isPublish,const DeepCollectionEquality().hash(id));
 
 @override
 String toString() {
@@ -48,7 +48,7 @@ abstract mixin class $SingerInfoCopyWith<$Res>  {
   factory $SingerInfoCopyWith(SingerInfo value, $Res Function(SingerInfo) _then) = _$SingerInfoCopyWithImpl;
 @useResult
 $Res call({
- String name,@JsonKey(name: 'is_publish') String isPublish, String id
+ String name,@JsonKey(name: 'is_publish') int isPublish, Object id
 });
 
 
@@ -69,8 +69,7 @@ class _$SingerInfoCopyWithImpl<$Res>
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,isPublish: null == isPublish ? _self.isPublish : isPublish // ignore: cast_nullable_to_non_nullable
-as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,
+as int,id: null == id ? _self.id : id ,
   ));
 }
 
@@ -155,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name, @JsonKey(name: 'is_publish')  String isPublish,  String id)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name, @JsonKey(name: 'is_publish')  int isPublish,  Object id)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SingerInfo() when $default != null:
 return $default(_that.name,_that.isPublish,_that.id);case _:
@@ -176,7 +175,7 @@ return $default(_that.name,_that.isPublish,_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name, @JsonKey(name: 'is_publish')  String isPublish,  String id)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name, @JsonKey(name: 'is_publish')  int isPublish,  Object id)  $default,) {final _that = this;
 switch (_that) {
 case _SingerInfo():
 return $default(_that.name,_that.isPublish,_that.id);case _:
@@ -196,7 +195,7 @@ return $default(_that.name,_that.isPublish,_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name, @JsonKey(name: 'is_publish')  String isPublish,  String id)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name, @JsonKey(name: 'is_publish')  int isPublish,  Object id)?  $default,) {final _that = this;
 switch (_that) {
 case _SingerInfo() when $default != null:
 return $default(_that.name,_that.isPublish,_that.id);case _:
@@ -215,8 +214,8 @@ class _SingerInfo implements SingerInfo {
   factory _SingerInfo.fromJson(Map<String, dynamic> json) => _$SingerInfoFromJson(json);
 
 @override final  String name;
-@override@JsonKey(name: 'is_publish') final  String isPublish;
-@override final  String id;
+@override@JsonKey(name: 'is_publish') final  int isPublish;
+@override final  Object id;
 
 /// Create a copy of SingerInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -231,12 +230,12 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SingerInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish)&&(identical(other.id, id) || other.id == id));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SingerInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish)&&const DeepCollectionEquality().equals(other.id, id));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,isPublish,id);
+int get hashCode => Object.hash(runtimeType,name,isPublish,const DeepCollectionEquality().hash(id));
 
 @override
 String toString() {
@@ -251,7 +250,7 @@ abstract mixin class _$SingerInfoCopyWith<$Res> implements $SingerInfoCopyWith<$
   factory _$SingerInfoCopyWith(_SingerInfo value, $Res Function(_SingerInfo) _then) = __$SingerInfoCopyWithImpl;
 @override @useResult
 $Res call({
- String name,@JsonKey(name: 'is_publish') String isPublish, String id
+ String name,@JsonKey(name: 'is_publish') int isPublish, Object id
 });
 
 
@@ -272,8 +271,7 @@ class __$SingerInfoCopyWithImpl<$Res>
   return _then(_SingerInfo(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,isPublish: null == isPublish ? _self.isPublish : isPublish // ignore: cast_nullable_to_non_nullable
-as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,
+as int,id: null == id ? _self.id : id ,
   ));
 }
 

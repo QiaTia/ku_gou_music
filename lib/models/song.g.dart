@@ -11,7 +11,7 @@ _Song _$SongFromJson(Map<String, dynamic> json) => _Song(
   songname: json['songname'] as String,
   hash: json['hash'] as String,
   authorName: json['author_name'] as String,
-  albumId: json['album_id'] as String?,
+  albumId: json['album_id'],
   albumName: json['album_name'] as String?,
   timeLength: (json['time_length'] as num).toInt(),
   publishDate: json['publish_date'] as String,

@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
+import 'package:ku_gou_music/controllers/music_controller.dart';
+import 'package:ku_gou_music/models/song.dart';
 import 'package:ku_gou_music/views/home/pc/home/home.controller.dart';
+import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
 import 'package:ku_gou_music/views/home/pc/router/router.dart';
+import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import 'package:layout/layout.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +19,8 @@ class HomeTopPage extends StatefulWidget {
 class _HomePageState extends State<HomeTopPage> {
   final HomeTopController controller = Get.put(HomeTopController());
 
+  TextEditingController textController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -26,58 +32,137 @@ class _HomePageState extends State<HomeTopPage> {
     controller.initSongList();
   }
 
+  SongItemStruct _songToItem(Song song) {
+    return SongItemStruct(
+      hash: song.hash,
+      audio_id: song.songid,
+      timelen: song.timeLength * 1000,
+      mvhash: '',
+      origin_name: '${song.authorName} - ${song.songname}',
+      privilege: 0,
+      name: song.songname,
+      author: song.authorName,
+      is_sq: false,
+      is_hq: false,
+      cover: song.coverUrl150,
+    );
+  }
+
+  void _playSong(int index) async {
+    final musicController = Get.find<MusicController>();
+    final songs = controller.recommendSongList.map(_songToItem).toList();
+    await musicController.loadPlaylistMusic(songs);
+    await musicController.playSong(index);
+    musicController.audioService.play();
+    Get.toNamed('/player');
+  }
+
   @override
   Widget build(BuildContext context) {
-    /// 计算间距
     final double padding = context.layout.value(
-      xs: 8, // sm value will be like xs 0.0
-      md: 12, // lg value will be like md 24.0
+      xs: 8,
+      md: 12,
       xl: 14,
     );
 
-    /// 计算列数
     final int crossAxisCount = context.layout.value(xs: 2, sm: 3, md: 4, lg: 6);
+    final int songCrossAxisCount = context.layout.value(
+      xs: 2,
+      sm: 3,
+      md: 4,
+      lg: 5,
+    );
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              '推荐歌单',
-              style: Theme.of(context).textTheme.headlineSmall,
+      appBar: TitleBar(searchField: TitleSearchField(textController: textController, hintText: '搜索歌曲',),),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                '推荐歌曲',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
           ),
-          Expanded(
-            child: Obx(
-              () => controller.recommendPlayList.isEmpty
-                  ? Center(
-                      child: !controller.isFailed.value
-                          ? CircularProgressIndicator()
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.error, size: 32),
-                                Text('获取歌单失败'),
-                                TextButton(
-                                  onPressed: initPlayList,
-                                  child: Text('重试'),
-                                ),
-                              ],
-                            ),
-                    )
-                  : GridView.count(
-                      restorationId: 'grid_view_demo_grid_offset',
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: padding,
-                      crossAxisSpacing: padding,
-                      padding: EdgeInsets.all(padding),
-                      childAspectRatio: 0.77,
-                      children: controller.recommendPlayList
-                          .map((item) => _GridPhotoItem(item: item))
-                          .toList(),
+          Obx(
+            () => controller.recommendSongList.isEmpty
+                ? SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator()),
                     ),
+                  )
+                : SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: padding),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: songCrossAxisCount,
+                        mainAxisSpacing: padding,
+                        crossAxisSpacing: padding,
+                        childAspectRatio: 3.2,
+                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final song = controller.recommendSongList[index];
+                        return _SongGridItem(
+                          song: song,
+                          onTap: () => _playSong(index),
+                        );
+                      }, childCount: controller.recommendSongList.length),
+                    ),
+                  ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                '推荐歌单',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
           ),
+          Obx(
+            () => controller.recommendPlayList.isEmpty
+                ? SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: !controller.isFailed.value
+                            ? CircularProgressIndicator()
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error, size: 32),
+                                  Text('获取歌单失败'),
+                                  TextButton(
+                                    onPressed: initPlayList,
+                                    child: Text('重试'),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  )
+                : SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: padding),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: padding,
+                        crossAxisSpacing: padding,
+                        childAspectRatio: 0.77,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final item = controller.recommendPlayList[index];
+                          return _GridPhotoItem(item: item);
+                        },
+                        childCount: controller.recommendPlayList.length,
+                      ),
+                    ),
+                  ),
+          ),
+          SliverPadding(padding: EdgeInsets.only(bottom: 80)),
         ],
       ),
     );
@@ -158,6 +243,83 @@ class _GridTitleText extends StatelessWidget {
         maxLines: maxLines,
         style: style,
         overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+class _SongGridItem extends StatelessWidget {
+  final Song song;
+  final VoidCallback onTap;
+
+  const _SongGridItem({required this.song, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: CachedNetworkImage(
+                  imageUrl: song.coverUrl150,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.music_note, color: Colors.grey, size: 20),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    song.songname,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFF5E8A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    song.authorName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
+import 'package:ku_gou_music/config/config.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
@@ -9,6 +11,15 @@ import 'views/music/playlist_screen.dart';
 import 'views/home/pc/layout/layout.dart';
 import 'views/login/login_page.dart';
 import 'store/user.dart';
+
+class DesktopScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
+}
 
 void main() async {
   await GetStorage.init();
@@ -32,12 +43,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Layout(
       child: GetMaterialApp(
-        title: '音乐播放器',
         debugShowCheckedModeBanner: false,
+        scrollBehavior: DesktopScrollBehavior(),
         theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
         darkTheme: ThemeData.dark(),
         initialBinding: MusicBinding(),
         home: const HomePage(),
+        navigatorObservers: [routeObserver],
         routes: {
           '/player': (context) => MusicPlayerScreen(),
           '/playlist': (context) => const PlaylistScreen(),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Song {
 
- int get songid; String get songname; String get hash;@JsonKey(name: 'author_name') String get authorName;@JsonKey(name: 'album_id') String? get albumId;@JsonKey(name: 'album_name') String? get albumName;@JsonKey(name: 'time_length') int get timeLength;@JsonKey(name: 'publish_date') String get publishDate; List<SingerInfo> get singerinfo; List<Tag> get tags;@JsonKey(name: 'sizable_cover') String get coverUrl;@JsonKey(name: 'file_size') int get fileSize;
+ int get songid; String get songname; String get hash;@JsonKey(name: 'author_name') String get authorName;@JsonKey(name: 'album_id') Object? get albumId;@JsonKey(name: 'album_name') String? get albumName;@JsonKey(name: 'time_length') int get timeLength;@JsonKey(name: 'publish_date') String get publishDate; List<SingerInfo> get singerinfo; List<Tag> get tags;@JsonKey(name: 'sizable_cover') String get coverUrl;@JsonKey(name: 'file_size') int get fileSize;
 /// Create a copy of Song
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,12 +28,12 @@ $SongCopyWith<Song> get copyWith => _$SongCopyWithImpl<Song>(this as Song, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Song&&(identical(other.songid, songid) || other.songid == songid)&&(identical(other.songname, songname) || other.songname == songname)&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.timeLength, timeLength) || other.timeLength == timeLength)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&const DeepCollectionEquality().equals(other.singerinfo, singerinfo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Song&&(identical(other.songid, songid) || other.songid == songid)&&(identical(other.songname, songname) || other.songname == songname)&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&const DeepCollectionEquality().equals(other.albumId, albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.timeLength, timeLength) || other.timeLength == timeLength)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&const DeepCollectionEquality().equals(other.singerinfo, singerinfo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,songid,songname,hash,authorName,albumId,albumName,timeLength,publishDate,const DeepCollectionEquality().hash(singerinfo),const DeepCollectionEquality().hash(tags),coverUrl,fileSize);
+int get hashCode => Object.hash(runtimeType,songid,songname,hash,authorName,const DeepCollectionEquality().hash(albumId),albumName,timeLength,publishDate,const DeepCollectionEquality().hash(singerinfo),const DeepCollectionEquality().hash(tags),coverUrl,fileSize);
 
 @override
 String toString() {
@@ -48,7 +48,7 @@ abstract mixin class $SongCopyWith<$Res>  {
   factory $SongCopyWith(Song value, $Res Function(Song) _then) = _$SongCopyWithImpl;
 @useResult
 $Res call({
- int songid, String songname, String hash,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'album_id') String? albumId,@JsonKey(name: 'album_name') String? albumName,@JsonKey(name: 'time_length') int timeLength,@JsonKey(name: 'publish_date') String publishDate, List<SingerInfo> singerinfo, List<Tag> tags,@JsonKey(name: 'sizable_cover') String coverUrl,@JsonKey(name: 'file_size') int fileSize
+ int songid, String songname, String hash,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'album_id') Object? albumId,@JsonKey(name: 'album_name') String? albumName,@JsonKey(name: 'time_length') int timeLength,@JsonKey(name: 'publish_date') String publishDate, List<SingerInfo> singerinfo, List<Tag> tags,@JsonKey(name: 'sizable_cover') String coverUrl,@JsonKey(name: 'file_size') int fileSize
 });
 
 
@@ -71,8 +71,7 @@ songid: null == songid ? _self.songid : songid // ignore: cast_nullable_to_non_n
 as int,songname: null == songname ? _self.songname : songname // ignore: cast_nullable_to_non_nullable
 as String,hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,authorName: null == authorName ? _self.authorName : authorName // ignore: cast_nullable_to_non_nullable
-as String,albumId: freezed == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
-as String?,albumName: freezed == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
+as String,albumId: freezed == albumId ? _self.albumId : albumId ,albumName: freezed == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
 as String?,timeLength: null == timeLength ? _self.timeLength : timeLength // ignore: cast_nullable_to_non_nullable
 as int,publishDate: null == publishDate ? _self.publishDate : publishDate // ignore: cast_nullable_to_non_nullable
 as String,singerinfo: null == singerinfo ? _self.singerinfo : singerinfo // ignore: cast_nullable_to_non_nullable
@@ -164,7 +163,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  String? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  Object? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Song() when $default != null:
 return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.albumId,_that.albumName,_that.timeLength,_that.publishDate,_that.singerinfo,_that.tags,_that.coverUrl,_that.fileSize);case _:
@@ -185,7 +184,7 @@ return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.al
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  String? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  Object? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)  $default,) {final _that = this;
 switch (_that) {
 case _Song():
 return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.albumId,_that.albumName,_that.timeLength,_that.publishDate,_that.singerinfo,_that.tags,_that.coverUrl,_that.fileSize);case _:
@@ -205,7 +204,7 @@ return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.al
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  String? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int songid,  String songname,  String hash, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'album_id')  Object? albumId, @JsonKey(name: 'album_name')  String? albumName, @JsonKey(name: 'time_length')  int timeLength, @JsonKey(name: 'publish_date')  String publishDate,  List<SingerInfo> singerinfo,  List<Tag> tags, @JsonKey(name: 'sizable_cover')  String coverUrl, @JsonKey(name: 'file_size')  int fileSize)?  $default,) {final _that = this;
 switch (_that) {
 case _Song() when $default != null:
 return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.albumId,_that.albumName,_that.timeLength,_that.publishDate,_that.singerinfo,_that.tags,_that.coverUrl,_that.fileSize);case _:
@@ -219,15 +218,15 @@ return $default(_that.songid,_that.songname,_that.hash,_that.authorName,_that.al
 /// @nodoc
 @JsonSerializable()
 
-class _Song implements Song {
-  const _Song({required this.songid, required this.songname, required this.hash, @JsonKey(name: 'author_name') required this.authorName, @JsonKey(name: 'album_id') this.albumId, @JsonKey(name: 'album_name') this.albumName, @JsonKey(name: 'time_length') required this.timeLength, @JsonKey(name: 'publish_date') required this.publishDate, final  List<SingerInfo> singerinfo = const [], final  List<Tag> tags = const [], @JsonKey(name: 'sizable_cover') required this.coverUrl, @JsonKey(name: 'file_size') required this.fileSize}): _singerinfo = singerinfo,_tags = tags;
+class _Song extends Song {
+  const _Song({required this.songid, required this.songname, required this.hash, @JsonKey(name: 'author_name') required this.authorName, @JsonKey(name: 'album_id') this.albumId, @JsonKey(name: 'album_name') this.albumName, @JsonKey(name: 'time_length') required this.timeLength, @JsonKey(name: 'publish_date') required this.publishDate, final  List<SingerInfo> singerinfo = const [], final  List<Tag> tags = const [], @JsonKey(name: 'sizable_cover') required this.coverUrl, @JsonKey(name: 'file_size') required this.fileSize}): _singerinfo = singerinfo,_tags = tags,super._();
   factory _Song.fromJson(Map<String, dynamic> json) => _$SongFromJson(json);
 
 @override final  int songid;
 @override final  String songname;
 @override final  String hash;
 @override@JsonKey(name: 'author_name') final  String authorName;
-@override@JsonKey(name: 'album_id') final  String? albumId;
+@override@JsonKey(name: 'album_id') final  Object? albumId;
 @override@JsonKey(name: 'album_name') final  String? albumName;
 @override@JsonKey(name: 'time_length') final  int timeLength;
 @override@JsonKey(name: 'publish_date') final  String publishDate;
@@ -261,12 +260,12 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Song&&(identical(other.songid, songid) || other.songid == songid)&&(identical(other.songname, songname) || other.songname == songname)&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.timeLength, timeLength) || other.timeLength == timeLength)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&const DeepCollectionEquality().equals(other._singerinfo, _singerinfo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Song&&(identical(other.songid, songid) || other.songid == songid)&&(identical(other.songname, songname) || other.songname == songname)&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&const DeepCollectionEquality().equals(other.albumId, albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.timeLength, timeLength) || other.timeLength == timeLength)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&const DeepCollectionEquality().equals(other._singerinfo, _singerinfo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,songid,songname,hash,authorName,albumId,albumName,timeLength,publishDate,const DeepCollectionEquality().hash(_singerinfo),const DeepCollectionEquality().hash(_tags),coverUrl,fileSize);
+int get hashCode => Object.hash(runtimeType,songid,songname,hash,authorName,const DeepCollectionEquality().hash(albumId),albumName,timeLength,publishDate,const DeepCollectionEquality().hash(_singerinfo),const DeepCollectionEquality().hash(_tags),coverUrl,fileSize);
 
 @override
 String toString() {
@@ -281,7 +280,7 @@ abstract mixin class _$SongCopyWith<$Res> implements $SongCopyWith<$Res> {
   factory _$SongCopyWith(_Song value, $Res Function(_Song) _then) = __$SongCopyWithImpl;
 @override @useResult
 $Res call({
- int songid, String songname, String hash,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'album_id') String? albumId,@JsonKey(name: 'album_name') String? albumName,@JsonKey(name: 'time_length') int timeLength,@JsonKey(name: 'publish_date') String publishDate, List<SingerInfo> singerinfo, List<Tag> tags,@JsonKey(name: 'sizable_cover') String coverUrl,@JsonKey(name: 'file_size') int fileSize
+ int songid, String songname, String hash,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'album_id') Object? albumId,@JsonKey(name: 'album_name') String? albumName,@JsonKey(name: 'time_length') int timeLength,@JsonKey(name: 'publish_date') String publishDate, List<SingerInfo> singerinfo, List<Tag> tags,@JsonKey(name: 'sizable_cover') String coverUrl,@JsonKey(name: 'file_size') int fileSize
 });
 
 
@@ -304,8 +303,7 @@ songid: null == songid ? _self.songid : songid // ignore: cast_nullable_to_non_n
 as int,songname: null == songname ? _self.songname : songname // ignore: cast_nullable_to_non_nullable
 as String,hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,authorName: null == authorName ? _self.authorName : authorName // ignore: cast_nullable_to_non_nullable
-as String,albumId: freezed == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
-as String?,albumName: freezed == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
+as String,albumId: freezed == albumId ? _self.albumId : albumId ,albumName: freezed == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
 as String?,timeLength: null == timeLength ? _self.timeLength : timeLength // ignore: cast_nullable_to_non_nullable
 as int,publishDate: null == publishDate ? _self.publishDate : publishDate // ignore: cast_nullable_to_non_nullable
 as String,singerinfo: null == singerinfo ? _self._singerinfo : singerinfo // ignore: cast_nullable_to_non_nullable

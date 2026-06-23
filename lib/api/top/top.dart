@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:ku_gou_music/models/recommend_response.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import '../../config/util.dart';
@@ -46,8 +44,6 @@ Future<RecommendResponse> getTopCart([int id = 1]) async {
     ),
   );
   final response = RecommendResponse.fromJson(res.body?['data']);
-  print(response.status);
-  print(response.songList);
   return response;
 }
 
