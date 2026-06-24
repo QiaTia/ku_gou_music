@@ -13,6 +13,7 @@ import 'views/music/playlist_screen.dart';
 import 'views/home/pc/layout/layout.dart';
 import 'views/login/login_page.dart';
 import 'store/user.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 class DesktopScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -24,6 +25,18 @@ class DesktopScrollBehavior extends MaterialScrollBehavior {
 }
 
 void main() async {
+  // 1. 初始化后台播放 (必须在 runApp 之前)
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.yourdomain.yourapp.channel.audio',
+    androidNotificationChannelName: 'Music Playback',
+    androidNotificationOngoing: true, // 通知栏是否常驻
+    androidStopForegroundOnPause: true, // 暂停时是否停止前台服务(省电)
+    // 可选：预加载下一首
+    preloadArtwork: false,
+    // 可选：通知栏图标 (Android 必须提供一个单色图标，否则可能崩溃或不显示)
+    // androidNotificationIcon: 'mipmap/ic_launcher',
+  );
+
   await GetStorage.init();
   userInstance.init();
   if (userInstance.dfid.isEmpty) {
