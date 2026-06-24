@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
 import 'package:ku_gou_music/config/config.dart';
+import 'package:ku_gou_music/views/home/mobile/layout.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
@@ -41,6 +42,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < size.height;
+
     return Layout(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
@@ -48,7 +52,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
         darkTheme: ThemeData.dark(),
         initialBinding: MusicBinding(),
-        home: const HomePage(),
+        home: isMobile ? const MobileLayoutPage() : const HomePage(),
         navigatorObservers: [routeObserver],
         routes: {
           '/player': (context) => MusicPlayerScreen(),

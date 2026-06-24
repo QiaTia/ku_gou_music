@@ -19,9 +19,11 @@ class PlazaPage extends StatelessWidget {
     final controller = Get.put(PlazaController());
     final double spacing = context.layout.value(xs: 6, sm: 8, md: 10);
     final int crossAxisCount = context.layout.value(xs: 2, sm: 3, md: 4, lg: 5);
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < size.height;
 
     return Scaffold(
-      appBar: TitleBar(),
+      appBar: isMobile ? null : TitleBar(),
       body: Obx(() {
         if (controller.isLoadingTags.value) {
           return const Center(child: CircularProgressIndicator());

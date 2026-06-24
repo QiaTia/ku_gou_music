@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
+import 'package:ku_gou_music/store/user.dart';
+import 'package:ku_gou_music/views/home/pc/router/config.dart';
+import 'package:ku_gou_music/views/home/pc/router/router.dart';
 import 'package:ku_gou_music/views/music/player_screen.dart';
-import 'package:ku_gou_music/views/my/my.dart';
+import 'package:ku_gou_music/widgets/rotating_album_cover.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MobileLayoutPage extends StatefulWidget {
+  const MobileLayoutPage({super.key});
+
   @override
-  State<HomePage> createState() => _MyHomePageState();
+  State<MobileLayoutPage> createState() => _MobileLayoutPageState();
 }
 
-class _MyHomePageState extends State<HomePage> {
+class _MobileLayoutPageState extends State<MobileLayoutPage> {
+  int _currentIndex = 0;
   DateTime? currentBackPressTime;
   final musicController = Get.put(MusicController());
-
-  // 返回键退出
   bool closeOnConfirm() {
     DateTime now = DateTime.now();
-    // 物理键，两次间隔大于4秒, 退出请求无效
     if (currentBackPressTime == null ||
         now.difference(currentBackPressTime!) > const Duration(seconds: 4)) {
       currentBackPressTime = now;
@@ -30,58 +32,71 @@ class _MyHomePageState extends State<HomePage> {
       );
       return false;
     }
-    // 退出请求有效
     currentBackPressTime = null;
     return true;
   }
 
   void _onPlayer() {
-    // Get.to(() => const MyScreen());
-    // // 加载示例音乐并跳转到播放器
-    // if (musicController.playlist.isEmpty) {
-    //   musicController.loadSampleMusic();
-    // }
     Get.to(() => const MusicPlayerScreen());
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final routerController = Get.put(
+      LocalRouterController(initialRoute: initialRoute, routes: routes),
+    );
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) {
-          return;
-        }
+        if (didPop) return;
         if (closeOnConfirm()) {
-          // 系统级别导航栈 退出程序
           SystemNavigator.pop();
         }
       },
       child: Scaffold(
-        body: Column(
-          children: [
-            Expanded(child: Row(children: [
-              Expanded(child: 
-                IndexedStack(
-                  index: 0,
-                  children: [
-                    MyScreen()
-                  ]
-                ))
-            ])),
+        body: LocalRouter(),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            if (index == 4 && userInstance.token.isEmpty) {
+              Get.toNamed('/login');
+              return;
+            } else {
+              final paths = ['/home', '/plaza', '/ranking', '/recently', '/my'];
+              routerController.navigateTo(paths[index]);
+            }
+            setState(() => _currentIndex = index);
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: const Color(0xFFFF5E8A),
+          unselectedItemColor: Colors.grey,
+          selectedFontSize: 11,
+          unselectedFontSize: 11,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.all_inclusive_sharp),
+              label: '广场',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.trending_up),
+              label: '排行榜',
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.history), label: '最近播放'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.playlist_play),
+              label: '我的',
+            ),
           ],
         ),
-        floatingActionButtonLocation: .centerDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
           onPressed: _onPlayer,
-          tooltip: 'Increment',
-          child: const Icon(Icons.play_arrow),
+          heroTag: '_buildAlbumCover', 
+          elevation: 0, 
+          backgroundColor: Colors.transparent,
+          child: RotatingAlbumCover(musicController: musicController, ignoreHero: true),
         ),
       ),
     );

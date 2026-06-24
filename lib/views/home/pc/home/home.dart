@@ -305,7 +305,7 @@ class _SongGridItem extends StatelessWidget {
                       color: Color(0xFFFF5E8A),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  // const SizedBox(height: 4),
                   Text(
                     song.authorName,
                     maxLines: 1,

@@ -22,7 +22,7 @@ class HomePage extends GetView {
             child: Row(
               children: [
                 Sidebar(),
-                Expanded( child: LocalRouter()),
+                Expanded(child: LocalRouter()),
               ],
             ),
           ),

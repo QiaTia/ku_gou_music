@@ -122,62 +122,20 @@ class Sidebar extends StatelessWidget {
           ),
         ),
       ),
-      // SidebarItemStruct(
-      //   label: 'playlists',
-      //   content: '我的',
-      //   leading: Icon(Icons.playlist_play, size: 30),
-      //   route: '/my_playlist',
-      //   onTap: () {
-      //     routerController.navigateTo('/my_playlist');
-      //   },
-      // ),
-      // SidebarItemStruct(
-      //   label: 'divider_line_3',
-      //   child: Padding(
-      //     padding: EdgeInsetsGeometry.symmetric(vertical: 10),
-      //     child: Divider(
-      //       thickness: 0.5,
-      //       height: 1,
-      //       indent: 20,
-      //       endIndent: 20,
-      //       color: dividerColor,
-      //     ),
-      //   ),
-      // ),
-      // SidebarItemStruct(
-      //   label: 'login',
-      //   content: '登录',
-      //   leading: Icon(Icons.login_rounded, size: 30),
-      //   onTap: () {
-      //     Get.toNamed('/login');
-      //   },
-      // ),
-    ];
-
-    if (userInstance.token.isEmpty) {
-      menuList.add(
-        SidebarItemStruct(
-          label: 'login',
-          content: '登录',
-          leading: Icon(Icons.login_rounded, size: 30),
-          onTap: () {
+      SidebarItemStruct(
+        label: 'playlists',
+        content: '我的',
+        leading: Icon(Icons.playlist_play, size: 30),
+        route: '/my_playlist',
+        onTap: () {
+          if (userInstance.token.isEmpty) {
             Get.toNamed('/login');
-          },
-        ),
-      );
-    } else {
-      menuList.add(
-        SidebarItemStruct(
-          label: 'playlists',
-          content: '我的',
-          leading: Icon(Icons.playlist_play, size: 30),
-          route: '/my_playlist',
-          onTap: () {
+          } else {
             routerController.navigateTo('/my_playlist');
-          },
-        ),
-      );
-    }
+          }
+        },
+      ),
+    ];
 
     return Container(
       color: bgColor,

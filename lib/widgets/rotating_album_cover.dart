@@ -5,7 +5,13 @@ import 'package:ku_gou_music/controllers/music_controller.dart';
 
 class RotatingAlbumCover extends StatefulWidget {
   final MusicController musicController;
-  const RotatingAlbumCover({super.key, required this.musicController});
+  final bool ignoreHero;
+
+  const RotatingAlbumCover({
+    super.key,
+    required this.musicController,
+    this.ignoreHero = false,
+  });
 
   @override
   State<RotatingAlbumCover> createState() => _RotatingAlbumCoverState();
@@ -30,49 +36,57 @@ class _RotatingAlbumCoverState extends State<RotatingAlbumCover>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAlbumCover() {
     return Obx(() {
       final song = widget.musicController.currentSong;
-      return RotationTransition(
-        turns: _animController,
-        child: Hero(
-          tag: '_buildAlbumCover',
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(500),
-              child: song == null
-                  ? Container(
-                      color: Colors.grey[800],
-                      child: Center(
-                        child: Icon(
-                          Icons.music_note,
-                          size: 100,
-                          color: Colors.grey[600],
-                        ),
+      return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final double coverSize = constraints.maxWidth;
+          return ClipOval(
+            // borderRadius: BorderRadius.circular(500),
+            child: song == null
+                ? Container(
+                    color: Colors.grey[800],
+                    width: coverSize,
+                    height: coverSize,
+                    child: Center(
+                      child: Icon(
+                        Icons.music_note,
+                        size: constraints.maxWidth / 2,
+                        color: Colors.grey[600],
                       ),
-                    )
-                  : CachedNetworkImage(
-                      imageUrl: song.cover,
-                      fit: BoxFit.cover,
-                      progressIndicatorBuilder: (context, url, downloadProgress) =>
-                          CircularProgressIndicator(value: downloadProgress.progress),
-                      errorWidget: (context, url, error) => const Icon(Icons.music_note),
                     ),
-            ),
-          ),
-        ),
+                  )
+                : CachedNetworkImage(
+                    imageUrl: song.cover,
+                    fit: BoxFit.cover,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                              value: downloadProgress.progress,
+                            ),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.music_note),
+                  ),
+          );
+        },
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    print(size);
+    if (widget.ignoreHero) {
+      return RotationTransition(
+        turns: _animController,
+        child: _buildAlbumCover(),
+      );
+    }
+    return RotationTransition(
+      turns: _animController,
+      child: Hero(tag: '_buildAlbumCover', child: _buildAlbumCover()),
+    );
   }
 }
