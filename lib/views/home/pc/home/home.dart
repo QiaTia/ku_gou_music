@@ -196,11 +196,16 @@ class _GridPhotoItem extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        routerController.navigateTo('/playlist/detail', {
+        Get.toNamed('/playlist/detail', arguments: {
           'id': item.globalCollectionId,
           'name': item.specialname,
           'pic': item.flexibleCover,
         });
+      //   routerController.navigateTo('/playlist/detail', {
+      //     'id': item.globalCollectionId,
+      //     'name': item.specialname,
+      //     'pic': item.flexibleCover,
+      //   });
       },
       child: GridTile(
         footer: Material(

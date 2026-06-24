@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/views/home/pc/router/router.dart';
@@ -118,33 +119,30 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     LocalRouterController controller = Get.find();
-    
-    return LayoutBuilder(
-      builder: (context, constraints) => SizedBox(
-        height: 75,
-        width: constraints.maxWidth,
-        child: Stack(
-          children: [
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              // onPanStart: (details) => windowManager.startDragging(),
-              // onDoubleTap: () async {
-              //   if (isFullScreenNotifier.value) {
-              //     return;
-              //   }
-              //   isMaximizedNotifier.value
-              //       ? windowManager.unmaximize()
-              //       : windowManager.maximize();
-              // },
-              child: SizedBox(),
-            ),
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < size.height;
 
-            Center(
+    return LayoutBuilder(
+      builder: (context, constraints) => ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 75,
+            width: constraints.maxWidth,
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.7),
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: Center(
               child: Row(
                 children: [
                   SizedBox(width: 10),
-                  // IconButton(onPressed: controller.goBack, icon: Icon(Icons.arrow_back)),
-                  Obx(() => controller.canBack.value ? 
+                  Obx(() => controller.canBack.value && !isMobile ? 
                       IconButton(onPressed: controller.goBack, icon: Icon(Icons.arrow_back))
                     : SizedBox.shrink()
                   ),
@@ -157,12 +155,11 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
                     },
                     icon: Icon(Icons.settings_outlined, size: 20),
                   ),
-                  // windowControls(),
                   SizedBox(width: 10),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

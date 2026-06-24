@@ -126,12 +126,12 @@ class Sidebar extends StatelessWidget {
         label: 'playlists',
         content: '我的',
         leading: Icon(Icons.playlist_play, size: 30),
-        route: '/my_playlist',
+        route: '/my',
         onTap: () {
           if (userInstance.token.isEmpty) {
             Get.toNamed('/login');
           } else {
-            routerController.navigateTo('/my_playlist');
+            routerController.navigateTo('/my');
           }
         },
       ),

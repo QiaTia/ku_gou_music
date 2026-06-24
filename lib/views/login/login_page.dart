@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'password_login.dart';
 import 'qr_login.dart';
 
@@ -10,7 +11,8 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -28,9 +30,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final padding = MediaQuery.of(context).padding;
     final isMobile = size.width < 600;
+    final availableHeight = size.height - padding.top - padding.bottom;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, systemOverlayStyle: SystemUiOverlayStyle.light),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -57,14 +63,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               child: _buildGlowOrb(300, Colors.blueAccent.withAlpha(60)),
             ),
             Positioned(
-              top: size.height * 0.3,
+              top: availableHeight * 0.3,
               right: size.width * 0.2,
               child: _buildGlowOrb(150, Colors.cyanAccent.withAlpha(40)),
             ),
             Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(isMobile ? 20 : 40),
-                child: _buildGlassContainer(isMobile),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 20 : 40,
+                  vertical: isMobile ? 16 : 40,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: availableHeight - (isMobile ? 120 : 180),
+                  ),
+                  child: _buildGlassContainer(isMobile),
+                ),
               ),
             ),
           ],
@@ -93,37 +107,59 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       return _buildWideLayout();
     }
 
-    final containerWidth = isMobile ? double.infinity : 450.0;
-
-    return Container(
-      width: containerWidth,
-      decoration: _glassDecoration(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(isMobile ? 24 : 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildTabBar(),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 350,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: const [
-                        PasswordLogin(),
-                        QrLogin(),
-                      ],
-                    ),
-                  ),
-                ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.18),
+                Colors.white.withValues(alpha: 0.08),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 40,
+                spreadRadius: -10,
               ),
+              BoxShadow(
+                color: Colors.purpleAccent.withValues(alpha: 0.1),
+                blurRadius: 60,
+                spreadRadius: -20,
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(isMobile ? 20 : 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 20),
+                _buildTabBar(),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: isMobile ? 300 : 350,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: const [
+                      PasswordLogin(),
+                      QrLogin(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -132,13 +168,39 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildWideLayout() {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 820),
-      decoration: _glassDecoration(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 820),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.18),
+                Colors.white.withValues(alpha: 0.08),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 40,
+                spreadRadius: -10,
+              ),
+              BoxShadow(
+                color: Colors.purpleAccent.withValues(alpha: 0.1),
+                blurRadius: 60,
+                spreadRadius: -20,
+              ),
+            ],
+          ),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -150,7 +212,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     decoration: BoxDecoration(
                       border: Border(
                         right: BorderSide(
-                          color: Colors.white.withAlpha(20),
+                          color: Colors.white.withValues(alpha: 0.15),
                           width: 1,
                         ),
                       ),
@@ -189,53 +251,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  BoxDecoration _glassDecoration() {
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withAlpha(25),
-          Colors.white.withAlpha(10),
-        ],
-      ),
-      border: Border.all(
-        color: Colors.white.withAlpha(30),
-        width: 1.5,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withAlpha(60),
-          blurRadius: 40,
-          spreadRadius: -10,
-        ),
-        BoxShadow(
-          color: Colors.purpleAccent.withAlpha(20),
-          blurRadius: 60,
-          spreadRadius: -20,
-        ),
-      ],
-    );
-  }
-
   Widget _buildHeader() {
     return Column(
       children: [
         Container(
-          width: 70,
-          height: 70,
+          width: 64,
+          height: 64,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
               colors: [
-                Colors.purpleAccent.withAlpha(200),
-                Colors.cyanAccent.withAlpha(200),
+                Colors.purpleAccent.withValues(alpha: 0.9),
+                Colors.cyanAccent.withValues(alpha: 0.9),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.purpleAccent.withAlpha(80),
+                color: Colors.purpleAccent.withValues(alpha: 0.4),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -244,25 +276,25 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           child: const Icon(
             Icons.music_note_rounded,
             color: Colors.white,
-            size: 36,
+            size: 32,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         const Text(
           'KuGou Music',
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           'Welcome back',
           style: TextStyle(
-            fontSize: 14,
-            color: Colors.white.withAlpha(150),
+            fontSize: 13,
+            color: Colors.white.withValues(alpha: 0.6),
             letterSpacing: 1,
           ),
         ),
@@ -272,11 +304,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Widget _buildTabBar() {
     return Container(
-      height: 48,
+      height: 44,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white.withAlpha(15),
-        border: Border.all(color: Colors.white.withAlpha(20)),
+        color: Colors.white.withValues(alpha: 0.1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
       child: TabBar(
         controller: _tabController,
@@ -284,13 +316,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(
             colors: [
-              Colors.purpleAccent.withAlpha(180),
-              Colors.blueAccent.withAlpha(180),
+              Colors.purpleAccent.withValues(alpha: 0.8),
+              Colors.blueAccent.withValues(alpha: 0.8),
             ],
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.purpleAccent.withAlpha(60),
+              color: Colors.purpleAccent.withValues(alpha: 0.3),
               blurRadius: 8,
             ),
           ],
@@ -298,7 +330,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         labelColor: Colors.white,
-        unselectedLabelColor: Colors.white.withAlpha(150),
+        unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,

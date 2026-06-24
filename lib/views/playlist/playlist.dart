@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/utils/utils.dart';
-import 'package:ku_gou_music/views/home/pc/router/router.dart';
 import 'playlist.controller.dart';
 import 'dart:math' as math;
 
@@ -22,7 +21,6 @@ class PlaylistScreen extends GetWidget {
   Widget build(BuildContext context) {
     final PlaylistController controller = Get.put(PlaylistController());
     final MusicController musicController = Get.find();
-    final LocalRouterController routerController = Get.find();
 
     final bgCardColor = Theme.of(context).cardColor;
 
@@ -40,10 +38,10 @@ class PlaylistScreen extends GetWidget {
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              leading : IconButton(
-                onPressed: routerController.goBack,
-                icon: Icon(Icons.arrow_back_ios_new_rounded),
-              ),
+              // leading : IconButton(
+              //   onPressed: routerController.goBack,
+              //   icon: Icon(Icons.arrow_back_ios_new_rounded),
+              // ),
               expandedHeight: 300,
               pinned: true, // 固定顶部
               // floating: true,
@@ -54,11 +52,11 @@ class PlaylistScreen extends GetWidget {
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(
+                    Hero(tag: id, child: CachedNetworkImage(
                       imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
                       fit: .fitHeight,
                       repeat: .noRepeat,
-                    ),
+                    )),
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(

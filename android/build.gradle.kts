@@ -1,5 +1,10 @@
 allprojects {
     repositories {
+        // ✅ 正确的 Kotlin DSL 语法
+        maven("https://maven.aliyun.com/repository/google")
+        maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/public")
+        
         google()
         mavenCentral()
     }

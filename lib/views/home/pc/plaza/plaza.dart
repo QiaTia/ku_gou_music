@@ -235,11 +235,19 @@ class _PlaylistCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        routerController.navigateTo('/playlist/detail', {
-          'id': item.globalCollectionId,
-          'name': name,
-          'pic': cover,
-        });
+        Get.toNamed(
+          '/playlist/detail',
+          arguments: {
+            'id': item.globalCollectionId,
+            'name': name,
+            'pic': cover,
+          },
+        );
+        // routerController.navigateTo('/playlist/detail', {
+        //   'id': item.globalCollectionId,
+        //   'name': name,
+        //   'pic': cover,
+        // });
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -264,7 +272,7 @@ class _PlaylistCard extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: cover.isNotEmpty
-                      ? CachedNetworkImage(
+                      ? Hero(tag: item.globalCollectionId, child: CachedNetworkImage(
                           imageUrl: cover,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
@@ -275,7 +283,7 @@ class _PlaylistCard extends StatelessWidget {
                             color: _greyBgColor,
                             child: const Center(child: Icon(Icons.music_note, color: Colors.grey)),
                           ),
-                        )
+                        ))
                       : Container(
                           color: _greyBgColor,
                           child: const Center(child: Icon(Icons.music_note, color: Colors.grey)),

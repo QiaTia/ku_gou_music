@@ -74,7 +74,7 @@ class _PasswordLoginState extends State<PasswordLogin> {
           icon: Icons.person_outline_rounded,
           keyboardType: TextInputType.text,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _buildInputField(
           controller: _passwordController,
           hint: 'Password',
@@ -82,14 +82,17 @@ class _PasswordLoginState extends State<PasswordLogin> {
           obscureText: _obscurePassword,
           suffixIcon: IconButton(
             icon: Icon(
-              _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-              color: Colors.white.withAlpha(150),
+              _obscurePassword
+                  ? Icons.visibility_off_rounded
+                  : Icons.visibility_rounded,
+              color: Colors.white.withValues(alpha: 0.6),
               size: 20,
             ),
-            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            onPressed: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
@@ -97,16 +100,14 @@ class _PasswordLoginState extends State<PasswordLogin> {
             child: Text(
               'Forgot password?',
               style: TextStyle(
-                color: Colors.cyanAccent.withAlpha(200),
-                fontSize: 13,
+                color: Colors.cyanAccent.withValues(alpha: 0.8),
+                fontSize: 12,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _buildLoginButton(),
-        const SizedBox(height: 20),
-        _buildSocialLogin(),
       ],
     );
   }
@@ -120,11 +121,11 @@ class _PasswordLoginState extends State<PasswordLogin> {
     Widget? suffixIcon,
   }) {
     return Container(
-      height: 56,
+      height: 52,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withAlpha(10),
-        border: Border.all(color: Colors.white.withAlpha(25)),
+        color: Colors.white.withValues(alpha: 0.08),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
       child: TextField(
         controller: controller,
@@ -133,11 +134,13 @@ class _PasswordLoginState extends State<PasswordLogin> {
         style: const TextStyle(color: Colors.white, fontSize: 15),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withAlpha(100)),
-          prefixIcon: Icon(icon, color: Colors.white.withAlpha(150), size: 22),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+          prefixIcon:
+              Icon(icon, color: Colors.white.withValues(alpha: 0.6), size: 22),
           suffixIcon: suffixIcon,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
     );
@@ -146,7 +149,7 @@ class _PasswordLoginState extends State<PasswordLogin> {
   Widget _buildLoginButton() {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 50,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
@@ -163,15 +166,19 @@ class _PasswordLoginState extends State<PasswordLogin> {
             borderRadius: BorderRadius.circular(14),
             gradient: LinearGradient(
               colors: _isLoading
-                  ? [Colors.grey.withAlpha(100), Colors.grey.withAlpha(80)]
+                  ? [
+                      Colors.grey.withValues(alpha: 0.4),
+                      Colors.grey.withValues(alpha: 0.3),
+                    ]
                   : [
-                      Colors.purpleAccent.withAlpha(220),
-                      Colors.blueAccent.withAlpha(220),
+                      Colors.purpleAccent.withValues(alpha: 0.85),
+                      Colors.blueAccent.withValues(alpha: 0.85),
                     ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.purpleAccent.withAlpha(_isLoading ? 20 : 60),
+                color: Colors.purpleAccent
+                    .withValues(alpha: _isLoading ? 0.1 : 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
@@ -180,8 +187,8 @@ class _PasswordLoginState extends State<PasswordLogin> {
           child: Center(
             child: _isLoading
                 ? const SizedBox(
-                    width: 24,
-                    height: 24,
+                    width: 22,
+                    height: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -206,30 +213,34 @@ class _PasswordLoginState extends State<PasswordLogin> {
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.white.withAlpha(40))),
+            Expanded(
+                child: Divider(color: Colors.white.withValues(alpha: 0.2))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'OR',
                 style: TextStyle(
-                  color: Colors.white.withAlpha(100),
-                  fontSize: 12,
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 11,
                   letterSpacing: 2,
                 ),
               ),
             ),
-            Expanded(child: Divider(color: Colors.white.withAlpha(40))),
+            Expanded(
+                child: Divider(color: Colors.white.withValues(alpha: 0.2))),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialButton(Icons.wechat_rounded, Colors.green.withAlpha(200)),
-            const SizedBox(width: 20),
+            _buildSocialButton(
+                Icons.wechat_rounded, Colors.green.withValues(alpha: 0.9)),
+            const SizedBox(width: 18),
             _buildSocialButton(Icons.apple_rounded, Colors.white),
-            const SizedBox(width: 20),
-            _buildSocialButton(Icons.phone_android_rounded, Colors.cyanAccent.withAlpha(200)),
+            const SizedBox(width: 18),
+            _buildSocialButton(
+                Icons.phone_android_rounded, Colors.cyanAccent.withValues(alpha: 0.9)),
           ],
         ),
       ],
@@ -238,14 +249,14 @@ class _PasswordLoginState extends State<PasswordLogin> {
 
   Widget _buildSocialButton(IconData icon, Color color) {
     return Container(
-      width: 48,
-      height: 48,
+      width: 46,
+      height: 46,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withAlpha(15),
-        border: Border.all(color: Colors.white.withAlpha(25)),
+        color: Colors.white.withValues(alpha: 0.1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
-      child: Icon(icon, color: color, size: 24),
+      child: Icon(icon, color: color, size: 22),
     );
   }
 }

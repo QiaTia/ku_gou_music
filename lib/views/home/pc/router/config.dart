@@ -17,7 +17,7 @@ Map<String, Widget Function(BuildContext)> routes = {
   '/ranking': (context) => const RankingPage(),
   '/profile': (context) => SizedBox.shrink(),
   '/recently': (context) => const RecentlyPage(),
-  '/my_playlist': (context) => const MyScreen(),
+  '/my': (context) => const MyScreen(),
   '/my_favorite': (context) => SizedBox.shrink(),
   '/playlist/detail': (context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;

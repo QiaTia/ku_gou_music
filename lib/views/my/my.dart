@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ku_gou_music/models/user/user_info.dart';
 import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/home/pc/router/router.dart';
+import 'package:layout/layout.dart';
 import 'playlist.controller.dart';
 
 const _pinkColor = Color(0xFFFF5E8A);
@@ -374,6 +375,11 @@ class _PlaylistGridSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final routerController = Get.find<LocalRouterController>();
+    final int songCrossAxisCount = context.layout.value(
+      xs: 3,
+      sm: 4,
+      md: 5,
+    );
     return Obx(() {
       if (controller.selectedTab.value != 0) {
         return const SliverToBoxAdapter(
@@ -394,8 +400,8 @@ class _PlaylistGridSection extends StatelessWidget {
       return SliverPadding(
         padding: const EdgeInsets.all(16),
         sliver: SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: songCrossAxisCount,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             childAspectRatio: 0.75,
@@ -405,11 +411,16 @@ class _PlaylistGridSection extends StatelessWidget {
               final item = controller.playlist[index];
               return GestureDetector(
                 onTap: () {
-                  routerController.navigateTo('/playlist/detail', {
+                  Get.toNamed('/playlist/detail', arguments: {
                     'id': item.global_collection_id,
                     'name': item.name,
                     'pic': item.pic,
                   });
+                  // routerController.navigateTo('/playlist/detail', {
+                  //   'id': item.global_collection_id,
+                  //   'name': item.name,
+                  //   'pic': item.pic,
+                  // });
                 },
                 child: Column(
                   children: [
@@ -419,14 +430,14 @@ class _PlaylistGridSection extends StatelessWidget {
                         child: SizedBox(
                           width: double.infinity,
                           child: item.pic.isNotEmpty
-                              ? CachedNetworkImage(
+                              ? Hero(tag: item.global_collection_id, child: CachedNetworkImage(
                                   imageUrl: item.pic,
                                   fit: BoxFit.cover,
                                   errorWidget: (context, url, error) => Container(
                                     color: Colors.grey[200],
                                     child: const Icon(Icons.music_note, color: Colors.grey),
                                   ),
-                                )
+                                ))
                               : Container(
                                   color: Colors.grey[200],
                                   child: const Icon(Icons.music_note, color: Colors.grey),

@@ -68,7 +68,6 @@ class _QrLoginState extends State<QrLogin> {
 
         if (status == 4) {
           _pollTimer?.cancel();
-          print(response.body);
           userInstance.onLogin(response.body!['data'] ?? {});
           Get.back(result: true);
           Get.showSnackbar(
@@ -92,9 +91,9 @@ class _QrLoginState extends State<QrLogin> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildQrContainer(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
         _buildInstructions(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         _buildRefreshButton(),
       ],
     );
@@ -102,22 +101,21 @@ class _QrLoginState extends State<QrLogin> {
 
   Widget _buildQrContainer() {
     return Container(
-      width: 220,
-      height: 220,
+      width: 180,
+      height: 180,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withAlpha(255),
-        border: Border.all(color: Colors.white.withAlpha(40)),
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.purpleAccent.withAlpha(30),
-            blurRadius: 20,
-            spreadRadius: 2,
+            color: Colors.purpleAccent.withValues(alpha: 0.2),
+            blurRadius: 16,
+            spreadRadius: 1,
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         child: _buildQrContent(),
       ),
     );
@@ -132,15 +130,15 @@ class _QrLoginState extends State<QrLogin> {
             CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.purpleAccent.withAlpha(200),
+                Colors.purpleAccent.withValues(alpha: 0.9),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
               'Loading...',
               style: TextStyle(
-                color: Colors.black.withAlpha(150),
-                fontSize: 13,
+                color: Colors.black.withValues(alpha: 0.5),
+                fontSize: 12,
               ),
             ),
           ],
@@ -156,14 +154,14 @@ class _QrLoginState extends State<QrLogin> {
             Icon(
               Icons.error_outline_rounded,
               color: Colors.redAccent,
-              size: 40,
+              size: 36,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               _error!,
               style: TextStyle(
-                color: Colors.black.withAlpha(150),
-                fontSize: 12,
+                color: Colors.black.withValues(alpha: 0.5),
+                fontSize: 11,
               ),
               textAlign: TextAlign.center,
             ),
@@ -187,8 +185,8 @@ class _QrLoginState extends State<QrLogin> {
     return Center(
       child: Icon(
         Icons.qr_code_2_rounded,
-        size: 80,
-        color: Colors.black.withAlpha(100),
+        size: 70,
+        color: Colors.black.withValues(alpha: 0.3),
       ),
     );
   }
@@ -199,15 +197,18 @@ class _QrLoginState extends State<QrLogin> {
         Text(
           'Scan with KuGou App',
           style: TextStyle(
-            color: Colors.black.withAlpha(200),
-            fontSize: 15,
+            color: Colors.white.withValues(alpha: 0.9),
+            fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           'Open KuGou app → Me → Scan',
-          style: TextStyle(color: Colors.black.withAlpha(120), fontSize: 13),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.5),
+            fontSize: 12,
+          ),
         ),
       ],
     );
@@ -218,12 +219,15 @@ class _QrLoginState extends State<QrLogin> {
       onPressed: _createQrCode,
       icon: Icon(
         Icons.refresh_rounded,
-        color: Colors.cyanAccent.withAlpha(200),
-        size: 18,
+        color: Colors.cyanAccent.withValues(alpha: 0.9),
+        size: 16,
       ),
       label: Text(
         'Refresh QR Code',
-        style: TextStyle(color: Colors.cyanAccent.withAlpha(200), fontSize: 14),
+        style: TextStyle(
+          color: Colors.cyanAccent.withValues(alpha: 0.9),
+          fontSize: 13,
+        ),
       ),
     );
   }

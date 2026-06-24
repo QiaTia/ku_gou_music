@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
 import 'package:ku_gou_music/config/config.dart';
 import 'package:ku_gou_music/views/home/mobile/layout.dart';
+import 'package:ku_gou_music/views/playlist/playlist.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
@@ -56,27 +57,13 @@ class MyApp extends StatelessWidget {
         navigatorObservers: [routeObserver],
         routes: {
           '/player': (context) => MusicPlayerScreen(),
-          '/playlist': (context) => const PlaylistScreen(),
+          '/playlist': (context) => const CurrentPlaylistScreen(),
           '/login': (context) => const LoginPage(),
-        },
-        getPages: [
-          GetPage(
-            name: '/player',
-            page: () => MusicPlayerScreen(),
-            transition: Transition.upToDown,
-            transitionDuration: Duration(milliseconds: 300),
-            opaque: false,
-            fullscreenDialog: true,
-            popGesture: true,
-          ),
-          GetPage(name: '/playlist', page: () => const PlaylistScreen()),
-          GetPage(
-            name: '/login',
-            page: () => const LoginPage(),
-            transition: Transition.fade,
-            transitionDuration: Duration(milliseconds: 300),
-          ),
-        ],
+          '/playlist/detail': (context) {
+            final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+            return PlaylistScreen(name: args?['name'], id: args?['id'], pic: args?['pic'],);
+          }
+        }
       ),
     );
   }

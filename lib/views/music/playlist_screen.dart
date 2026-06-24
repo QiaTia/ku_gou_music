@@ -5,8 +5,8 @@ import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import '../../controllers/music_controller.dart';
 
 
-class PlaylistScreen extends GetView<MusicController> {
-  const PlaylistScreen({super.key});
+class CurrentPlaylistScreen extends GetView<MusicController> {
+  const CurrentPlaylistScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

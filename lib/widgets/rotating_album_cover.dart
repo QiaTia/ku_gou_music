@@ -41,14 +41,11 @@ class _RotatingAlbumCoverState extends State<RotatingAlbumCover>
       final song = widget.musicController.currentSong;
       return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          final double coverSize = constraints.maxWidth;
           return ClipOval(
             // borderRadius: BorderRadius.circular(500),
-            child: song == null
+            child: AspectRatio(aspectRatio: 1,child: song == null
                 ? Container(
                     color: Colors.grey[800],
-                    width: coverSize,
-                    height: coverSize,
                     child: Center(
                       child: Icon(
                         Icons.music_note,
@@ -68,7 +65,7 @@ class _RotatingAlbumCoverState extends State<RotatingAlbumCover>
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.music_note),
                   ),
-          );
+          ));
         },
       );
     });
