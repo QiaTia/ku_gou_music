@@ -18,3 +18,4 @@ final mid = calculateMid(cryptoMd5(getGuid()));
 // 通常放在顶层或路由配置文件中
 
 final RouteObserver<ModalRoute<void>> routeObserver =    RouteObserver<ModalRoute<void>>();
+bool isMobile = false;

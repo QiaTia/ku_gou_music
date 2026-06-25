@@ -21,7 +21,7 @@ class MusicController extends GetxController {
   String get currentTime => _formatDuration(position);
   String get totalTime => _formatDuration(duration);
   int get currentSongIndex => audioService.currentIndex.value;
-  List<SongItemStruct> get playlist => audioService.playlist;
+  List<SongItemStruct> get playlist => audioService.songList;
   double get volume => audioService.volume.value;
   bool get isShuffled => audioService.isShuffled.value;
   LoopMode get loopMode => audioService.loopMode.value;

@@ -58,10 +58,7 @@ class _MobileLayoutPageState extends State<MobileLayoutPage> {
       },
       child: Scaffold(
         extendBody: true,
-        body: Column(children: [ 
-          Expanded(child: LocalRouter()),
-          SizedBox(height: 80)
-        ]),
+        body: LocalRouter(),
         bottomNavigationBar: _LiquidGlassBottomBar(
           currentIndex: _currentIndex,
           onTap: (index) {
@@ -78,7 +75,7 @@ class _MobileLayoutPageState extends State<MobileLayoutPage> {
         floatingActionButton: FloatingActionButton(
           onPressed: _onPlayer,
           heroTag: '_buildAlbumCover',
-          elevation: 0,
+          elevation: 2,
           highlightElevation: 0,
           backgroundColor: Colors.transparent,
           child: RotatingAlbumCover(musicController: musicController, ignoreHero: true),
@@ -100,8 +97,9 @@ class _LiquidGlassBottomBar extends StatelessWidget {
   static const _items = [
     _BarItem(icon: Icons.home, label: '首页'),
     _BarItem(icon: Icons.all_inclusive_sharp, label: '广场'),
+    _BarItem(icon: Icons.auto_awesome_motion, label: 'white'),
     _BarItem(icon: Icons.trending_up, label: '排行榜'),
-    _BarItem(icon: Icons.history, label: '最近播放'),
+    // _BarItem(icon: Icons.history, label: '最近播放'),
     _BarItem(icon: Icons.playlist_play, label: '我的'),
   ];
 
@@ -115,7 +113,7 @@ class _LiquidGlassBottomBar extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: Container(
-          height: 80 + bottomPadding,
+          height: 64 + bottomPadding,
           padding: EdgeInsets.only(bottom: bottomPadding),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -141,6 +139,9 @@ class _LiquidGlassBottomBar extends StatelessWidget {
                 children: List.generate(_items.length, (i) {
                   final item = _items[i];
                   final isSelected = i == current;
+                  if (item.label == 'white') {
+                    return SizedBox(width: 60);
+                  }
                   return _LiquidBarItem(
                     item: item,
                     isSelected: isSelected,
@@ -232,9 +233,9 @@ class _LiquidGlassClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    final notchRadius = 32.0;
+    final notchRadius = 38.0;
     final centerX = size.width / 2;
-    const curveDepth = 28.0;
+    const curveDepth = 22.0;
 
     path.moveTo(0, 0);
     path.lineTo(centerX - notchRadius - 10, 0);

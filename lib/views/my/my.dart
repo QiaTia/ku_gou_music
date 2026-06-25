@@ -23,7 +23,8 @@ class MyScreen extends StatelessWidget {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
-        final nickname = controller.userInfo.value?.nickname ?? userInstance.nickname ?? '';
+        final nickname =
+            controller.userInfo.value?.nickname ?? userInstance.nickname ?? '';
         return CustomScrollView(
           slivers: [
             _ProfileHeader(
@@ -31,7 +32,9 @@ class MyScreen extends StatelessWidget {
               nickname: nickname,
               onBack: () => routerController.goBack(),
             ),
-            SliverToBoxAdapter(child: _LikedSongsSection(controller: controller)),
+            SliverToBoxAdapter(
+              child: _LikedSongsSection(controller: controller),
+            ),
             SliverToBoxAdapter(child: _TabBarSection(controller: controller)),
             _PlaylistGridSection(controller: controller),
             SliverPadding(padding: EdgeInsets.only(bottom: 80)),
@@ -46,7 +49,11 @@ class _ProfileHeader extends StatelessWidget {
   final UserInfo? userInfo;
   final String nickname;
   final VoidCallback onBack;
-  const _ProfileHeader({required this.userInfo, required this.nickname, required this.onBack});
+  const _ProfileHeader({
+    required this.userInfo,
+    required this.nickname,
+    required this.onBack,
+  });
 
   String _formatDuration(int seconds) {
     final h = seconds ~/ 3600;
@@ -69,14 +76,20 @@ class _ProfileHeader extends StatelessWidget {
     final visitors = userInfo?.visitors ?? 0;
     final gender = userInfo?.gender ?? 0;
     final vipType = userInfo?.vipType ?? 0;
-    final duration = userInfo?.duration ?? 0
-    ;
+    final duration = userInfo?.duration ?? 0;
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < size.height;
+
     return SliverAppBar(
       pinned: true,
       expandedHeight: 240,
       // backgroundColor: Color(0xFF5C4033),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+      leading: isMobile ? SizedBox() : IconButton(
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: onBack,
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -98,8 +111,16 @@ class _ProfileHeader extends StatelessWidget {
                   CircleAvatar(
                     radius: 36,
                     backgroundColor: Colors.white24,
-                    backgroundImage: pic.isNotEmpty ? CachedNetworkImageProvider(pic) : null,
-                    child: pic.isEmpty ? const Icon(Icons.person, size: 36, color: Colors.white70) : null,
+                    backgroundImage: pic.isNotEmpty
+                        ? CachedNetworkImageProvider(pic)
+                        : null,
+                    child: pic.isEmpty
+                        ? const Icon(
+                            Icons.person,
+                            size: 36,
+                            color: Colors.white70,
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -121,22 +142,41 @@ class _ProfileHeader extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white24,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text('Lv.9', style: TextStyle(fontSize: 11, color: Colors.white)),
+                              child: const Text(
+                                'Lv.9',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                             if (vipType > 0) ...[
                               const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Color(0xFFFF5E8A),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: const Text('VIP', style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  'VIP',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ],
                           ],
@@ -161,7 +201,10 @@ class _ProfileHeader extends StatelessWidget {
                 runSpacing: 6,
                 children: [
                   if (gender > 0)
-                    _InfoTag(icon: gender == 2 ? Icons.male : Icons.female, text: gender == 2 ? '男' : '女'),
+                    _InfoTag(
+                      icon: gender == 2 ? Icons.male : Icons.female,
+                      text: gender == 2 ? '男' : '女',
+                    ),
                   if (duration > 0)
                     _InfoTag(text: '${_formatDuration(duration)} 听歌时长'),
                   _InfoTag(text: '乐龄 ${_musicAge()}'),
@@ -195,8 +238,18 @@ class _StatItem extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-            TextSpan(text: ' $label', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            TextSpan(
+              text: value,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            TextSpan(
+              text: ' $label',
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
           ],
         ),
       ),
@@ -224,7 +277,10 @@ class _InfoTag extends StatelessWidget {
             Icon(icon, size: 14, color: Colors.white70),
             const SizedBox(width: 4),
           ],
-          Text(text, style: const TextStyle(fontSize: 11, color: Colors.white70)),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 11, color: Colors.white70),
+          ),
         ],
       ),
     );
@@ -246,7 +302,10 @@ class _ActionChip extends StatelessWidget {
           border: Border.all(color: Colors.white54),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(label, style: const TextStyle(fontSize: 13, color: Colors.white)),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: Colors.white),
+        ),
       ),
     );
   }
@@ -266,7 +325,11 @@ class _LikedSongsSection extends StatelessWidget {
         children: [
           const Text(
             '我喜欢听',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _pinkColor),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: _pinkColor,
+            ),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -287,7 +350,11 @@ class _LikedSongsSection extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorWidget: (context, url, error) => Container(
                             color: Colors.grey[200],
-                            child: const Icon(Icons.music_note, size: 16, color: Colors.grey),
+                            child: const Icon(
+                              Icons.music_note,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
                       ),
@@ -301,13 +368,19 @@ class _LikedSongsSection extends StatelessWidget {
                             song['name'] ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           Text(
                             song['author'] ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
                           ),
                         ],
                       ),
@@ -346,19 +419,26 @@ class _TabBarSection extends StatelessWidget {
               onTap: () => controller.selectedTab.value = index,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? _pinkColor : _pinkBgColor,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: Center(child: Text(
-                  _tabs[index],
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black54,
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                child: Center(
+                  child: Text(
+                    _tabs[index],
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black54,
+                      fontSize: 13,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
                   ),
-                )),
+                ),
               ),
             );
           });
@@ -374,18 +454,15 @@ class _PlaylistGridSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final routerController = Get.find<LocalRouterController>();
-    final int songCrossAxisCount = context.layout.value(
-      xs: 3,
-      sm: 4,
-      md: 5,
-    );
+    final int songCrossAxisCount = context.layout.value(xs: 3, sm: 4, md: 5);
     return Obx(() {
       if (controller.selectedTab.value != 0) {
         return const SliverToBoxAdapter(
           child: SizedBox(
             height: 200,
-            child: Center(child: Text('暂无数据', style: TextStyle(color: Colors.grey))),
+            child: Center(
+              child: Text('暂无数据', style: TextStyle(color: Colors.grey)),
+            ),
           ),
         );
       }
@@ -406,62 +483,76 @@ class _PlaylistGridSection extends StatelessWidget {
             crossAxisSpacing: 16,
             childAspectRatio: 0.75,
           ),
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final item = controller.playlist[index];
-              return GestureDetector(
-                onTap: () {
-                  Get.toNamed('/playlist/detail', arguments: {
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final item = controller.playlist[index];
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed(
+                  '/playlist/detail',
+                  arguments: {
                     'id': item.global_collection_id,
                     'name': item.name,
                     'pic': item.pic,
-                  });
-                  // routerController.navigateTo('/playlist/detail', {
-                  //   'id': item.global_collection_id,
-                  //   'name': item.name,
-                  //   'pic': item.pic,
-                  // });
-                },
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: item.pic.isNotEmpty
-                              ? Hero(tag: item.global_collection_id, child: CachedNetworkImage(
+                  },
+                );
+                // routerController.navigateTo('/playlist/detail', {
+                //   'id': item.global_collection_id,
+                //   'name': item.name,
+                //   'pic': item.pic,
+                // });
+              },
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: item.pic.isNotEmpty
+                            ? Hero(
+                                tag: item.global_collection_id,
+                                child: CachedNetworkImage(
                                   imageUrl: item.pic,
                                   fit: BoxFit.cover,
-                                  errorWidget: (context, url, error) => Container(
-                                    color: Colors.grey[200],
-                                    child: const Icon(Icons.music_note, color: Colors.grey),
-                                  ),
-                                ))
-                              : Container(
-                                  color: Colors.grey[200],
-                                  child: const Icon(Icons.music_note, color: Colors.grey),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                        color: Colors.grey[200],
+                                        child: const Icon(
+                                          Icons.music_note,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
                                 ),
-                        ),
+                              )
+                            : Container(
+                                color: Colors.grey[200],
+                                child: const Icon(
+                                  Icons.music_note,
+                                  color: Colors.grey,
+                                ),
+                              ),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      item.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: _pinkColor, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: _pinkColor,
+                      fontWeight: FontWeight.w500,
                     ),
-                    Text(
-                      '${item.count} 首歌',
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-              );
-            },
-            childCount: controller.playlist.length,
-          ),
+                  ),
+                  Text(
+                    '${item.count} 首歌',
+                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            );
+          }, childCount: controller.playlist.length),
         ),
       );
     });

@@ -27,7 +27,7 @@ class DesktopScrollBehavior extends MaterialScrollBehavior {
 void main() async {
   // 1. 初始化后台播放 (必须在 runApp 之前)
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.yourdomain.yourapp.channel.audio',
+    androidNotificationChannelId: 'cn.tia.ku_gou_music.channel.audio',
     androidNotificationChannelName: 'Music Playback',
     androidNotificationOngoing: true, // 通知栏是否常驻
     androidStopForegroundOnPause: true, // 暂停时是否停止前台服务(省电)
@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
-
+    
     return Layout(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,

@@ -17,7 +17,13 @@ class AudioService extends GetxService {
   final RxBool isShuffled = false.obs;
   final Rx<LoopMode> loopMode = LoopMode.off.obs;
   final RxInt currentIndex = 0.obs;
-  final RxList<SongItemStruct> playlist = <SongItemStruct>[].obs;
+  // 1. 逻辑歌单：只存歌曲的元数据（ID、歌名等），不存 URL
+  final RxList<SongItemStruct> songList = <SongItemStruct>[].obs;
+  List<AudioSource> playlist = [];
+  // 2. 记录已加载的索引
+  final Set<int> _loadedIndices = {};
+  bool isLoadingIndices = false;
+
   final Rx<SongItemStruct?> currentSong = Rx<SongItemStruct?>(null);
 
   StreamSubscription? _positionSubscription;
@@ -70,16 +76,13 @@ class AudioService extends GetxService {
 
     /// 播放状态监听
     _playerStateSubscription = player.playerStateStream.listen((state) {
-      isBuffering.value = state.processingState == ProcessingState.buffering;
-      if (state.playing) {
-        audioState.value = AudioState.playing;
-      } else if (state.processingState == ProcessingState.completed) {
+      if (state.processingState == ProcessingState.completed) {
+        // print('completed');
         audioState.value = AudioState.completed;
-        print('completed');
-        nextLoop();
-      } else {
-        audioState.value = AudioState.paused;
+        // nextLoop();
       }
+      audioState.value = state.playing ? AudioState.playing : AudioState.paused;
+      isBuffering.value = state.processingState == ProcessingState.buffering;
     });
 
     /// 缓冲进度监听
@@ -89,13 +92,16 @@ class AudioService extends GetxService {
 
     /// 当前播放歌曲监听
     _sequenceSubscription = player.sequenceStateStream.listen((sequence) {
-      // final index = sequence.currentIndex;
-      // if (index != null) {
-      //   currentIndex.value = index;
-      //   if (index < playlist.length) {
-      //     currentSong.value = playlist[index];
-      //   }
-      // }
+      final index = sequence.currentIndex;
+      if (index != null) {
+        currentIndex.value = index;
+        if (index < songList.length) {
+          currentSong.value = songList[index];
+        }
+        if (index + 1 < songList.length) {
+          _prefetchSong(songList[index + 1], index + 1);
+        }
+      }
     });
 
     // _currentIndexSubscription = player.currentIndexStream.listen((index) {
@@ -117,40 +123,34 @@ class AudioService extends GetxService {
   }
 
   Future<void> setPlaylist(List<SongItemStruct> songs, {int index = 0}) async {
-    playlist.assignAll(songs);
+    songList.clear();
+    playlist.clear();
+    songList.assignAll(songs);
+    _loadedIndices.clear();
+    playlist = List.generate(songs.length, (i) => _generateSilenceSource(songs[i]));
+    // 💡 核心 2：使用新版 API 绑定列表
     if (songs.isNotEmpty) {
-      // AudioSource(Uri.parse());
-      // await player.setAudioSource(
-      //   ConcatenatingAudioSource(
-      //     children: songs.map((song) => AudioSource.uri(Uri.parse(song.url))).toList(),
-      //   ),
-      //   initialIndex: index,
-      //   initialPosition: Duration.zero,
-      // );
+      await _prefetchSong(songs[index], index);
+      await player.setAudioSources(
+        playlist,
+        // preload: false,
+        initialIndex: index,
+        initialPosition: Duration.zero,
+        // useLazyPreparation: true,                    // Load each item just in time
+        shuffleOrder: DefaultShuffleOrder()
+      );
       currentSong.value = songs[index];
+      currentIndex.value = index;
+      await player.seek(Duration.zero, index: index);
     }
   }
 
   Future<void> play() async {
-    if (currentSong.value != null) {
-      var urls = (await getMusicUrls(hash: currentSong.value!.hash, freePart: userInstance.token.isEmpty ? 1 : 0)).body?['url'] ?? [];
-      if (urls.isEmpty) {
-        throw Exception('No URL found for song: ${currentSong.value!.name}');
-      }
-      // await player.setUrl(urls[0]);
-      await player.setAudioSource(
-        AudioSource.uri(
-          Uri.parse(urls[0]),
-          tag: MediaItem(
-            id: currentSong.value!.hash,
-            album: "在线音乐",
-            title: currentSong.value!.name,
-            artist: currentSong.value!.author,
-            artUri: Uri.parse(currentSong.value!.cover), // 锁屏封面图
-          ),
-        ),
-      );
-    }
+    // if (currentSong.value != null) {
+    //   if (currentIndex.value != -1) {
+    //     await playSongAtIndex(currentIndex.value);
+    //   }
+    // }
     await player.play();
   }
 
@@ -167,19 +167,20 @@ class AudioService extends GetxService {
   }
 
   Future<void> next() async {
-    final nextIndex = currentIndex.value + 1;
-    await playSongAtIndex((nextIndex >= playlist.length - 1) ? 0 : nextIndex);
-    // await player.seekToNext();
+    // final nextIndex = currentIndex.value + 1;
+    await player.seekToNext();
+    // await playSongAtIndex((nextIndex >= playlist.length - 1) ? 0 : nextIndex);
   }
 
   Future<void> previous() async {
-    if (position.value.inSeconds > 3) {
-      await seek(Duration.zero);
-    } else {
-      final nextIndex = currentIndex.value - 1;
-      await playSongAtIndex((nextIndex < 0) ? playlist.length - 1 : nextIndex);
-      // await player.seekToPrevious();
-    }
+    await player.seekToPrevious();
+    // if (position.value.inSeconds > 3) {
+    //   await seek(Duration.zero);
+    // } else {
+    //   final nextIndex = currentIndex.value - 1;
+    //   await player.seekToPrevious();
+    //   await playSongAtIndex((nextIndex < 0) ? playlist.length - 1 : nextIndex);
+    // }
   }
 
   Future<void> setVolume(double value) async {
@@ -198,38 +199,82 @@ class AudioService extends GetxService {
   }
 
   Future<void> addToQueue(SongItemStruct song) async {
-    var urls =
-        (await getMusicUrls(
-          hash: currentSong.value!.hash,
-          freePart: userInstance.token.isEmpty ? 1 : 0,
-        )).body?['url'] ??
-        [];
-    await player.setUrl(urls[0]);
+    songList.add(song);
     // await player.add(AudioSource.uri(Uri.parse(song.url)));
-    playlist.add(song);
+    playlist.add(_generateSilenceSource(song));
   }
 
   Future<void> playSongAtIndex(int index) async {
     if (index >= 0 && index < playlist.length) {
-      currentIndex.value = index;
-      currentSong.value = playlist[index];
-      var urls =
-          (await getMusicUrls(
-            hash: currentSong.value!.hash,
-            freePart: userInstance.token.isEmpty ? 1 : 0,
-          )).body?['url'] ??
-          [];
-
-      await player.setUrl(urls[0]);
-      // currentSong.value = playlist[index];
-      // await player.seek(Duration.zero, index: index);
+      await _prefetchSong(songList[index], index);
+      // currentIndex.value = index;
+      // currentSong.value = songList[index];
+      await player.seek(Duration.zero, index: index);
+      await player.play();
     }
   }
 
   Future<void> clearPlaylist() async {
     await player.stop();
     playlist.clear();
+    _loadedIndices.clear();
     currentSong.value = null;
+  }
+
+  /// 核心方法：后台静默预加载下一首的 URL
+  Future<void> _prefetchSong(SongItemStruct song, int i) async {
+    if (_loadedIndices.contains(i) || isLoadingIndices) {
+      return;
+    }
+    try {
+      isLoadingIndices = true;
+      var urls =
+          (await getMusicUrls(
+            hash: song.hash,
+            freePart: userInstance.token.isEmpty ? 1 : 0,
+          )).body?['url'] ??
+          [];
+      if (urls.isEmpty) {
+        throw Exception('No URL found for song: ${song.name}');
+      }
+      // await player.setUrl(urls[0]);
+      playlist[i] = AudioSource.uri(
+        Uri.parse(urls[0]),
+        tag: MediaItem(
+          id: song.hash,
+          // album: song,
+          title: song.name,
+          artist: song.author,
+          artUri: Uri.parse(song.cover), // 锁屏封面图
+        ),
+      );
+      _loadedIndices.add(i);
+      await player.insertAudioSource(i, playlist[1]);
+    } catch (e) {
+      print(e);
+      print("⚠️ 预加载第 ${song.hash} 首歌失败，等用户真切到那首时再重试");
+    }
+    isLoadingIndices = false;
+  }
+
+  /// 生成一个极短的静音 AudioSource 作为占位符
+  /// (使用 Base64 编码的 1秒静音 WAV，避免依赖本地文件)
+  AudioSource _generateSilenceSource(SongItemStruct song) {
+   // 1秒静音 WAV 的 Base64
+    const String silentWavBase64 =
+        "UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+
+    return AudioSource.uri(
+      Uri.parse('data:audio/wav;base64,$silentWavBase64'),
+      // 🌟 关键修复：给占位符也打上完整的 MediaItem 标签！
+      tag: MediaItem(
+        id: song.hash,
+        title: song.name,
+        artist: song.author,
+        artUri: Uri.parse(song.cover),
+        // 如果有其他字段如 album, duration 也可以在这里填上
+      ),
+    );
   }
 
   @override
