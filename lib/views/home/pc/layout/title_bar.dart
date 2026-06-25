@@ -121,13 +121,15 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
     LocalRouterController controller = Get.find();
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
+    final paddingTop = MediaQuery.of(context).padding.top;
 
     return LayoutBuilder(
       builder: (context, constraints) => ClipRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            height: 75,
+            height: 75 + paddingTop,
+            padding: EdgeInsets.only(top: paddingTop),
             width: constraints.maxWidth,
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.7),

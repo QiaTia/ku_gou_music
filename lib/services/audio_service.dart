@@ -98,8 +98,9 @@ class AudioService extends GetxService {
         if (index < songList.length) {
           currentSong.value = songList[index];
         }
-        if (index + 1 < songList.length) {
-          _prefetchSong(songList[index + 1], index + 1);
+        var nextIndex = index + 1;
+        if (nextIndex < songList.length) {
+          _prefetchSong(songList[nextIndex], nextIndex);
         }
       }
     });
@@ -249,7 +250,7 @@ class AudioService extends GetxService {
         ),
       );
       _loadedIndices.add(i);
-      await player.insertAudioSource(i, playlist[1]);
+      await player.insertAudioSource(i, playlist[i]);
     } catch (e) {
       print(e);
       print("⚠️ 预加载第 ${song.hash} 首歌失败，等用户真切到那首时再重试");

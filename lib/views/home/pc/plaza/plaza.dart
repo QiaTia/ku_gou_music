@@ -21,6 +21,7 @@ class PlazaPage extends StatelessWidget {
     final int crossAxisCount = context.layout.value(xs: 2, sm: 3, md: 4, lg: 5);
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
+    final paddingTop = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       appBar: isMobile ? null : TitleBar(),
@@ -46,6 +47,7 @@ class PlazaPage extends StatelessWidget {
         }
         return Column(
           children: [
+            SizedBox(height: paddingTop),
             _ParentTagBar(controller: controller),
             const SizedBox(height: 4),
             _ChildTagBar(controller: controller),
@@ -79,10 +81,7 @@ class _ParentTagBar extends StatelessWidget {
         itemBuilder: (context, index) {
           return Padding(
             padding: EdgeInsets.only(right: 12),
-            child: _ParentTagChip(
-              controller: controller,
-              index: index,
-            ),
+            child: _ParentTagChip(controller: controller, index: index),
           );
         },
       ),
@@ -202,7 +201,9 @@ class _PlaylistGrid extends StatelessWidget {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.playlistResults.isEmpty) {
-        return const Center(child: Text('暂无歌单', style: TextStyle(color: Colors.grey)));
+        return const Center(
+          child: Text('暂无歌单', style: TextStyle(color: Colors.grey)),
+        );
       }
       return GridView.builder(
         padding: EdgeInsets.all(spacing),
@@ -212,8 +213,11 @@ class _PlaylistGrid extends StatelessWidget {
           crossAxisSpacing: spacing,
           childAspectRatio: 0.82,
         ),
-        itemCount: controller.playlistResults.length,
+        itemCount: controller.playlistResults.length + 1,
         itemBuilder: (context, index) {
+          if (index == controller.playlistResults.length) {
+            return SizedBox(height: 40);
+          }
           final item = controller.playlistResults[index];
           return _PlaylistCard(item: item);
         },
@@ -229,7 +233,10 @@ class _PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LocalRouterController routerController = Get.find();
-    final String name = (item.specialname ?? '').replaceAll(RegExp('\\s+'), ' ');
+    final String name = (item.specialname ?? '').replaceAll(
+      RegExp('\\s+'),
+      ' ',
+    );
     final String cover = item.flexibleCover ?? '';
     final String intro = item.intro ?? '';
 
@@ -268,25 +275,42 @@ class _PlaylistCard extends StatelessWidget {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
+                ),
                 child: SizedBox(
                   width: double.infinity,
                   child: cover.isNotEmpty
-                      ? Hero(tag: item.globalCollectionId, child: CachedNetworkImage(
-                          imageUrl: cover,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color: _greyBgColor,
-                            child: const Center(child: Icon(Icons.music_note, color: Colors.grey)),
+                      ? Hero(
+                          tag: item.globalCollectionId,
+                          child: CachedNetworkImage(
+                            imageUrl: cover,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: _greyBgColor,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.music_note,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: _greyBgColor,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.music_note,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                           ),
-                          errorWidget: (context, url, error) => Container(
-                            color: _greyBgColor,
-                            child: const Center(child: Icon(Icons.music_note, color: Colors.grey)),
-                          ),
-                        ))
+                        )
                       : Container(
                           color: _greyBgColor,
-                          child: const Center(child: Icon(Icons.music_note, color: Colors.grey)),
+                          child: const Center(
+                            child: Icon(Icons.music_note, color: Colors.grey),
+                          ),
                         ),
                 ),
               ),

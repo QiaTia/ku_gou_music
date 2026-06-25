@@ -22,6 +22,8 @@ class PlaylistScreen extends GetWidget {
     final PlaylistController controller = Get.put(PlaylistController());
     final MusicController musicController = Get.find();
 
+    final mobileWidth = MediaQuery.of(context).size.width;
+
     final bgCardColor = Theme.of(context).cardColor;
 
     /// 播放歌单全部歌曲
@@ -42,7 +44,7 @@ class PlaylistScreen extends GetWidget {
               //   onPressed: routerController.goBack,
               //   icon: Icon(Icons.arrow_back_ios_new_rounded),
               // ),
-              expandedHeight: 300,
+              expandedHeight: mobileWidth,
               pinned: true, // 固定顶部
               // floating: true,
               // snap: true,
