@@ -5,6 +5,7 @@ import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:ku_gou_music/api/song/song.dart';
+import 'package:ku_gou_music/services/lyric_cache_service.dart';
 import 'package:ku_gou_music/widgets/rotating_album_cover.dart';
 import '../../controllers/music_controller.dart';
 
@@ -349,6 +350,7 @@ class _SongLyric extends StatefulWidget {
 class _SongLyricState extends State<_SongLyric> {
   final lrcController = LyricController();
   final controller = Get.find<MusicController>();
+  final lyricCache = LyricCacheService();
   String loadHash = '';
   late Worker worker;
 
@@ -363,13 +365,36 @@ class _SongLyricState extends State<_SongLyric> {
 
   void onInitLyric() async {
     final song = controller.currentSong;
-    if (song != null) {
+    if (song == null) return;
+
+    final hash = song.hash;
+
+    // 1. 先检查本地缓存
+    final cachedLyric = lyricCache.getLyric(hash);
+    if (cachedLyric != null && cachedLyric.isNotEmpty) {
+      lrcController.loadLyric(cachedLyric);
+      loadHash = hash;
+      return;
+    }
+
+    // 2. 缓存未命中，从网络加载
+    try {
       final lrcPre =
-          ((await searchLyrics(hash: song.hash)).body!['candidates'] ?? [])[0];
+          ((await searchLyrics(hash: hash)).body!['candidates'] ?? [])[0];
       final lrcContent = await getMusicLyrics(
           accesskey: lrcPre['accesskey'], id: lrcPre['id'], fmt: 'lrc');
-      lrcController.loadLyric(lrcContent['content'] ?? '[00:00.000] 暂无歌词');
-      loadHash = song.hash;
+      final lyricText = lrcContent['content'] ?? '[00:00.000] 暂无歌词';
+
+      // 加载到歌词控制器
+      lrcController.loadLyric(lyricText);
+      loadHash = hash;
+
+      // 3. 保存到本地缓存
+      await lyricCache.saveLyric(hash, lyricText);
+    } catch (e) {
+      // 网络请求失败，显示默认歌词
+      lrcController.loadLyric('[00:00.000] 暂无歌词');
+      loadHash = hash;
     }
   }
 

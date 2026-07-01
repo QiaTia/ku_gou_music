@@ -77,10 +77,12 @@ class SearchController extends GetxController {
     if (selectedTabIndex.value == index) return;
     selectedTabIndex.value = index;
 
-    // 非综合 Tab 时，加载对应类型的数据
+    // 非综合 Tab 时，如果还没有加载过数据，则加载对应类型的数据
     if (index > 0) {
       final type = tabs[index]['key']!;
-      searchByType(type);
+      if (typedResult.value == null || typedResult.value!.lists.isEmpty) {
+        searchByType(type);
+      }
     }
   }
 

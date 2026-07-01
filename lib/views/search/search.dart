@@ -41,13 +41,7 @@ class SearchPage extends StatelessWidget {
         if (controller.keyword.value.isEmpty) {
           return _buildEmptyWidget();
         }
-        return Column(
-          children: [
-            _buildTabBar(controller),
-            const SizedBox(height: 8),
-            Expanded(child: _buildTabContent(controller, context)),
-          ],
-        );
+        return _buildTabContent(controller, context);
       }),
     );
   }
@@ -82,38 +76,37 @@ class SearchPage extends StatelessWidget {
     );
   }
 
-  /// Tab 栏
+  /// Tab 栏（不含 Obx，由调用方包裹）
   Widget _buildTabBar(search_ctrl.SearchController controller) {
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: Colors.white,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: search_ctrl.SearchController.tabs.length,
         itemBuilder: (context, index) {
-          return Obx(() {
-            final isSelected = controller.selectedTabIndex.value == index;
-            final label = search_ctrl.SearchController.tabs[index]['label']!;
-            return GestureDetector(
-              onTap: () => controller.selectTab(index),
-              child: Container(
-                margin: const EdgeInsets.only(right: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? _pinkColor : _greyBgColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
+          final isSelected = controller.selectedTabIndex.value == index;
+          final label = search_ctrl.SearchController.tabs[index]['label']!;
+          return GestureDetector(
+            onTap: () => controller.selectTab(index),
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? _pinkColor : _greyBgColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
-            );
-          });
+            ),
+          );
         },
       ),
     );
@@ -145,33 +138,57 @@ class SearchPage extends StatelessWidget {
   // ==================== 综合 Tab ====================
 
   Widget _buildComplexTab(search_ctrl.SearchController controller, BuildContext context) {
-    final result = controller.complexResult.value;
-    if (result == null) return const SizedBox.shrink();
+    return Obx(() {
+      final result = controller.complexResult.value;
+      if (result == null) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    // 从 lists 中按 type 查找各分组
-    final songGroup = _findGroup(result, 'song');
-    final specialGroup = _findGroup(result, 'collect'); // 歌单在综合搜索中类型为 collect
-    // final albumGroup = _findGroup(result, 'album');
-    final mvGroup = _findGroup(result, 'mv');
-    final authorGroup = _findGroup(result, 'author');
+      // 从 lists 中按 type 查找各分组
+      final songGroup = _findGroup(result, 'song');
+      final specialGroup = _findGroup(result, 'collect'); // 歌单在综合搜索中类型为 collect
+      // final albumGroup = _findGroup(result, 'album');
+      final mvGroup = _findGroup(result, 'mv');
+      final authorGroup = _findGroup(result, 'author');
 
-    return CustomScrollView(
-      slivers: [
-        // 歌手区块
-        if (authorGroup != null && authorGroup.lists.isNotEmpty)
-          SliverToBoxAdapter(child: _buildAuthorSection(authorGroup, controller)),
-        // 单曲区块
-        if (songGroup != null && songGroup.lists.isNotEmpty)
-          SliverToBoxAdapter(child: _buildSongSection(songGroup, controller)),
-        // 歌单区块
-        if (specialGroup != null && specialGroup.lists.isNotEmpty)
-          SliverToBoxAdapter(child: _buildSpecialSection(specialGroup, controller, context)),
-        // MV 区块
-        if (mvGroup != null && mvGroup.lists.isNotEmpty)
-          SliverToBoxAdapter(child: _buildMvSection(mvGroup, controller, context)),
-        const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
-      ],
-    );
+      return CustomScrollView(
+        slivers: [
+          // Tab 栏吸顶
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          // 歌手区块
+          if (authorGroup != null && authorGroup.lists.isNotEmpty)
+            SliverToBoxAdapter(child: _buildAuthorSection(authorGroup, controller)),
+          // 单曲区块
+          if (songGroup != null && songGroup.lists.isNotEmpty)
+            SliverToBoxAdapter(child: _buildSongSection(songGroup, controller)),
+          // 歌单区块
+          if (specialGroup != null && specialGroup.lists.isNotEmpty)
+            SliverToBoxAdapter(child: _buildSpecialSection(specialGroup, controller, context)),
+          // MV 区块
+          if (mvGroup != null && mvGroup.lists.isNotEmpty)
+            SliverToBoxAdapter(child: _buildMvSection(mvGroup, controller, context)),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
+        ],
+      );
+    });
   }
 
   /// 从综合搜索结果中查找指定类型的分组
@@ -233,7 +250,11 @@ class SearchPage extends StatelessWidget {
             itemCount: specialGroup.lists.length,
             itemBuilder: (context, index) {
               final song = specialGroup.lists[index];
-              return _SpecialCard(song: song);
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.only(right: 12),
+                child: _SpecialCard(song: song),
+              );
             },
           ),
         ),
@@ -256,7 +277,11 @@ class SearchPage extends StatelessWidget {
             itemCount: mvGroup.lists.length,
             itemBuilder: (context, index) {
               final song = mvGroup.lists[index];
-              return _MvCard(song: song);
+              return Container(
+                width: 200,
+                margin: const EdgeInsets.only(right: 12),
+                child: _MvCard(song: song),
+              );
             },
           ),
         ),
@@ -291,109 +316,351 @@ class SearchPage extends StatelessWidget {
   // ==================== 单曲列表（完整） ====================
 
   Widget _buildSongList(search_ctrl.SearchController controller, {required bool isFullList}) {
-    final songs = isFullList
-        ? (controller.typedResult.value?.lists ?? [])
-        : (_findGroup(controller.complexResult.value!, 'song')?.lists ?? []);
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    if (songs.isEmpty) {
-      return const Center(child: Text('暂无单曲', style: TextStyle(color: Colors.grey)));
-    }
+      final songs = isFullList
+          ? (controller.typedResult.value?.lists ?? [])
+          : (_findGroup(controller.complexResult.value!, 'song')?.lists ?? []);
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: songs.length,
-      itemBuilder: (context, index) => _SongListItem(song: songs[index]),
-    );
+      if (songs.isEmpty) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: Text('暂无单曲', style: TextStyle(color: Colors.grey))),
+            ),
+          ],
+        );
+      }
+
+      return CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _SongListItem(song: songs[index]),
+              childCount: songs.length,
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ==================== 歌单网格（完整） ====================
 
   Widget _buildSpecialGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
-    final songs = isFullList
-        ? (controller.typedResult.value?.lists ?? [])
-        : (_findGroup(controller.complexResult.value!, 'collect')?.lists ?? []);
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    if (songs.isEmpty) {
-      return const Center(child: Text('暂无歌单', style: TextStyle(color: Colors.grey)));
-    }
+      final songs = isFullList
+          ? (controller.typedResult.value?.lists ?? [])
+          : (_findGroup(controller.complexResult.value!, 'collect')?.lists ?? []);
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: songs.length,
-      itemBuilder: (context, index) => _SpecialCard(song: songs[index]),
-    );
+      if (songs.isEmpty) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: Text('暂无歌单', style: TextStyle(color: Colors.grey))),
+            ),
+          ],
+        );
+      }
+
+      return CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.82,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _SpecialCard(song: songs[index]),
+                childCount: songs.length,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ==================== 专辑网格（完整） ====================
 
   Widget _buildAlbumGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
-    final songs = isFullList
-        ? (controller.typedResult.value?.lists ?? [])
-        : (_findGroup(controller.complexResult.value!, 'album')?.lists ?? []);
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    if (songs.isEmpty) {
-      return const Center(child: Text('暂无专辑', style: TextStyle(color: Colors.grey)));
-    }
+      final songs = isFullList
+          ? (controller.typedResult.value?.lists ?? [])
+          : (_findGroup(controller.complexResult.value!, 'album')?.lists ?? []);
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: songs.length,
-      itemBuilder: (context, index) => _AlbumCard(song: songs[index]),
-    );
+      if (songs.isEmpty) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: Text('暂无专辑', style: TextStyle(color: Colors.grey))),
+            ),
+          ],
+        );
+      }
+
+      return CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.82,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _AlbumCard(song: songs[index]),
+                childCount: songs.length,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ==================== MV 网格（完整） ====================
 
   Widget _buildMvGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
-    final songs = isFullList
-        ? (controller.typedResult.value?.lists ?? [])
-        : (_findGroup(controller.complexResult.value!, 'mv')?.lists ?? []);
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    if (songs.isEmpty) {
-      return const Center(child: Text('暂无MV', style: TextStyle(color: Colors.grey)));
-    }
+      final songs = isFullList
+          ? (controller.typedResult.value?.lists ?? [])
+          : (_findGroup(controller.complexResult.value!, 'mv')?.lists ?? []);
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 1.2,
-      ),
-      itemCount: songs.length,
-      itemBuilder: (context, index) => _MvCard(song: songs[index]),
-    );
+      if (songs.isEmpty) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: Text('暂无MV', style: TextStyle(color: Colors.grey))),
+            ),
+          ],
+        );
+      }
+
+      return CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.2,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _MvCard(song: songs[index]),
+                childCount: songs.length,
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   // ==================== 歌手列表（完整） ====================
 
   Widget _buildAuthorList(search_ctrl.SearchController controller, {required bool isFullList}) {
-    final songs = isFullList
-        ? (controller.typedResult.value?.lists ?? [])
-        : (_findGroup(controller.complexResult.value!, 'author')?.lists ?? []);
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        );
+      }
 
-    if (songs.isEmpty) {
-      return const Center(child: Text('暂无歌手', style: TextStyle(color: Colors.grey)));
-    }
+      final songs = isFullList
+          ? (controller.typedResult.value?.lists ?? [])
+          : (_findGroup(controller.complexResult.value!, 'author')?.lists ?? []);
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: songs.length,
-      itemBuilder: (context, index) => _AuthorListItem(song: songs[index]),
+      if (songs.isEmpty) {
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabBarSliverDelegate(
+                child: _buildTabBar(controller),
+              ),
+            ),
+            const SliverFillRemaining(
+              child: Center(child: Text('暂无歌手', style: TextStyle(color: Colors.grey))),
+            ),
+          ],
+        );
+      }
+
+      return CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _TabBarSliverDelegate(
+              child: _buildTabBar(controller),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _AuthorListItem(song: songs[index]),
+              childCount: songs.length,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+// ==================== Sliver 吸顶 Tab 栏委托 ====================
+
+class _TabBarSliverDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _TabBarSliverDelegate({required this.child});
+
+  @override
+  double get minExtent => 44;
+
+  @override
+  double get maxExtent => 44;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Material(
+      elevation: overlapsContent ? 2 : 0,
+      color: Colors.white,
+      child: child,
     );
+  }
+
+  @override
+  bool shouldRebuild(covariant _TabBarSliverDelegate oldDelegate) {
+    return true;
   }
 }
 
@@ -583,40 +850,36 @@ class _SpecialCard extends StatelessWidget {
       onTap: () {
         // TODO: 跳转到歌单详情页
       },
-      child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: CachedNetworkImage(
-                  imageUrl: getImageUri(song.image),
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
-                    color: _greyBgColor,
-                    child: const Icon(Icons.music_note, color: Colors.grey),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: CachedNetworkImage(
+                imageUrl: getImageUri(song.image),
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Container(
+                  color: _greyBgColor,
+                  child: const Icon(Icons.music_note, color: Colors.grey),
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              song.albumName.isNotEmpty ? song.albumName : song.songName,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              song.singerName,
-              style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            song.albumName.isNotEmpty ? song.albumName : song.songName,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            song.singerName,
+            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+          ),
+        ],
       ),
     );
   }
