@@ -8,12 +8,12 @@ final searchFieldColor = Color(0xFF1E1E1E);
 
 class TitleSearchField extends StatefulWidget {
   final String hintText;
-  final TextEditingController textController;
+  final String? initialKeyword;
 
   const TitleSearchField({
     super.key,
     required this.hintText,
-    required this.textController,
+    this.initialKeyword = '',
   });
 
   @override
@@ -22,7 +22,7 @@ class TitleSearchField extends StatefulWidget {
 
 class _TitleSearchFieldState extends State<TitleSearchField> {
   late String hintText;
-  late TextEditingController textController;
+  TextEditingController textController = TextEditingController();
   final displayCancelNotifier = ValueNotifier(false);
   final FocusNode focusNode = FocusNode();
 
@@ -38,8 +38,7 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
   void initState() {
     super.initState();
     hintText = widget.hintText;
-    textController = widget.textController;
-
+    textController.text = widget.initialKeyword ?? '';
     textController.addListener(displayCancelOrNot);
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
@@ -59,6 +58,8 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
 
   @override
   Widget build(BuildContext context) {
+    LocalRouterController controller = Get.find();
+
     return Center(
       child: SizedBox(
         width: 260,
@@ -67,6 +68,12 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
           controller: textController,
           focusNode: focusNode,
           style: TextStyle(fontSize: 14),
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              controller.navigateTo('/search', {'initialKeyword': value.trim()});
+              // Get.to(() => SearchPage(initialKeyword: value.trim()));
+            }
+          },
 
           decoration: InputDecoration(
             hint: Text(

@@ -19,8 +19,6 @@ class HomeTopPage extends StatefulWidget {
 class _HomePageState extends State<HomeTopPage> {
   final HomeTopController controller = Get.put(HomeTopController());
 
-  TextEditingController textController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -73,7 +71,7 @@ class _HomePageState extends State<HomeTopPage> {
       lg: 5,
     );
     return Scaffold(
-      appBar: TitleBar(searchField: TitleSearchField(textController: textController, hintText: '搜索歌曲',),),
+      appBar: TitleBar(searchField: TitleSearchField(hintText: '搜索歌曲',),),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

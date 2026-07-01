@@ -5,6 +5,7 @@ import 'package:ku_gou_music/views/home/pc/ranking/ranking.dart';
 import 'package:ku_gou_music/views/home/pc/recently/recently.dart';
 import 'package:ku_gou_music/views/my/my.dart';
 import 'package:ku_gou_music/views/playlist/playlist.dart';
+import 'package:ku_gou_music/views/search/search.dart';
 import '../home/home.dart';
 
 /// 路由注册表
@@ -19,6 +20,10 @@ Map<String, Widget Function(BuildContext)> routes = {
   '/recently': (context) => const RecentlyPage(),
   '/my': (context) => const MyScreen(),
   '/my_favorite': (context) => SizedBox.shrink(),
+  '/search': (context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    return SearchPage(initialKeyword: args?['initialKeyword'],);
+  },
   '/playlist/detail': (context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     return PlaylistScreen(name: args?['name'], id: args?['id'], pic: args?['pic'],);
