@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ku_gou_music/models/search/search_author_info.dart';
+import 'package:ku_gou_music/models/search/search_collect_info.dart';
 import 'package:ku_gou_music/models/search/search_complex_response.dart';
+import 'package:ku_gou_music/models/search/search_mv_info.dart';
 import 'package:ku_gou_music/models/search/search_song_info.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
@@ -159,7 +162,6 @@ class SearchPage extends StatelessWidget {
       // 从 lists 中按 type 查找各分组
       final songGroup = _findGroup(result, 'song');
       final specialGroup = _findGroup(result, 'collect'); // 歌单在综合搜索中类型为 collect
-      // final albumGroup = _findGroup(result, 'album');
       final mvGroup = _findGroup(result, 'mv');
       final authorGroup = _findGroup(result, 'author');
 
@@ -174,16 +176,16 @@ class SearchPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 8)),
           // 歌手区块
-          if (authorGroup != null && authorGroup.lists.isNotEmpty)
+          if (authorGroup != null && authorGroup.authorList.isNotEmpty)
             SliverToBoxAdapter(child: _buildAuthorSection(authorGroup, controller)),
           // 单曲区块
-          if (songGroup != null && songGroup.lists.isNotEmpty)
+          if (songGroup != null && songGroup.songList.isNotEmpty)
             SliverToBoxAdapter(child: _buildSongSection(songGroup, controller)),
           // 歌单区块
-          if (specialGroup != null && specialGroup.lists.isNotEmpty)
+          if (specialGroup != null && specialGroup.collectList.isNotEmpty)
             SliverToBoxAdapter(child: _buildSpecialSection(specialGroup, controller, context)),
           // MV 区块
-          if (mvGroup != null && mvGroup.lists.isNotEmpty)
+          if (mvGroup != null && mvGroup.mvList.isNotEmpty)
             SliverToBoxAdapter(child: _buildMvSection(mvGroup, controller, context)),
           const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
         ],
@@ -203,6 +205,7 @@ class SearchPage extends StatelessWidget {
   // ==================== 歌手区块 ====================
 
   Widget _buildAuthorSection(SearchComplexGroup authorGroup, search_ctrl.SearchController controller) {
+    final authors = authorGroup.authorList;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -212,10 +215,9 @@ class SearchPage extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: authorGroup.lists.length,
+            itemCount: authors.length,
             itemBuilder: (context, index) {
-              final song = authorGroup.lists[index];
-              return _AuthorCard(song: song);
+              return _AuthorCard(author: authors[index]);
             },
           ),
         ),
@@ -226,11 +228,12 @@ class SearchPage extends StatelessWidget {
   // ==================== 单曲区块 ====================
 
   Widget _buildSongSection(SearchComplexGroup songGroup, search_ctrl.SearchController controller) {
+    final songs = songGroup.songList;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('单曲', songGroup.total, () => controller.selectTab(1)),
-        ...songGroup.lists.take(5).map((song) => _SongListItem(song: song)),
+        ...songs.take(5).map((song) => _SongListItem(song: song)),
       ],
     );
   }
@@ -238,6 +241,7 @@ class SearchPage extends StatelessWidget {
   // ==================== 歌单区块 ====================
 
   Widget _buildSpecialSection(SearchComplexGroup specialGroup, search_ctrl.SearchController controller, BuildContext context) {
+    final collects = specialGroup.collectList;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -247,13 +251,12 @@ class SearchPage extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: specialGroup.lists.length,
+            itemCount: collects.length,
             itemBuilder: (context, index) {
-              final song = specialGroup.lists[index];
               return Container(
                 width: 160,
                 margin: const EdgeInsets.only(right: 12),
-                child: _SpecialCard(song: song),
+                child: _SpecialCard(collect: collects[index]),
               );
             },
           ),
@@ -265,6 +268,7 @@ class SearchPage extends StatelessWidget {
   // ==================== MV 区块 ====================
 
   Widget _buildMvSection(SearchComplexGroup mvGroup, search_ctrl.SearchController controller, BuildContext context) {
+    final mvs = mvGroup.mvList;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,13 +278,12 @@ class SearchPage extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: mvGroup.lists.length,
+            itemCount: mvs.length,
             itemBuilder: (context, index) {
-              final song = mvGroup.lists[index];
               return Container(
                 width: 200,
                 margin: const EdgeInsets.only(right: 12),
-                child: _MvCard(song: song),
+                child: _MvCard(mv: mvs[index]),
               );
             },
           ),
@@ -335,7 +338,7 @@ class SearchPage extends StatelessWidget {
 
       final songs = isFullList
           ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'song')?.lists ?? []);
+          : (_findGroup(controller.complexResult.value!, 'song')?.songList ?? []);
 
       if (songs.isEmpty) {
         return CustomScrollView(
@@ -392,11 +395,10 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final songs = isFullList
-          ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'collect')?.lists ?? []);
+      final collectGroup = _findGroup(controller.complexResult.value!, 'collect');
+      final collects = collectGroup?.collectList ?? [];
 
-      if (songs.isEmpty) {
+      if (collects.isEmpty) {
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -430,8 +432,8 @@ class SearchPage extends StatelessWidget {
                 childAspectRatio: 0.82,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _SpecialCard(song: songs[index]),
-                childCount: songs.length,
+                (context, index) => _SpecialCard(collect: collects[index]),
+                childCount: collects.length,
               ),
             ),
           ),
@@ -462,7 +464,7 @@ class SearchPage extends StatelessWidget {
 
       final songs = isFullList
           ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'album')?.lists ?? []);
+          : (_findGroup(controller.complexResult.value!, 'album')?.songList ?? []);
 
       if (songs.isEmpty) {
         return CustomScrollView(
@@ -528,11 +530,10 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final songs = isFullList
-          ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'mv')?.lists ?? []);
+      final mvGroup = _findGroup(controller.complexResult.value!, 'mv');
+      final mvs = mvGroup?.mvList ?? [];
 
-      if (songs.isEmpty) {
+      if (mvs.isEmpty) {
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -566,8 +567,8 @@ class SearchPage extends StatelessWidget {
                 childAspectRatio: 1.2,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _MvCard(song: songs[index]),
-                childCount: songs.length,
+                (context, index) => _MvCard(mv: mvs[index]),
+                childCount: mvs.length,
               ),
             ),
           ),
@@ -596,11 +597,10 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final songs = isFullList
-          ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'author')?.lists ?? []);
+      final authorGroup = _findGroup(controller.complexResult.value!, 'author');
+      final authors = authorGroup?.authorList ?? [];
 
-      if (songs.isEmpty) {
+      if (authors.isEmpty) {
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -626,8 +626,8 @@ class SearchPage extends StatelessWidget {
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => _AuthorListItem(song: songs[index]),
-              childCount: songs.length,
+              (context, index) => _AuthorListItem(author: authors[index]),
+              childCount: authors.length,
             ),
           ),
         ],
@@ -714,7 +714,7 @@ class _SongListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    song.singerName,
+                    song.artistName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
@@ -733,11 +733,11 @@ class _SongListItem extends StatelessWidget {
   }
 }
 
-/// 歌手卡片（横向列表用）- 使用 SearchSongInfo（包含歌手信息）
+/// 歌手卡片（横向列表用）
 class _AuthorCard extends StatelessWidget {
-  final SearchSongInfo song;
+  final SearchAuthorInfo author;
 
-  const _AuthorCard({required this.song});
+  const _AuthorCard({required this.author});
 
   @override
   Widget build(BuildContext context) {
@@ -751,7 +751,7 @@ class _AuthorCard extends StatelessWidget {
               width: 80,
               height: 80,
               child: CachedNetworkImage(
-                imageUrl: getImageUri(song.image),
+                imageUrl: getImageUri(author.avatar),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => Container(
                   color: _greyBgColor,
@@ -762,14 +762,14 @@ class _AuthorCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            song.singerName,
+            author.authorName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
-            '歌曲: ${song.singerId.length}',
+            '歌曲: ${author.audioCount}',
             style: TextStyle(fontSize: 11, color: Colors.grey[500]),
           ),
         ],
@@ -780,9 +780,9 @@ class _AuthorCard extends StatelessWidget {
 
 /// 歌手列表项（完整列表用）
 class _AuthorListItem extends StatelessWidget {
-  final SearchSongInfo song;
+  final SearchAuthorInfo author;
 
-  const _AuthorListItem({required this.song});
+  const _AuthorListItem({required this.author});
 
   @override
   Widget build(BuildContext context) {
@@ -799,7 +799,7 @@ class _AuthorListItem extends StatelessWidget {
                 width: 56,
                 height: 56,
                 child: CachedNetworkImage(
-                  imageUrl: getImageUri(song.image),
+                  imageUrl: getImageUri(author.avatar),
                   fit: BoxFit.cover,
                   errorWidget: (context, url, error) => Container(
                     color: _greyBgColor,
@@ -814,14 +814,14 @@ class _AuthorListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    song.singerName,
+                    author.authorName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '歌曲 · 专辑 · 粉丝',
+                    '歌曲: ${author.audioCount} · 粉丝: ${author.fansNum}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],
@@ -838,17 +838,21 @@ class _AuthorListItem extends StatelessWidget {
   }
 }
 
-/// 歌单卡片 - 使用 SearchSongInfo（实际API中歌单数据结构与歌曲不同，这里简化处理）
+/// 歌单卡片
 class _SpecialCard extends StatelessWidget {
-  final SearchSongInfo song;
+  final SearchCollectInfo collect;
 
-  const _SpecialCard({required this.song});
+  const _SpecialCard({required this.collect});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // TODO: 跳转到歌单详情页
+        Get.toNamed('/playlist/detail', arguments: {
+          'id': collect.specialId.toString(),
+          'name': collect.specialName,
+          'pic': collect.img,
+        });
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -858,7 +862,7 @@ class _SpecialCard extends StatelessWidget {
             child: AspectRatio(
               aspectRatio: 1,
               child: CachedNetworkImage(
-                imageUrl: getImageUri(song.image),
+                imageUrl: getImageUri(collect.img),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => Container(
                   color: _greyBgColor,
@@ -867,17 +871,26 @@ class _SpecialCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            song.albumName.isNotEmpty ? song.albumName : song.songName,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            song.singerName,
-            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+          const SizedBox(height: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  collect.specialName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${collect.songCount}首 · ${collect.nickname}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -887,9 +900,9 @@ class _SpecialCard extends StatelessWidget {
 
 /// MV 卡片
 class _MvCard extends StatelessWidget {
-  final SearchSongInfo song;
+  final SearchMvInfo mv;
 
-  const _MvCard({required this.song});
+  const _MvCard({required this.mv});
 
   @override
   Widget build(BuildContext context) {
@@ -908,7 +921,7 @@ class _MvCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   CachedNetworkImage(
-                    imageUrl: getImageUri(song.image),
+                    imageUrl: getImageUri(mv.imgUrl),
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) => Container(
                       color: _greyBgColor,
@@ -924,14 +937,14 @@ class _MvCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            song.songName,
+            mv.mvName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
-            song.singerName,
+            mv.singerName,
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
         ],
@@ -978,7 +991,7 @@ class _AlbumCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            song.singerName,
+            song.artistName,
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
         ],

@@ -15,15 +15,21 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchAuthorInfo {
 
-/// 歌手ID
-@IntFromStringConverter()@JsonKey(name: 'authorid') int get authorId;/// 歌手名
-@JsonKey(name: 'author_name') String get authorName;/// 歌手头像
-@JsonKey(name: 'imgurl') String get imgUrl;/// 歌曲数量
-@IntFromStringConverter()@JsonKey(name: 'song_count') int get songCount;/// 专辑数量
-@IntFromStringConverter()@JsonKey(name: 'album_count') int get albumCount;/// MV数量
-@IntFromStringConverter()@JsonKey(name: 'mv_count') int get mvCount;/// 粉丝数量
-@IntFromStringConverter()@JsonKey(name: 'fans_count') int get fansCount;/// 是否认证
-@IntFromStringConverter()@JsonKey(name: 'is_publish') int get isPublish;
+/// 作者ID
+@IntFromStringConverter()@JsonKey(name: 'AuthorId') int get authorId;/// 作者名
+@JsonKey(name: 'AuthorName') String get authorName;/// 作者头像
+@JsonKey(name: 'Avatar') String get avatar;/// 粉丝数量
+@IntFromStringConverter()@JsonKey(name: 'FansNum') int get fansNum;/// 音频数量
+@IntFromStringConverter()@JsonKey(name: 'AudioCount') int get audioCount;/// 视频数量
+@IntFromStringConverter()@JsonKey(name: 'VideoCount') int get videoCount;/// 专辑数量
+@IntFromStringConverter()@JsonKey(name: 'AlbumCount') int get albumCount;/// 热度
+@IntFromStringConverter()@JsonKey(name: 'Heat') int get heat;/// 作者状态
+@IntFromStringConverter()@JsonKey(name: 'AuthorStatus') int get authorStatus;/// 是否入驻作者
+@IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor') int get isSettledAuthor;/// 用户ID
+@IntFromStringConverter()@JsonKey(name: 'UserId') int get userId;/// 复杂歌曲名
+@JsonKey(name: 'ComplexSongName') String get complexSongName;/// 算法路径
+@JsonKey(name: 'AlgPath') String get algPath;/// 辅助信息
+@JsonKey(name: 'Auxiliary') String get auxiliary;
 /// Create a copy of SearchAuthorInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -36,16 +42,16 @@ $SearchAuthorInfoCopyWith<SearchAuthorInfo> get copyWith => _$SearchAuthorInfoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchAuthorInfo&&(identical(other.authorId, authorId) || other.authorId == authorId)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.imgUrl, imgUrl) || other.imgUrl == imgUrl)&&(identical(other.songCount, songCount) || other.songCount == songCount)&&(identical(other.albumCount, albumCount) || other.albumCount == albumCount)&&(identical(other.mvCount, mvCount) || other.mvCount == mvCount)&&(identical(other.fansCount, fansCount) || other.fansCount == fansCount)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchAuthorInfo&&(identical(other.authorId, authorId) || other.authorId == authorId)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.fansNum, fansNum) || other.fansNum == fansNum)&&(identical(other.audioCount, audioCount) || other.audioCount == audioCount)&&(identical(other.videoCount, videoCount) || other.videoCount == videoCount)&&(identical(other.albumCount, albumCount) || other.albumCount == albumCount)&&(identical(other.heat, heat) || other.heat == heat)&&(identical(other.authorStatus, authorStatus) || other.authorStatus == authorStatus)&&(identical(other.isSettledAuthor, isSettledAuthor) || other.isSettledAuthor == isSettledAuthor)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.complexSongName, complexSongName) || other.complexSongName == complexSongName)&&(identical(other.algPath, algPath) || other.algPath == algPath)&&(identical(other.auxiliary, auxiliary) || other.auxiliary == auxiliary));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,authorId,authorName,imgUrl,songCount,albumCount,mvCount,fansCount,isPublish);
+int get hashCode => Object.hash(runtimeType,authorId,authorName,avatar,fansNum,audioCount,videoCount,albumCount,heat,authorStatus,isSettledAuthor,userId,complexSongName,algPath,auxiliary);
 
 @override
 String toString() {
-  return 'SearchAuthorInfo(authorId: $authorId, authorName: $authorName, imgUrl: $imgUrl, songCount: $songCount, albumCount: $albumCount, mvCount: $mvCount, fansCount: $fansCount, isPublish: $isPublish)';
+  return 'SearchAuthorInfo(authorId: $authorId, authorName: $authorName, avatar: $avatar, fansNum: $fansNum, audioCount: $audioCount, videoCount: $videoCount, albumCount: $albumCount, heat: $heat, authorStatus: $authorStatus, isSettledAuthor: $isSettledAuthor, userId: $userId, complexSongName: $complexSongName, algPath: $algPath, auxiliary: $auxiliary)';
 }
 
 
@@ -56,7 +62,7 @@ abstract mixin class $SearchAuthorInfoCopyWith<$Res>  {
   factory $SearchAuthorInfoCopyWith(SearchAuthorInfo value, $Res Function(SearchAuthorInfo) _then) = _$SearchAuthorInfoCopyWithImpl;
 @useResult
 $Res call({
-@IntFromStringConverter()@JsonKey(name: 'authorid') int authorId,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'imgurl') String imgUrl,@IntFromStringConverter()@JsonKey(name: 'song_count') int songCount,@IntFromStringConverter()@JsonKey(name: 'album_count') int albumCount,@IntFromStringConverter()@JsonKey(name: 'mv_count') int mvCount,@IntFromStringConverter()@JsonKey(name: 'fans_count') int fansCount,@IntFromStringConverter()@JsonKey(name: 'is_publish') int isPublish
+@IntFromStringConverter()@JsonKey(name: 'AuthorId') int authorId,@JsonKey(name: 'AuthorName') String authorName,@JsonKey(name: 'Avatar') String avatar,@IntFromStringConverter()@JsonKey(name: 'FansNum') int fansNum,@IntFromStringConverter()@JsonKey(name: 'AudioCount') int audioCount,@IntFromStringConverter()@JsonKey(name: 'VideoCount') int videoCount,@IntFromStringConverter()@JsonKey(name: 'AlbumCount') int albumCount,@IntFromStringConverter()@JsonKey(name: 'Heat') int heat,@IntFromStringConverter()@JsonKey(name: 'AuthorStatus') int authorStatus,@IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor') int isSettledAuthor,@IntFromStringConverter()@JsonKey(name: 'UserId') int userId,@JsonKey(name: 'ComplexSongName') String complexSongName,@JsonKey(name: 'AlgPath') String algPath,@JsonKey(name: 'Auxiliary') String auxiliary
 });
 
 
@@ -73,17 +79,23 @@ class _$SearchAuthorInfoCopyWithImpl<$Res>
 
 /// Create a copy of SearchAuthorInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? authorId = null,Object? authorName = null,Object? imgUrl = null,Object? songCount = null,Object? albumCount = null,Object? mvCount = null,Object? fansCount = null,Object? isPublish = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? authorId = null,Object? authorName = null,Object? avatar = null,Object? fansNum = null,Object? audioCount = null,Object? videoCount = null,Object? albumCount = null,Object? heat = null,Object? authorStatus = null,Object? isSettledAuthor = null,Object? userId = null,Object? complexSongName = null,Object? algPath = null,Object? auxiliary = null,}) {
   return _then(_self.copyWith(
 authorId: null == authorId ? _self.authorId : authorId // ignore: cast_nullable_to_non_nullable
 as int,authorName: null == authorName ? _self.authorName : authorName // ignore: cast_nullable_to_non_nullable
-as String,imgUrl: null == imgUrl ? _self.imgUrl : imgUrl // ignore: cast_nullable_to_non_nullable
-as String,songCount: null == songCount ? _self.songCount : songCount // ignore: cast_nullable_to_non_nullable
+as String,avatar: null == avatar ? _self.avatar : avatar // ignore: cast_nullable_to_non_nullable
+as String,fansNum: null == fansNum ? _self.fansNum : fansNum // ignore: cast_nullable_to_non_nullable
+as int,audioCount: null == audioCount ? _self.audioCount : audioCount // ignore: cast_nullable_to_non_nullable
+as int,videoCount: null == videoCount ? _self.videoCount : videoCount // ignore: cast_nullable_to_non_nullable
 as int,albumCount: null == albumCount ? _self.albumCount : albumCount // ignore: cast_nullable_to_non_nullable
-as int,mvCount: null == mvCount ? _self.mvCount : mvCount // ignore: cast_nullable_to_non_nullable
-as int,fansCount: null == fansCount ? _self.fansCount : fansCount // ignore: cast_nullable_to_non_nullable
-as int,isPublish: null == isPublish ? _self.isPublish : isPublish // ignore: cast_nullable_to_non_nullable
-as int,
+as int,heat: null == heat ? _self.heat : heat // ignore: cast_nullable_to_non_nullable
+as int,authorStatus: null == authorStatus ? _self.authorStatus : authorStatus // ignore: cast_nullable_to_non_nullable
+as int,isSettledAuthor: null == isSettledAuthor ? _self.isSettledAuthor : isSettledAuthor // ignore: cast_nullable_to_non_nullable
+as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,complexSongName: null == complexSongName ? _self.complexSongName : complexSongName // ignore: cast_nullable_to_non_nullable
+as String,algPath: null == algPath ? _self.algPath : algPath // ignore: cast_nullable_to_non_nullable
+as String,auxiliary: null == auxiliary ? _self.auxiliary : auxiliary // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -168,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'authorid')  int authorId, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'imgurl')  String imgUrl, @IntFromStringConverter()@JsonKey(name: 'song_count')  int songCount, @IntFromStringConverter()@JsonKey(name: 'album_count')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'mv_count')  int mvCount, @IntFromStringConverter()@JsonKey(name: 'fans_count')  int fansCount, @IntFromStringConverter()@JsonKey(name: 'is_publish')  int isPublish)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'AuthorId')  int authorId, @JsonKey(name: 'AuthorName')  String authorName, @JsonKey(name: 'Avatar')  String avatar, @IntFromStringConverter()@JsonKey(name: 'FansNum')  int fansNum, @IntFromStringConverter()@JsonKey(name: 'AudioCount')  int audioCount, @IntFromStringConverter()@JsonKey(name: 'VideoCount')  int videoCount, @IntFromStringConverter()@JsonKey(name: 'AlbumCount')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'Heat')  int heat, @IntFromStringConverter()@JsonKey(name: 'AuthorStatus')  int authorStatus, @IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor')  int isSettledAuthor, @IntFromStringConverter()@JsonKey(name: 'UserId')  int userId, @JsonKey(name: 'ComplexSongName')  String complexSongName, @JsonKey(name: 'AlgPath')  String algPath, @JsonKey(name: 'Auxiliary')  String auxiliary)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchAuthorInfo() when $default != null:
-return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_that.albumCount,_that.mvCount,_that.fansCount,_that.isPublish);case _:
+return $default(_that.authorId,_that.authorName,_that.avatar,_that.fansNum,_that.audioCount,_that.videoCount,_that.albumCount,_that.heat,_that.authorStatus,_that.isSettledAuthor,_that.userId,_that.complexSongName,_that.algPath,_that.auxiliary);case _:
   return orElse();
 
 }
@@ -189,10 +201,10 @@ return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'authorid')  int authorId, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'imgurl')  String imgUrl, @IntFromStringConverter()@JsonKey(name: 'song_count')  int songCount, @IntFromStringConverter()@JsonKey(name: 'album_count')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'mv_count')  int mvCount, @IntFromStringConverter()@JsonKey(name: 'fans_count')  int fansCount, @IntFromStringConverter()@JsonKey(name: 'is_publish')  int isPublish)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'AuthorId')  int authorId, @JsonKey(name: 'AuthorName')  String authorName, @JsonKey(name: 'Avatar')  String avatar, @IntFromStringConverter()@JsonKey(name: 'FansNum')  int fansNum, @IntFromStringConverter()@JsonKey(name: 'AudioCount')  int audioCount, @IntFromStringConverter()@JsonKey(name: 'VideoCount')  int videoCount, @IntFromStringConverter()@JsonKey(name: 'AlbumCount')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'Heat')  int heat, @IntFromStringConverter()@JsonKey(name: 'AuthorStatus')  int authorStatus, @IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor')  int isSettledAuthor, @IntFromStringConverter()@JsonKey(name: 'UserId')  int userId, @JsonKey(name: 'ComplexSongName')  String complexSongName, @JsonKey(name: 'AlgPath')  String algPath, @JsonKey(name: 'Auxiliary')  String auxiliary)  $default,) {final _that = this;
 switch (_that) {
 case _SearchAuthorInfo():
-return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_that.albumCount,_that.mvCount,_that.fansCount,_that.isPublish);case _:
+return $default(_that.authorId,_that.authorName,_that.avatar,_that.fansNum,_that.audioCount,_that.videoCount,_that.albumCount,_that.heat,_that.authorStatus,_that.isSettledAuthor,_that.userId,_that.complexSongName,_that.algPath,_that.auxiliary);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +221,10 @@ return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@IntFromStringConverter()@JsonKey(name: 'authorid')  int authorId, @JsonKey(name: 'author_name')  String authorName, @JsonKey(name: 'imgurl')  String imgUrl, @IntFromStringConverter()@JsonKey(name: 'song_count')  int songCount, @IntFromStringConverter()@JsonKey(name: 'album_count')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'mv_count')  int mvCount, @IntFromStringConverter()@JsonKey(name: 'fans_count')  int fansCount, @IntFromStringConverter()@JsonKey(name: 'is_publish')  int isPublish)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@IntFromStringConverter()@JsonKey(name: 'AuthorId')  int authorId, @JsonKey(name: 'AuthorName')  String authorName, @JsonKey(name: 'Avatar')  String avatar, @IntFromStringConverter()@JsonKey(name: 'FansNum')  int fansNum, @IntFromStringConverter()@JsonKey(name: 'AudioCount')  int audioCount, @IntFromStringConverter()@JsonKey(name: 'VideoCount')  int videoCount, @IntFromStringConverter()@JsonKey(name: 'AlbumCount')  int albumCount, @IntFromStringConverter()@JsonKey(name: 'Heat')  int heat, @IntFromStringConverter()@JsonKey(name: 'AuthorStatus')  int authorStatus, @IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor')  int isSettledAuthor, @IntFromStringConverter()@JsonKey(name: 'UserId')  int userId, @JsonKey(name: 'ComplexSongName')  String complexSongName, @JsonKey(name: 'AlgPath')  String algPath, @JsonKey(name: 'Auxiliary')  String auxiliary)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchAuthorInfo() when $default != null:
-return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_that.albumCount,_that.mvCount,_that.fansCount,_that.isPublish);case _:
+return $default(_that.authorId,_that.authorName,_that.avatar,_that.fansNum,_that.audioCount,_that.videoCount,_that.albumCount,_that.heat,_that.authorStatus,_that.isSettledAuthor,_that.userId,_that.complexSongName,_that.algPath,_that.auxiliary);case _:
   return null;
 
 }
@@ -224,25 +236,37 @@ return $default(_that.authorId,_that.authorName,_that.imgUrl,_that.songCount,_th
 @JsonSerializable()
 
 class _SearchAuthorInfo implements SearchAuthorInfo {
-  const _SearchAuthorInfo({@IntFromStringConverter()@JsonKey(name: 'authorid') this.authorId = 0, @JsonKey(name: 'author_name') this.authorName = '', @JsonKey(name: 'imgurl') this.imgUrl = '', @IntFromStringConverter()@JsonKey(name: 'song_count') this.songCount = 0, @IntFromStringConverter()@JsonKey(name: 'album_count') this.albumCount = 0, @IntFromStringConverter()@JsonKey(name: 'mv_count') this.mvCount = 0, @IntFromStringConverter()@JsonKey(name: 'fans_count') this.fansCount = 0, @IntFromStringConverter()@JsonKey(name: 'is_publish') this.isPublish = 0});
+  const _SearchAuthorInfo({@IntFromStringConverter()@JsonKey(name: 'AuthorId') this.authorId = 0, @JsonKey(name: 'AuthorName') this.authorName = '', @JsonKey(name: 'Avatar') this.avatar = '', @IntFromStringConverter()@JsonKey(name: 'FansNum') this.fansNum = 0, @IntFromStringConverter()@JsonKey(name: 'AudioCount') this.audioCount = 0, @IntFromStringConverter()@JsonKey(name: 'VideoCount') this.videoCount = 0, @IntFromStringConverter()@JsonKey(name: 'AlbumCount') this.albumCount = 0, @IntFromStringConverter()@JsonKey(name: 'Heat') this.heat = 0, @IntFromStringConverter()@JsonKey(name: 'AuthorStatus') this.authorStatus = 0, @IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor') this.isSettledAuthor = 0, @IntFromStringConverter()@JsonKey(name: 'UserId') this.userId = 0, @JsonKey(name: 'ComplexSongName') this.complexSongName = '', @JsonKey(name: 'AlgPath') this.algPath = '', @JsonKey(name: 'Auxiliary') this.auxiliary = ''});
   factory _SearchAuthorInfo.fromJson(Map<String, dynamic> json) => _$SearchAuthorInfoFromJson(json);
 
-/// 歌手ID
-@override@IntFromStringConverter()@JsonKey(name: 'authorid') final  int authorId;
-/// 歌手名
-@override@JsonKey(name: 'author_name') final  String authorName;
-/// 歌手头像
-@override@JsonKey(name: 'imgurl') final  String imgUrl;
-/// 歌曲数量
-@override@IntFromStringConverter()@JsonKey(name: 'song_count') final  int songCount;
-/// 专辑数量
-@override@IntFromStringConverter()@JsonKey(name: 'album_count') final  int albumCount;
-/// MV数量
-@override@IntFromStringConverter()@JsonKey(name: 'mv_count') final  int mvCount;
+/// 作者ID
+@override@IntFromStringConverter()@JsonKey(name: 'AuthorId') final  int authorId;
+/// 作者名
+@override@JsonKey(name: 'AuthorName') final  String authorName;
+/// 作者头像
+@override@JsonKey(name: 'Avatar') final  String avatar;
 /// 粉丝数量
-@override@IntFromStringConverter()@JsonKey(name: 'fans_count') final  int fansCount;
-/// 是否认证
-@override@IntFromStringConverter()@JsonKey(name: 'is_publish') final  int isPublish;
+@override@IntFromStringConverter()@JsonKey(name: 'FansNum') final  int fansNum;
+/// 音频数量
+@override@IntFromStringConverter()@JsonKey(name: 'AudioCount') final  int audioCount;
+/// 视频数量
+@override@IntFromStringConverter()@JsonKey(name: 'VideoCount') final  int videoCount;
+/// 专辑数量
+@override@IntFromStringConverter()@JsonKey(name: 'AlbumCount') final  int albumCount;
+/// 热度
+@override@IntFromStringConverter()@JsonKey(name: 'Heat') final  int heat;
+/// 作者状态
+@override@IntFromStringConverter()@JsonKey(name: 'AuthorStatus') final  int authorStatus;
+/// 是否入驻作者
+@override@IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor') final  int isSettledAuthor;
+/// 用户ID
+@override@IntFromStringConverter()@JsonKey(name: 'UserId') final  int userId;
+/// 复杂歌曲名
+@override@JsonKey(name: 'ComplexSongName') final  String complexSongName;
+/// 算法路径
+@override@JsonKey(name: 'AlgPath') final  String algPath;
+/// 辅助信息
+@override@JsonKey(name: 'Auxiliary') final  String auxiliary;
 
 /// Create a copy of SearchAuthorInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +281,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchAuthorInfo&&(identical(other.authorId, authorId) || other.authorId == authorId)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.imgUrl, imgUrl) || other.imgUrl == imgUrl)&&(identical(other.songCount, songCount) || other.songCount == songCount)&&(identical(other.albumCount, albumCount) || other.albumCount == albumCount)&&(identical(other.mvCount, mvCount) || other.mvCount == mvCount)&&(identical(other.fansCount, fansCount) || other.fansCount == fansCount)&&(identical(other.isPublish, isPublish) || other.isPublish == isPublish));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchAuthorInfo&&(identical(other.authorId, authorId) || other.authorId == authorId)&&(identical(other.authorName, authorName) || other.authorName == authorName)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.fansNum, fansNum) || other.fansNum == fansNum)&&(identical(other.audioCount, audioCount) || other.audioCount == audioCount)&&(identical(other.videoCount, videoCount) || other.videoCount == videoCount)&&(identical(other.albumCount, albumCount) || other.albumCount == albumCount)&&(identical(other.heat, heat) || other.heat == heat)&&(identical(other.authorStatus, authorStatus) || other.authorStatus == authorStatus)&&(identical(other.isSettledAuthor, isSettledAuthor) || other.isSettledAuthor == isSettledAuthor)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.complexSongName, complexSongName) || other.complexSongName == complexSongName)&&(identical(other.algPath, algPath) || other.algPath == algPath)&&(identical(other.auxiliary, auxiliary) || other.auxiliary == auxiliary));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,authorId,authorName,imgUrl,songCount,albumCount,mvCount,fansCount,isPublish);
+int get hashCode => Object.hash(runtimeType,authorId,authorName,avatar,fansNum,audioCount,videoCount,albumCount,heat,authorStatus,isSettledAuthor,userId,complexSongName,algPath,auxiliary);
 
 @override
 String toString() {
-  return 'SearchAuthorInfo(authorId: $authorId, authorName: $authorName, imgUrl: $imgUrl, songCount: $songCount, albumCount: $albumCount, mvCount: $mvCount, fansCount: $fansCount, isPublish: $isPublish)';
+  return 'SearchAuthorInfo(authorId: $authorId, authorName: $authorName, avatar: $avatar, fansNum: $fansNum, audioCount: $audioCount, videoCount: $videoCount, albumCount: $albumCount, heat: $heat, authorStatus: $authorStatus, isSettledAuthor: $isSettledAuthor, userId: $userId, complexSongName: $complexSongName, algPath: $algPath, auxiliary: $auxiliary)';
 }
 
 
@@ -277,7 +301,7 @@ abstract mixin class _$SearchAuthorInfoCopyWith<$Res> implements $SearchAuthorIn
   factory _$SearchAuthorInfoCopyWith(_SearchAuthorInfo value, $Res Function(_SearchAuthorInfo) _then) = __$SearchAuthorInfoCopyWithImpl;
 @override @useResult
 $Res call({
-@IntFromStringConverter()@JsonKey(name: 'authorid') int authorId,@JsonKey(name: 'author_name') String authorName,@JsonKey(name: 'imgurl') String imgUrl,@IntFromStringConverter()@JsonKey(name: 'song_count') int songCount,@IntFromStringConverter()@JsonKey(name: 'album_count') int albumCount,@IntFromStringConverter()@JsonKey(name: 'mv_count') int mvCount,@IntFromStringConverter()@JsonKey(name: 'fans_count') int fansCount,@IntFromStringConverter()@JsonKey(name: 'is_publish') int isPublish
+@IntFromStringConverter()@JsonKey(name: 'AuthorId') int authorId,@JsonKey(name: 'AuthorName') String authorName,@JsonKey(name: 'Avatar') String avatar,@IntFromStringConverter()@JsonKey(name: 'FansNum') int fansNum,@IntFromStringConverter()@JsonKey(name: 'AudioCount') int audioCount,@IntFromStringConverter()@JsonKey(name: 'VideoCount') int videoCount,@IntFromStringConverter()@JsonKey(name: 'AlbumCount') int albumCount,@IntFromStringConverter()@JsonKey(name: 'Heat') int heat,@IntFromStringConverter()@JsonKey(name: 'AuthorStatus') int authorStatus,@IntFromStringConverter()@JsonKey(name: 'IsSettledAuthor') int isSettledAuthor,@IntFromStringConverter()@JsonKey(name: 'UserId') int userId,@JsonKey(name: 'ComplexSongName') String complexSongName,@JsonKey(name: 'AlgPath') String algPath,@JsonKey(name: 'Auxiliary') String auxiliary
 });
 
 
@@ -294,17 +318,23 @@ class __$SearchAuthorInfoCopyWithImpl<$Res>
 
 /// Create a copy of SearchAuthorInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? authorId = null,Object? authorName = null,Object? imgUrl = null,Object? songCount = null,Object? albumCount = null,Object? mvCount = null,Object? fansCount = null,Object? isPublish = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? authorId = null,Object? authorName = null,Object? avatar = null,Object? fansNum = null,Object? audioCount = null,Object? videoCount = null,Object? albumCount = null,Object? heat = null,Object? authorStatus = null,Object? isSettledAuthor = null,Object? userId = null,Object? complexSongName = null,Object? algPath = null,Object? auxiliary = null,}) {
   return _then(_SearchAuthorInfo(
 authorId: null == authorId ? _self.authorId : authorId // ignore: cast_nullable_to_non_nullable
 as int,authorName: null == authorName ? _self.authorName : authorName // ignore: cast_nullable_to_non_nullable
-as String,imgUrl: null == imgUrl ? _self.imgUrl : imgUrl // ignore: cast_nullable_to_non_nullable
-as String,songCount: null == songCount ? _self.songCount : songCount // ignore: cast_nullable_to_non_nullable
+as String,avatar: null == avatar ? _self.avatar : avatar // ignore: cast_nullable_to_non_nullable
+as String,fansNum: null == fansNum ? _self.fansNum : fansNum // ignore: cast_nullable_to_non_nullable
+as int,audioCount: null == audioCount ? _self.audioCount : audioCount // ignore: cast_nullable_to_non_nullable
+as int,videoCount: null == videoCount ? _self.videoCount : videoCount // ignore: cast_nullable_to_non_nullable
 as int,albumCount: null == albumCount ? _self.albumCount : albumCount // ignore: cast_nullable_to_non_nullable
-as int,mvCount: null == mvCount ? _self.mvCount : mvCount // ignore: cast_nullable_to_non_nullable
-as int,fansCount: null == fansCount ? _self.fansCount : fansCount // ignore: cast_nullable_to_non_nullable
-as int,isPublish: null == isPublish ? _self.isPublish : isPublish // ignore: cast_nullable_to_non_nullable
-as int,
+as int,heat: null == heat ? _self.heat : heat // ignore: cast_nullable_to_non_nullable
+as int,authorStatus: null == authorStatus ? _self.authorStatus : authorStatus // ignore: cast_nullable_to_non_nullable
+as int,isSettledAuthor: null == isSettledAuthor ? _self.isSettledAuthor : isSettledAuthor // ignore: cast_nullable_to_non_nullable
+as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,complexSongName: null == complexSongName ? _self.complexSongName : complexSongName // ignore: cast_nullable_to_non_nullable
+as String,algPath: null == algPath ? _self.algPath : algPath // ignore: cast_nullable_to_non_nullable
+as String,auxiliary: null == auxiliary ? _self.auxiliary : auxiliary // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

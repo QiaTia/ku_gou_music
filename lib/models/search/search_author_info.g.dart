@@ -8,36 +8,57 @@ part of 'search_author_info.dart';
 
 _SearchAuthorInfo _$SearchAuthorInfoFromJson(Map<String, dynamic> json) =>
     _SearchAuthorInfo(
-      authorId: json['authorid'] == null
+      authorId: json['AuthorId'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['authorid']),
-      authorName: json['author_name'] as String? ?? '',
-      imgUrl: json['imgurl'] as String? ?? '',
-      songCount: json['song_count'] == null
+          : const IntFromStringConverter().fromJson(json['AuthorId']),
+      authorName: json['AuthorName'] as String? ?? '',
+      avatar: json['Avatar'] as String? ?? '',
+      fansNum: json['FansNum'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['song_count']),
-      albumCount: json['album_count'] == null
+          : const IntFromStringConverter().fromJson(json['FansNum']),
+      audioCount: json['AudioCount'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['album_count']),
-      mvCount: json['mv_count'] == null
+          : const IntFromStringConverter().fromJson(json['AudioCount']),
+      videoCount: json['VideoCount'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['mv_count']),
-      fansCount: json['fans_count'] == null
+          : const IntFromStringConverter().fromJson(json['VideoCount']),
+      albumCount: json['AlbumCount'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['fans_count']),
-      isPublish: json['is_publish'] == null
+          : const IntFromStringConverter().fromJson(json['AlbumCount']),
+      heat: json['Heat'] == null
           ? 0
-          : const IntFromStringConverter().fromJson(json['is_publish']),
+          : const IntFromStringConverter().fromJson(json['Heat']),
+      authorStatus: json['AuthorStatus'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['AuthorStatus']),
+      isSettledAuthor: json['IsSettledAuthor'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['IsSettledAuthor']),
+      userId: json['UserId'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['UserId']),
+      complexSongName: json['ComplexSongName'] as String? ?? '',
+      algPath: json['AlgPath'] as String? ?? '',
+      auxiliary: json['Auxiliary'] as String? ?? '',
     );
 
-Map<String, dynamic> _$SearchAuthorInfoToJson(_SearchAuthorInfo instance) =>
-    <String, dynamic>{
-      'authorid': const IntFromStringConverter().toJson(instance.authorId),
-      'author_name': instance.authorName,
-      'imgurl': instance.imgUrl,
-      'song_count': const IntFromStringConverter().toJson(instance.songCount),
-      'album_count': const IntFromStringConverter().toJson(instance.albumCount),
-      'mv_count': const IntFromStringConverter().toJson(instance.mvCount),
-      'fans_count': const IntFromStringConverter().toJson(instance.fansCount),
-      'is_publish': const IntFromStringConverter().toJson(instance.isPublish),
-    };
+Map<String, dynamic> _$SearchAuthorInfoToJson(
+  _SearchAuthorInfo instance,
+) => <String, dynamic>{
+  'AuthorId': const IntFromStringConverter().toJson(instance.authorId),
+  'AuthorName': instance.authorName,
+  'Avatar': instance.avatar,
+  'FansNum': const IntFromStringConverter().toJson(instance.fansNum),
+  'AudioCount': const IntFromStringConverter().toJson(instance.audioCount),
+  'VideoCount': const IntFromStringConverter().toJson(instance.videoCount),
+  'AlbumCount': const IntFromStringConverter().toJson(instance.albumCount),
+  'Heat': const IntFromStringConverter().toJson(instance.heat),
+  'AuthorStatus': const IntFromStringConverter().toJson(instance.authorStatus),
+  'IsSettledAuthor': const IntFromStringConverter().toJson(
+    instance.isSettledAuthor,
+  ),
+  'UserId': const IntFromStringConverter().toJson(instance.userId),
+  'ComplexSongName': instance.complexSongName,
+  'AlgPath': instance.algPath,
+  'Auxiliary': instance.auxiliary,
+};

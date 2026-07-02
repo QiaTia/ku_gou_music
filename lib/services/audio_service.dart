@@ -6,6 +6,7 @@ import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'play_history_service.dart';
 
 class AudioService extends GetxService {
   final player = AudioPlayer();
@@ -25,6 +26,8 @@ class AudioService extends GetxService {
   bool isLoadingIndices = false;
 
   final Rx<SongItemStruct?> currentSong = Rx<SongItemStruct?>(null);
+
+  final _historyService = PlayHistoryService();
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerStateSubscription;
@@ -97,6 +100,8 @@ class AudioService extends GetxService {
         currentIndex.value = index;
         if (index < songList.length) {
           currentSong.value = songList[index];
+          // 自动记录播放历史
+          _recordPlayHistory(songList[index]);
         }
         var nextIndex = index + 1;
         if (nextIndex < songList.length) {
@@ -276,6 +281,28 @@ class AudioService extends GetxService {
         // 如果有其他字段如 album, duration 也可以在这里填上
       ),
     );
+  }
+
+  /// 记录播放历史
+  void _recordPlayHistory(SongItemStruct song) {
+    try {
+      final historyItem = SongPlayHistory(
+        id: song.audio_id.toString(),
+        name: song.name,
+        cover: song.cover,
+        playTime: DateTime.now().millisecondsSinceEpoch,
+        hash: song.hash,
+        author: song.author,
+        timelen: song.timelen,
+        privilege: song.privilege,
+        isSq: song.is_sq,
+        isHq: song.is_hq,
+        mvhash: song.mvhash,
+      );
+      _historyService.addSong(historyItem);
+    } catch (e) {
+      // 静默处理，不影响播放
+    }
   }
 
   @override

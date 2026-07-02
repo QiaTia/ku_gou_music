@@ -2,7 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
+import 'package:ku_gou_music/services/play_history_service.dart';
 import 'package:ku_gou_music/utils/utils.dart';
+import 'package:ku_gou_music/widgets/add_to_playlist_dialog.dart';
 import 'playlist.controller.dart';
 import 'dart:math' as math;
 
@@ -28,6 +30,16 @@ class PlaylistScreen extends GetWidget {
 
     /// 播放歌单全部歌曲
     void onPlayPlaylist() async {
+      // 记录歌单播放历史
+      final historyService = PlayHistoryService();
+      await historyService.addPlaylist(PlaylistPlayHistory(
+        id: id,
+        name: name,
+        cover: pic,
+        playTime: DateTime.now().millisecondsSinceEpoch,
+        intro: controller.playListInfo.value.intro,
+      ));
+
       await musicController.loadPlaylistMusic(controller.playlist);
       musicController.audioService.play();
       Get.toNamed('/player');
@@ -307,7 +319,7 @@ class PlaylistView extends GetView<PlaylistController> {
                 label: '添加到歌单',
                 onTap: () {
                   Get.back();
-                  // TODO: 显示歌单选择弹窗
+                  showAddToPlaylistDialog(context, song);
                 },
               ),
               _buildOptionTile(context,

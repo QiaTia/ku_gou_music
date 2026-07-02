@@ -112,16 +112,22 @@ class _TitleSearchFieldState extends State<TitleSearchField> {
 
 class TitleBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
-
   final String? title;
+  final Widget? searchField;
+  /// 右侧自定义操作按钮列表
+  final List<Widget>? actions;
+  final displayCancelNotifier = ValueNotifier(false);
+
+  TitleBar({
+    super.key,
+    this.title,
+    this.searchField,
+    this.actions,
+    this.height = kToolbarHeight,
+  });
 
   @override
   Size get preferredSize => Size.fromHeight(height);
-
-  final Widget? searchField;
-  final displayCancelNotifier = ValueNotifier(false);
-
-  TitleBar({super.key, this.title, this.searchField, this.height = kToolbarHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -151,19 +157,36 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   SizedBox(width: 10),
-                  Obx(() => controller.canBack.value && !isMobile ? 
+                  Obx(() => controller.canBack.value && !isMobile ?
                       IconButton(onPressed: controller.goBack, icon: Icon(Icons.arrow_back))
                     : SizedBox.shrink()
                   ),
-                  Expanded(child: Text(title ?? '')),
-                  SizedBox(child: searchField),
-                  Spacer(),
-                  IconButton(
-                    onPressed: () {
+                  // 标题区域
+                  if (title != null)
+                    Expanded(child: Text(
+                      title!,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                  // 搜索框
+                  if (searchField != null)
+                    SizedBox(child: searchField),
+                  // 占位或actions
+                  if (actions != null && actions!.isNotEmpty) ...[
+                    Spacer(),
+                    ...actions!,
+                  ] else if (searchField == null) ...[
+                    Spacer(),
+                  ],
+                  // 默认设置按钮（如果没有自定义actions时显示）
+                  if (actions == null)
+                    IconButton(
+                      onPressed: () {
                       // panelManager.pushPanel('settings');
-                    },
-                    icon: Icon(Icons.settings_outlined, size: 20),
-                  ),
+                      },
+                      icon: Icon(Icons.settings_outlined, size: 20),
+                    ),
                   SizedBox(width: 10),
                 ],
               ),
