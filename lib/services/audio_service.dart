@@ -6,6 +6,8 @@ import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:ku_gou_music/models/audio_quality.dart';
+import 'song_cache_service.dart';
 import 'play_history_service.dart';
 
 class AudioService extends GetxService {
@@ -28,6 +30,17 @@ class AudioService extends GetxService {
   final Rx<SongItemStruct?> currentSong = Rx<SongItemStruct?>(null);
 
   final _historyService = PlayHistoryService();
+
+  // ========== 缓存相关 ==========
+
+  /// 缓存服务
+  final _cacheService = Get.find<SongCacheService>();
+
+  /// 当前期望音质（用户可切换，默认标准）
+  final Rx<AudioQuality> preferredQuality = AudioQuality.standard.obs;
+
+  /// 后台预缓存进行中标志
+  bool _isPrefetchCaching = false;
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerStateSubscription;
@@ -107,6 +120,8 @@ class AudioService extends GetxService {
         if (nextIndex < songList.length) {
           _prefetchSong(songList[nextIndex], nextIndex);
         }
+        // 后台预缓存接下来的歌曲
+        _prefetchCacheForUpcoming();
       }
     });
 
@@ -227,25 +242,57 @@ class AudioService extends GetxService {
     currentSong.value = null;
   }
 
-  /// 核心方法：后台静默预加载下一首的 URL
+  /// 核心方法：预加载歌曲URL，优先使用缓存
   Future<void> _prefetchSong(SongItemStruct song, int i) async {
     if (_loadedIndices.contains(i) || isLoadingIndices) {
       return;
     }
     try {
       isLoadingIndices = true;
-      var urls =
-          (await getMusicUrls(
-            hash: song.hash,
-            freePart: userInstance.token.isEmpty ? 1 : 0,
-          )).body?['url'] ??
-          [];
-      if (urls.isEmpty) {
-        throw Exception('No URL found for song: ${song.name}');
+
+      // ===== 优先检查本地缓存 =====
+      Uri? audioUri;
+      final localUri = await _cacheService.getLocalFileUri(
+        song.hash,
+        preferredQuality: preferredQuality.value,
+      );
+      if (localUri != null) {
+        // 缓存命中：直接使用本地文件
+        audioUri = localUri;
+        print('✅ 缓存命中: ${song.name} (${song.hash})');
+      } else {
+        // 缓存未命中：走网络URL
+        var urls =
+            (await getMusicUrls(
+              hash: song.hash,
+              quality: preferredQuality.value.apiValue,
+              freePart: userInstance.token.isEmpty ? 1 : 0,
+            )).body?['url'] ??
+            [];
+        if (urls.isEmpty) {
+          throw Exception('No URL found for song: ${song.name}');
+        }
+        audioUri = Uri.parse(urls[0]);
+
+        // ===== 后台缓存下载（不阻塞播放） =====
+        _cacheService.cacheFromUrl(
+          hash: song.hash,
+          cdnUrl: urls[0],
+          quality: preferredQuality.value,
+          songName: song.name,
+          author: song.author,
+        ).then((path) {
+          if (path != null) {
+            print('💾 后台缓存完成: ${song.name} -> $path');
+          }
+        }).catchError((e) {
+          // 静默处理，不影响播放
+          print('⚠️ 后台缓存失败: $e');
+        });
       }
-      // await player.setUrl(urls[0]);
+
       playlist[i] = AudioSource.uri(
-        Uri.parse(urls[0]),
+        audioUri,
         tag: MediaItem(
           id: song.hash,
           // album: song,
@@ -261,6 +308,47 @@ class AudioService extends GetxService {
       print("⚠️ 预加载第 ${song.hash} 首歌失败，等用户真切到那首时再重试");
     }
     isLoadingIndices = false;
+  }
+
+  /// 后台预缓存接下来的N首歌
+  /// 在当前歌曲播放后触发，预下载队列中接下来的歌曲
+  Future<void> _prefetchCacheForUpcoming() async {
+    if (_isPrefetchCaching) return;
+    _isPrefetchCaching = true;
+
+    try {
+      const int prefetchCount = 3; // 预缓存接下来3首
+      final startIndex = currentIndex.value + 1;
+      final endIndex = (startIndex + prefetchCount).clamp(0, songList.length);
+
+      for (int i = startIndex; i < endIndex; i++) {
+        final song = songList[i];
+        // 只缓存尚未有缓存的歌
+        if (!await _cacheService.hasCache(song.hash)) {
+          try {
+            var urls = (await getMusicUrls(
+              hash: song.hash,
+              quality: preferredQuality.value.apiValue,
+              freePart: userInstance.token.isEmpty ? 1 : 0,
+            )).body?['url'] ?? [];
+            if (urls.isNotEmpty) {
+              await _cacheService.cacheFromUrl(
+                hash: song.hash,
+                cdnUrl: urls[0],
+                quality: preferredQuality.value,
+                songName: song.name,
+                author: song.author,
+              );
+              print('💾 预缓存完成: ${song.name}');
+            }
+          } catch (e) {
+            print('⚠️ 预缓存失败: ${song.name} - $e');
+          }
+        }
+      }
+    } finally {
+      _isPrefetchCaching = false;
+    }
   }
 
   /// 生成一个极短的静音 AudioSource 作为占位符

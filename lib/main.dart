@@ -14,6 +14,7 @@ import 'views/home/pc/layout/layout.dart';
 import 'views/login/login_page.dart';
 import 'store/user.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'services/song_cache_service.dart';
 
 class DesktopScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -38,6 +39,8 @@ void main() async {
   );
 
   await GetStorage.init();
+  // 初始化歌曲缓存服务（必须在 runApp 之前，AudioService 依赖它）
+  await Get.putAsync<SongCacheService>(() => SongCacheService().init());
   userInstance.init();
   if (userInstance.dfid.isEmpty) {
     registerDevice()
