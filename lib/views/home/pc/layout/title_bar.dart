@@ -171,7 +171,8 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
                     )),
                   // 搜索框
                   if (searchField != null)
-                    SizedBox(child: searchField),
+                  Expanded(child:
+                    SizedBox(child: searchField)),
                   // 占位或actions
                   if (actions != null && actions!.isNotEmpty) ...[
                     Spacer(),

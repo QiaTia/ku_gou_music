@@ -106,6 +106,7 @@ class PlaylistScreen extends GetWidget {
                       mainAxisAlignment: .spaceBetween,
                       crossAxisAlignment: .start,
                       children: [
+                        SizedBox(height: 10),
                         // Text(
                         //   name.replaceAll(RegExp('\\s+'), ' '),
                         //   style: Theme.of(context).textTheme.titleLarge,
@@ -231,6 +232,7 @@ class PlaylistView extends GetView<PlaylistController> {
 
     Get.bottomSheet(
       Container(
+        height: 500,
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.only(
@@ -238,8 +240,7 @@ class PlaylistView extends GetView<PlaylistController> {
             topRight: Radius.circular(20),
           ),
         ),
-        child: SafeArea(
-          child: Column(
+        child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // 歌曲信息头部
@@ -294,62 +295,66 @@ class PlaylistView extends GetView<PlaylistController> {
                 ),
               ),
               Divider(height: 1),
-              // 操作选项
-              _buildOptionTile(context,
-                icon: Icons.play_arrow,
-                label: '立即播放',
-                onTap: () async {
-                  Get.back();
-                  await musicController.loadPlaylistMusic(controller.playlist);
-                  await musicController.playSong(index);
-                  musicController.audioService.play();
-                  Get.toNamed('/player');
-                },
+              Expanded(child: 
+                ListView(
+                  physics: NeverScrollableScrollPhysics(),
+                  children: [
+                  // 操作选项
+                  _buildOptionTile(context,
+                    icon: Icons.play_arrow,
+                    label: '立即播放',
+                    onTap: () async {
+                      Get.back();
+                      await musicController.loadPlaylistMusic(controller.playlist);
+                      await musicController.playSong(index);
+                      musicController.audioService.play();
+                      Get.toNamed('/player');
+                    },
+                  ),
+                  _buildOptionTile(context,
+                    icon: Icons.queue_music,
+                    label: '下一首播放',
+                    onTap: () {
+                      Get.back();
+                      // TODO: 添加到下一首播放
+                    },
+                  ),
+                  _buildOptionTile(context,
+                    icon: Icons.playlist_add,
+                    label: '添加到歌单',
+                    onTap: () {
+                      Get.back();
+                      showAddToPlaylistDialog(context, song);
+                    },
+                  ),
+                  _buildOptionTile(context,
+                    icon: Icons.favorite_border,
+                    label: '收藏',
+                    onTap: () {
+                      Get.back();
+                    },
+                  ),
+                  _buildOptionTile(context,
+                    icon: Icons.share,
+                    label: '分享',
+                    onTap: () {
+                      Get.back();
+                    },
+                  ),
+                  _buildOptionTile(context,
+                    icon: Icons.delete_outline,
+                    label: '从列表中移除',
+                    textColor: Colors.red,
+                    iconColor: Colors.red,
+                    onTap: () {
+                      Get.back();
+                    },
+                )])
               ),
-              _buildOptionTile(context,
-                icon: Icons.queue_music,
-                label: '下一首播放',
-                onTap: () {
-                  Get.back();
-                  // TODO: 添加到下一首播放
-                },
-              ),
-              _buildOptionTile(context,
-                icon: Icons.playlist_add,
-                label: '添加到歌单',
-                onTap: () {
-                  Get.back();
-                  showAddToPlaylistDialog(context, song);
-                },
-              ),
-              _buildOptionTile(context,
-                icon: Icons.favorite_border,
-                label: '收藏',
-                onTap: () {
-                  Get.back();
-                },
-              ),
-              _buildOptionTile(context,
-                icon: Icons.share,
-                label: '分享',
-                onTap: () {
-                  Get.back();
-                },
-              ),
-              _buildOptionTile(context,
-                icon: Icons.delete_outline,
-                label: '从列表中移除',
-                textColor: Colors.red,
-                iconColor: Colors.red,
-                onTap: () {
-                  Get.back();
-                },
-              ),
-              SizedBox(height: 12),
+              SizedBox(height: 20),
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -415,19 +420,20 @@ class _PlaylistTableHeader extends StatelessWidget {
             ),
           ),
           // 歌手
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                Text(
-                  '歌手',
-                  style: TextStyle(fontSize: 13, color: textColor),
-                ),
-                SizedBox(width: 2),
-                Icon(Icons.arrow_drop_down, size: 16, color: textColor),
-              ],
+          if (isWide)
+            Expanded(
+              flex: 2,
+              child: Row(
+                children: [
+                  Text(
+                    '歌手',
+                    style: TextStyle(fontSize: 13, color: textColor),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(Icons.arrow_drop_down, size: 16, color: textColor),
+                ],
+              ),
             ),
-          ),
           // 专辑（宽屏模式）
           if (isWide)
             Expanded(
@@ -548,7 +554,7 @@ class _PlaylistSongRow extends StatelessWidget {
       onLongPress: onLongPress,
       hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -598,25 +604,40 @@ class _PlaylistSongRow extends StatelessWidget {
                         ),
                       ),
                       // 角标标签
-                      _buildBadges(),
+                      if (isWide) _buildBadges(),
                     ],
                   ),
+                  if (!isWide)
+                    Row(children: [
+                      Expanded(child: 
+                        Text(
+                          song.author,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )),
+                      _buildBadges()
+                    ])
                 ],
               ),
             ),
             // 歌手
-            Expanded(
-              flex: 2,
-              child: Text(
-                song.author,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
+            if (isWide)
+              Expanded(
+                flex: 2,
+                child: Text(
+                  song.author,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
             // 专辑（宽屏模式）
             if (isWide)
               Expanded(

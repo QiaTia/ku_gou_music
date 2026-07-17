@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:ku_gou_music/views/home/pc/router/router.dart';
 
 class RankingPage extends StatelessWidget {
   const RankingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    LocalRouterController controller = Get.find();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -15,11 +19,17 @@ class RankingPage extends StatelessWidget {
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                 sliver: SliverAppBar(
-                  title: Text('NestedScrollView Demo'),
                   floating: true,
                   pinned: true,
                   snap: true,
-                  leading: SizedBox.shrink(),
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    color: Colors.white,
+                    onPressed: () {
+                      controller.goBack();
+                    },
+                  ),
+                  // leading: SizedBox.shrink(),
                   expandedHeight: 200,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Image.network(
