@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+// Windows/Linux 桌面端 SQLite FFI 支持
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../models/audio_quality.dart';
 import '../models/cached_song.dart';
@@ -11,9 +13,13 @@ import '../models/cached_song.dart';
 /// 歌曲缓存服务
 /// 管理音频文件的本地缓存，使用 SQLite 存储元数据，文件系统存储音频数据
 /// 支持 LRU 淘汰、多音质缓存、后台下载
+/// 兼容 Windows 桌面端：通过 sqflite_common_ffi 提供桌面端 SQLite 支持
 class SongCacheService extends GetxService {
   Database? _db;
-  late Directory _cacheDir;
+  Directory? _cacheDir;
+
+  /// 缓存功能是否可用（平台不支持或初始化失败时为 false）
+  bool _isAvailable = false;
 
   /// 缓存总大小上限：2GB
   static const int _maxCacheSizeBytes = 2 * 1024 * 1024 * 1024;
@@ -36,35 +42,70 @@ class SongCacheService extends GetxService {
   /// 当前缓存歌曲数量（响应式，供UI绑定）
   final RxInt cachedSongCount = 0.obs;
 
+  /// 缓存功能是否可用
+  bool get isAvailable => _isAvailable;
+
   /// 用于文件下载的独立Dio实例（不走请求加密逻辑）
   final _downloadDio = Dio();
 
   // ========== 初始化 ==========
 
-  /// 初始化缓存服务（在 MusicBinding 中调用）
+  /// 初始化缓存服务（在 main() 中调用）
   Future<SongCacheService> init() async {
-    // 1. 获取缓存目录
-    final appDir = await getApplicationDocumentsDirectory();
-    _cacheDir = Directory('${appDir.path}/$_cacheDirName');
-    if (!_cacheDir.existsSync()) {
-      _cacheDir.createSync(recursive: true);
+    try {
+      // 1. 初始化桌面端 SQLite FFI（Windows/Linux）
+      _initSqfliteFfi();
+
+      // 2. 获取缓存目录
+      final appDir = await getApplicationDocumentsDirectory();
+      _cacheDir = Directory('${appDir.path}/$_cacheDirName');
+      if (!_cacheDir!.existsSync()) {
+        _cacheDir!.createSync(recursive: true);
+      }
+
+      // 3. 打开数据库
+      final dbPath = await _getDatabasePath(appDir.path);
+      _db = await openDatabase(
+        dbPath,
+        version: _dbVersion,
+        onCreate: _onCreateDb,
+      );
+
+      // 4. 启动时清理孤立文件和临时文件
+      await _cleanOrphanedEntries();
+      await _cleanTempFiles();
+
+      // 5. 统计当前缓存大小
+      await _refreshCacheStats();
+
+      _isAvailable = true;
+      print('✅ 歌曲缓存服务初始化成功 (平台: ${Platform.operatingSystem})');
+    } catch (e) {
+      _isAvailable = false;
+      _db = null;
+      _cacheDir = null;
+      print('⚠️ 歌曲缓存服务初始化失败，缓存功能不可用: $e');
     }
 
-    // 2. 打开数据库
-    _db = await openDatabase(
-      '${appDir.path}/$_dbName',
-      version: _dbVersion,
-      onCreate: _onCreateDb,
-    );
-
-    // 3. 启动时清理孤立文件和临时文件
-    await _cleanOrphanedEntries();
-    await _cleanTempFiles();
-
-    // 4. 统计当前缓存大小
-    await _refreshCacheStats();
-
     return this;
+  }
+
+  /// 初始化桌面端 SQLite FFI
+  /// sqflite 原生只支持 iOS/Android/macOS，
+  /// Windows/Linux 需要通过 sqflite_common_ffi 提供 SQLite 实现
+  void _initSqfliteFfi() {
+    // 仅在桌面平台需要 FFI 初始化
+    if (Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+  }
+
+  /// 获取数据库文件路径（兼容桌面端）
+  Future<String> _getDatabasePath(String appDirPath) async {
+    // sqflite 的 defaultDatabasesPath 在桌面端可能不可用
+    // 直接用应用文档目录下的路径
+    return '$appDirPath/$_dbName';
   }
 
   Future<void> _onCreateDb(Database db, int version) async {
@@ -101,7 +142,7 @@ class SongCacheService extends GetxService {
 
   /// 检查某首歌是否有缓存（任意音质）
   Future<bool> hasCache(String hash) async {
-    if (hash.isEmpty || _db == null) return false;
+    if (!_isAvailable || hash.isEmpty || _db == null) return false;
     final result = await _db!.query(
       'cached_songs',
       where: 'hash = ?',
@@ -114,7 +155,7 @@ class SongCacheService extends GetxService {
   /// 获取某首歌的最佳缓存（最高音质）
   /// 返回最高音质的缓存记录，如果没有缓存则返回 null
   Future<CachedSong?> getBestCached(String hash) async {
-    if (hash.isEmpty || _db == null) return null;
+    if (!_isAvailable || hash.isEmpty || _db == null) return null;
     final results = await _db!.query(
       'cached_songs',
       where: 'hash = ?',
@@ -137,7 +178,7 @@ class SongCacheService extends GetxService {
   /// 获取某首歌指定音质的缓存
   Future<CachedSong?> getCachedByQuality(
       String hash, AudioQuality quality) async {
-    if (hash.isEmpty || _db == null) return null;
+    if (!_isAvailable || hash.isEmpty || _db == null) return null;
     final results = await _db!.query(
       'cached_songs',
       where: 'hash = ? AND quality = ?',
@@ -158,6 +199,7 @@ class SongCacheService extends GetxService {
   /// 优先使用指定音质，若未指定或未命中则取最高音质
   Future<String?> getLocalFilePath(String hash,
       {AudioQuality? preferredQuality}) async {
+    if (!_isAvailable || _cacheDir == null) return null;
     CachedSong? cached;
     if (preferredQuality != null) {
       // 先尝试指定音质
@@ -166,7 +208,7 @@ class SongCacheService extends GetxService {
     // 如果指定音质没有缓存，或者未指定音质，尝试最高音质
     cached ??= await getBestCached(hash);
     if (cached == null) return null;
-    return '${_cacheDir.path}/${cached.relativePath}';
+    return '${_cacheDir!.path}/${cached.relativePath}';
   }
 
   /// 获取缓存文件的 file:// URI（直接传给 just_audio 的 AudioSource.uri）
@@ -196,12 +238,14 @@ class SongCacheService extends GetxService {
     required String author,
     int actualBitrate = 0,
   }) async {
-    if (hash.isEmpty || cdnUrl.isEmpty || _db == null) return null;
+    if (!_isAvailable || hash.isEmpty || cdnUrl.isEmpty || _db == null || _cacheDir == null) {
+      return null;
+    }
 
     // 1. 如果已有同hash+quality的缓存，直接返回
     final existing = await getCachedByQuality(hash, quality);
     if (existing != null) {
-      final path = '${_cacheDir.path}/${existing.relativePath}';
+      final path = '${_cacheDir!.path}/${existing.relativePath}';
       if (File(path).existsSync()) {
         return path; // 已缓存，无需重复下载
       }
@@ -209,7 +253,7 @@ class SongCacheService extends GetxService {
 
     // 2. 构造目标文件路径
     final relativePath = _buildRelativePath(hash, quality);
-    final fullPath = '${_cacheDir.path}/$relativePath';
+    final fullPath = '${_cacheDir!.path}/$relativePath';
 
     // 3. 确保分桶目录存在
     final bucketDir = Directory(fullPath).parent;
@@ -293,7 +337,7 @@ class SongCacheService extends GetxService {
 
   /// 删除某首歌的所有音质缓存
   Future<void> deleteCache(String hash) async {
-    if (_db == null) return;
+    if (!_isAvailable || _db == null) return;
     final results = await _db!.query(
       'cached_songs',
       where: 'hash = ?',
@@ -309,6 +353,7 @@ class SongCacheService extends GetxService {
   /// 删除某首歌指定音质的缓存
   Future<void> deleteCacheByQuality(
       String hash, AudioQuality quality) async {
+    if (!_isAvailable || _db == null) return;
     final cached = await getCachedByQuality(hash, quality);
     if (cached != null) {
       await _deleteEntry(cached);
@@ -318,11 +363,11 @@ class SongCacheService extends GetxService {
 
   /// 清空所有缓存
   Future<void> clearAll() async {
-    if (_db == null) return;
+    if (!_isAvailable || _db == null || _cacheDir == null) return;
     // 删除所有缓存文件
-    if (_cacheDir.existsSync()) {
-      await _cacheDir.delete(recursive: true);
-      _cacheDir.createSync(recursive: true);
+    if (_cacheDir!.existsSync()) {
+      await _cacheDir!.delete(recursive: true);
+      _cacheDir!.createSync(recursive: true);
     }
     // 清空数据库
     await _db!.delete('cached_songs');
@@ -333,7 +378,7 @@ class SongCacheService extends GetxService {
 
   /// 获取所有缓存条目（用于UI展示缓存列表）
   Future<List<CachedSong>> getAllCached() async {
-    if (_db == null) return [];
+    if (!_isAvailable || _db == null) return [];
     final results = await _db!.query(
       'cached_songs',
       orderBy: 'last_access_time DESC',
@@ -343,7 +388,7 @@ class SongCacheService extends GetxService {
 
   /// 获取某首歌的所有已缓存音质
   Future<List<CachedSong>> getCachedQualities(String hash) async {
-    if (_db == null) return [];
+    if (!_isAvailable || _db == null) return [];
     final results = await _db!.query(
       'cached_songs',
       where: 'hash = ?',
@@ -400,14 +445,17 @@ class SongCacheService extends GetxService {
 
   /// 检查缓存文件是否存在
   Future<bool> _cacheFileExists(String relativePath) async {
-    return File('${_cacheDir.path}/$relativePath').exists();
+    if (_cacheDir == null) return false;
+    return File('${_cacheDir!.path}/$relativePath').exists();
   }
 
   /// 删除单条缓存（文件 + 数据库记录）
   Future<void> _deleteEntry(CachedSong cached) async {
-    final file = File('${_cacheDir.path}/${cached.relativePath}');
-    if (file.existsSync()) {
-      file.deleteSync();
+    if (_cacheDir != null) {
+      final file = File('${_cacheDir!.path}/${cached.relativePath}');
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
     }
     if (cached.id != null && _db != null) {
       await _db!.delete(
@@ -443,8 +491,8 @@ class SongCacheService extends GetxService {
 
   /// 清理临时下载文件（.tmp 后缀）
   Future<void> _cleanTempFiles() async {
-    if (!_cacheDir.existsSync()) return;
-    await for (final entity in _cacheDir.list(recursive: true)) {
+    if (_cacheDir == null || !_cacheDir!.existsSync()) return;
+    await for (final entity in _cacheDir!.list(recursive: true)) {
       if (entity is File && entity.path.endsWith('.tmp')) {
         try {
           await entity.delete();

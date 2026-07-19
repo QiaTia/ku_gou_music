@@ -53,6 +53,7 @@ dependencies:
   pointycastle: ^3.9.1
   dio: ^5.9.2
   sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.4
   path_provider: ^2.1.0
   flutter_animate: ^4.5.2
   flutter_svg: ^2.2.4
