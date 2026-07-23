@@ -124,41 +124,43 @@ void main() {
   group('SearchAuthorInfo', () {
     test('fromJson 正常数据', () {
       final json = {
-        'authorid': 3066,
-        'author_name': '周杰伦',
-        'imgurl': 'https://img.kugou.com/singer/3066.jpg',
-        'song_count': 300,
-        'album_count': 30,
-        'mv_count': 50,
-        'fans_count': 5000000,
-        'is_publish': 1,
+        'AuthorId': 3066,
+        'AuthorName': '周杰伦',
+        'Avatar': 'https://img.kugou.com/singer/3066.jpg',
+        'AudioCount': 300,
+        'AlbumCount': 30,
+        'VideoCount': 50,
+        'FansNum': 5000000,
+        'IsSettledAuthor': 1,
+        'Heat': 9999,
       };
 
       final info = SearchAuthorInfo.fromJson(json);
 
       expect(info.authorId, 3066);
       expect(info.authorName, '周杰伦');
-      expect(info.imgUrl, 'https://img.kugou.com/singer/3066.jpg');
-      expect(info.songCount, 300);
+      expect(info.avatar, 'https://img.kugou.com/singer/3066.jpg');
+      expect(info.audioCount, 300);
       expect(info.albumCount, 30);
-      expect(info.mvCount, 50);
-      expect(info.fansCount, 5000000);
-      expect(info.isPublish, 1);
+      expect(info.videoCount, 50);
+      expect(info.fansNum, 5000000);
+      expect(info.isSettledAuthor, 1);
+      expect(info.heat, 9999);
     });
 
     test('fromJson IntFromStringConverter 兼容 String', () {
       final json = {
-        'authorid': '3066',
-        'author_name': '周杰伦',
-        'song_count': '300',
-        'fans_count': '5000000',
+        'AuthorId': '3066',
+        'AuthorName': '周杰伦',
+        'AudioCount': '300',
+        'FansNum': '5000000',
       };
 
       final info = SearchAuthorInfo.fromJson(json);
 
       expect(info.authorId, 3066);
-      expect(info.songCount, 300);
-      expect(info.fansCount, 5000000);
+      expect(info.audioCount, 300);
+      expect(info.fansNum, 5000000);
     });
 
     test('fromJson 缺失字段使用默认值', () {
@@ -166,7 +168,8 @@ void main() {
 
       expect(info.authorId, 0);
       expect(info.authorName, '');
-      expect(info.songCount, 0);
+      expect(info.audioCount, 0);
+      expect(info.fansNum, 0);
     });
   });
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/services/audio_service.dart';
+import 'package:ku_gou_music/services/song_cache_service.dart';
 import 'package:ku_gou_music/services/play_history_service.dart';
 import 'package:ku_gou_music/views/home/pc/recently/recently.controller.dart';
 import 'package:ku_gou_music/views/home/pc/recently/recently.dart';
@@ -15,17 +17,21 @@ void main() {
   late RecentlyController controller;
 
   setUpAll(() async {
-    // 模拟 path_provider 平台通道
+    // 模拟 path_provider 平台通道，使用独立临时目录避免并行测试争用同一 GetStorage.gs 文件锁
+    final tempDir = await Directory.systemTemp.createTemp('kgm_test_');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
-      (MethodCall methodCall) async => '.',
+      (MethodCall methodCall) async => tempDir.path,
     );
     await GetStorage.init();
   });
 
   setUp(() async {
-    // 注册依赖
+    // 注册依赖（顺序：SongCacheService -> AudioService -> MusicController）
+    if (!Get.isRegistered<SongCacheService>()) {
+      Get.put(SongCacheService());
+    }
     if (!Get.isRegistered<AudioService>()) {
       Get.put(AudioService());
     }

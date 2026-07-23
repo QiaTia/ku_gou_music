@@ -5,256 +5,219 @@ import 'package:ku_gou_music/models/search/search_complex_response.dart';
 void main() {
   group('SearchComplexResponse', () {
     test('fromJson 完整综合搜索响应', () {
+      // 注意：实际调用方会先取出接口的 data 字段再传入，
+      // 因此这里直接构造 data 层 JSON（包含 correctiontip + lists 分组）。
       final json = {
-        'song': {
-          'info': [
-            {
-              'songid': 1001,
-              'songname': '晴天',
-              'hash': 'hash_song_a',
-              'author_name': '周杰伦',
-              'album_id': 2001,
-              'album_name': '叶惠美',
-              'time_length': 269,
-            },
-          ],
-          'count': 500,
-        },
-        'special': {
-          'info': [
-            {
-              'specialid': 3001,
-              'specialname': '华语经典',
-              'singername': '',
-              'imgurl': 'https://img.kugou.com/sp/100.jpg',
-              'play_count': 80000,
-            },
-          ],
-          'count': 200,
-        },
-        'album': {
-          'info': [
-            {
-              'albumid': 4001,
-              'albumname': '范特西',
-              'singername': '周杰伦',
-              'imgurl': 'https://img.kugou.com/al/100.jpg',
-              'song_count': 10,
-            },
-          ],
-          'count': 50,
-        },
-        'mv': {
-          'info': [
-            {
-              'mvid': 5001,
-              'mvname': '晴天MV',
-              'singername': '周杰伦',
-              'imgurl': 'https://img.kugou.com/mv/100.jpg',
-              'play_count': 2000000,
-            },
-          ],
-          'count': 30,
-        },
-        'author': {
-          'info': [
-            {
-              'authorid': 3066,
-              'author_name': '周杰伦',
-              'imgurl': 'https://img.kugou.com/singer/3066.jpg',
-              'song_count': 300,
-            },
-          ],
-          'count': 10,
-        },
-        'lyric': {
-          'info': [
-            {
-              'id': 6001,
-              'accesskey': 'AK_XYZ',
-              'songname': '晴天',
-              'singername': '周杰伦',
-              'hash': 'lyric_hash',
-              'duration': 269,
-            },
-          ],
-          'count': 15,
-        },
+        'correctiontip': '你是不是要找：晴天',
+        'lists': [
+          {
+            'type': 'song',
+            'total': 480,
+            'lists': [
+              {
+                'ID': 1001,
+                'SongName': '晴天',
+                'SingerName': '周杰伦',
+                'FileHash': 'hash_song_a',
+                'Duration': 269,
+                'AlbumID': 2001,
+                'AlbumName': '叶惠美',
+              },
+            ],
+          },
+          {
+            'type': 'album',
+            'total': 50,
+            'lists': [
+              {
+                'albumid': 4001,
+                'albumname': '范特西',
+                'singername': '周杰伦',
+                'imgurl': 'https://img.kugou.com/al/100.jpg',
+                'song_count': 10,
+              },
+            ],
+          },
+          {
+            'type': 'mv',
+            'total': 30,
+            'lists': [
+              {
+                'mvid': 5001,
+                'mvname': '晴天MV',
+                'singername': '周杰伦',
+                'imgurl': 'https://img.kugou.com/mv/100.jpg',
+                'play_count': 2000000,
+              },
+            ],
+          },
+          {
+            'type': 'author',
+            'total': 10,
+            'lists': [
+              {
+                'AuthorId': 3066,
+                'AuthorName': '周杰伦',
+                'Avatar': 'https://img.kugou.com/singer/3066.jpg',
+                'AudioCount': 300,
+              },
+            ],
+          },
+          {
+            'type': 'collect',
+            'total': 200,
+            'lists': [
+              {
+                'specialid': 3001,
+                'specialname': '华语经典',
+                'img': 'https://img.kugou.com/sp/100.jpg',
+                'song_count': 100,
+              },
+            ],
+          },
+          {
+            'type': 'program',
+            'total': 5,
+            'lists': [
+              {
+                'albumid': 7001,
+                'albumname': '电台A',
+                'title': '第1期',
+                'singer': '主播A',
+                'songcount': 20,
+              },
+            ],
+          },
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
 
-      // song
-      expect(response.song, isNotNull);
-      expect(response.song!.info.length, 1);
-      expect(response.song!.info[0].songid, 1001);
-      expect(response.song!.info[0].songname, '晴天');
-      expect(response.song!.count, 500);
+      // 分组数量与提示
+      expect(response.lists.length, 6);
+      expect(response.correctionTip, '你是不是要找：晴天');
 
-      // special
-      expect(response.special, isNotNull);
-      expect(response.special!.info.length, 1);
-      expect(response.special!.info[0].specialId, 3001);
-      expect(response.special!.info[0].specialName, '华语经典');
-      expect(response.special!.count, 200);
+      SearchComplexGroup groupOf(String type) =>
+          response.lists.firstWhere((g) => g.type == type);
+
+      // song —— 通过扩展 getter songList 按类型解析
+      final songGroup = groupOf('song');
+      expect(songGroup.total, 480);
+      expect(songGroup.songList.length, 1);
+      expect(songGroup.songList[0].id, 1001);
+      expect(songGroup.songList[0].songName, '晴天');
+      expect(songGroup.songList[0].singerName, '周杰伦');
 
       // album
-      expect(response.album, isNotNull);
-      expect(response.album!.info.length, 1);
-      expect(response.album!.info[0].albumId, 4001);
-      expect(response.album!.info[0].albumName, '范特西');
-      expect(response.album!.count, 50);
+      final albumGroup = groupOf('album');
+      expect(albumGroup.albumList.length, 1);
+      expect(albumGroup.albumList[0].albumId, 4001);
+      expect(albumGroup.albumList[0].albumName, '范特西');
 
       // mv
-      expect(response.mv, isNotNull);
-      expect(response.mv!.info.length, 1);
-      expect(response.mv!.info[0].mvId, 5001);
-      expect(response.mv!.info[0].mvName, '晴天MV');
-      expect(response.mv!.count, 30);
+      final mvGroup = groupOf('mv');
+      expect(mvGroup.mvList.length, 1);
+      expect(mvGroup.mvList[0].mvId, 5001);
+      expect(mvGroup.mvList[0].mvName, '晴天MV');
 
       // author
-      expect(response.author, isNotNull);
-      expect(response.author!.info.length, 1);
-      expect(response.author!.info[0].authorId, 3066);
-      expect(response.author!.info[0].authorName, '周杰伦');
-      expect(response.author!.count, 10);
+      final authorGroup = groupOf('author');
+      expect(authorGroup.authorList.length, 1);
+      expect(authorGroup.authorList[0].authorId, 3066);
+      expect(authorGroup.authorList[0].authorName, '周杰伦');
 
-      // lyric
-      expect(response.lyric, isNotNull);
-      expect(response.lyric!.info.length, 1);
-      expect(response.lyric!.info[0].id, 6001);
-      expect(response.lyric!.info[0].songName, '晴天');
-      expect(response.lyric!.count, 15);
+      // collect
+      final collectGroup = groupOf('collect');
+      expect(collectGroup.collectList.length, 1);
+      expect(collectGroup.collectList[0].specialId, 3001);
+      expect(collectGroup.collectList[0].specialName, '华语经典');
+
+      // program
+      final programGroup = groupOf('program');
+      expect(programGroup.programList.length, 1);
+      expect(programGroup.programList[0].albumId, 7001);
+      expect(programGroup.programList[0].title, '第1期');
     });
 
-    test('fromJson 部分分组缺失时为 null', () {
+    test('fromJson 部分分组缺失时只含已有分组', () {
       final json = {
-        'song': {
-          'info': [
-            {
-              'songid': 1001,
-              'songname': '晴天',
-              'hash': 'hash_a',
-              'author_name': '周杰伦',
-            },
-          ],
-          'count': 10,
-        },
-        // 其他分组缺失
+        'lists': [
+          {
+            'type': 'song',
+            'total': 10,
+            'lists': [
+              {'ID': 1, 'SongName': '测试', 'SingerName': '歌手A'},
+            ],
+          },
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
 
-      expect(response.song, isNotNull);
-      expect(response.song!.info.length, 1);
-      expect(response.special, isNull);
-      expect(response.album, isNull);
-      expect(response.mv, isNull);
-      expect(response.author, isNull);
-      expect(response.lyric, isNull);
+      expect(response.lists.length, 1);
+      expect(response.lists.first.type, 'song');
+      expect(response.lists.first.songList.length, 1);
+      // 未返回的分组在 lists 中不存在
+      expect(response.lists.any((g) => g.type == 'album'), false);
+      expect(response.lists.any((g) => g.type == 'mv'), false);
     });
 
     test('fromJson 空响应', () {
       final response = SearchComplexResponse.fromJson({});
 
-      expect(response.song, isNull);
-      expect(response.special, isNull);
-      expect(response.album, isNull);
-      expect(response.mv, isNull);
-      expect(response.author, isNull);
-      expect(response.lyric, isNull);
+      expect(response.lists, isEmpty);
+      expect(response.correctionTip, '');
     });
 
-    test('fromJson 分组内 info 为空列表', () {
+    test('fromJson 分组内 lists 为空列表', () {
       final json = {
-        'song': {'info': [], 'count': 0},
-        'special': {'info': [], 'count': 0},
-        'album': {'info': [], 'count': 0},
-        'mv': {'info': [], 'count': 0},
-        'author': {'info': [], 'count': 0},
-        'lyric': {'info': [], 'count': 0},
+        'lists': [
+          {'type': 'song', 'total': 0, 'lists': []},
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
 
-      expect(response.song!.info, isEmpty);
-      expect(response.special!.info, isEmpty);
-      expect(response.album!.info, isEmpty);
-      expect(response.mv!.info, isEmpty);
-      expect(response.author!.info, isEmpty);
-      expect(response.lyric!.info, isEmpty);
+      expect(response.lists.first.songList, isEmpty);
     });
 
-    test('fromJson 分组内 count 缺失时默认为 0', () {
+    test('fromJson 分组内 total 缺失时默认为 0', () {
       final json = {
-        'song': {
-          'info': [
-            {
-              'songid': 1,
-              'songname': '测试',
-              'hash': 'h1',
-              'author_name': '歌手A',
-            },
-          ],
-        },
+        'lists': [
+          {
+            'type': 'song',
+            'lists': [
+              {'ID': 1, 'SongName': '测试', 'SingerName': '歌手A'},
+            ],
+          },
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
 
-      expect(response.song, isNotNull);
-      expect(response.song!.info.length, 1);
-      expect(response.song!.count, 0);
+      expect(response.lists.first.total, 0);
+      expect(response.lists.first.songList.length, 1);
     });
 
     test('toJson round-trip', () {
       final json = {
-        'song': {
-          'info': [
-            {
-              'songid': 1001,
-              'songname': '晴天',
-              'hash': 'hash_a',
-              'author_name': '周杰伦',
-              'album_id': 0,
-              'album_name': '',
-              'time_length': 0,
-              'publish_date': '',
-              'sizable_cover': '',
-              'file_size': 0,
-              'singerinfo': [],
-              'tags': [],
-              '320hash': '',
-              '320filesize': 0,
-              'sqhash': '',
-              'sqfilesize': 0,
-              'high_hash': '',
-              'privilege': 0,
-              'old_song_id': 0,
-              'old_copys': 0,
-              'album_audio_id': 0,
-            },
-          ],
-          'count': 500,
-        },
-        'special': {
-          'info': [
-            {
-              'specialid': 3001,
-              'specialname': '华语经典',
-              'singername': '',
-              'imgurl': '',
-              'intro': '',
-              'play_count': 0,
-              'collectcount': 0,
-              'global_collection_id': '',
-              'nickname': '',
-              'song_count': 0,
-              'tag': '',
-              'publishtime': '',
-            },
-          ],
-          'count': 200,
-        },
+        'correctiontip': 'tip',
+        'lists': [
+          {
+            'type': 'song',
+            'total': 500,
+            'lists': [
+              {'ID': 1001, 'SongName': '晴天', 'SingerName': '周杰伦'},
+            ],
+          },
+          {
+            'type': 'album',
+            'total': 50,
+            'lists': [
+              {'albumid': 4001, 'albumname': '范特西', 'singername': '周杰伦'},
+            ],
+          },
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
@@ -262,18 +225,20 @@ void main() {
         jsonDecode(jsonEncode(response.toJson())) as Map<String, dynamic>,
       );
 
-      expect(restored.song!.info[0].songid, 1001);
-      expect(restored.song!.count, 500);
-      expect(restored.special!.info[0].specialId, 3001);
-      expect(restored.special!.count, 200);
+      expect(restored.lists.length, 2);
+      final songGroup = restored.lists.firstWhere((g) => g.type == 'song');
+      expect(songGroup.total, 500);
+      expect(songGroup.songList[0].id, 1001);
+      expect(songGroup.songList[0].songName, '晴天');
+      final albumGroup = restored.lists.firstWhere((g) => g.type == 'album');
+      expect(albumGroup.albumList[0].albumId, 4001);
     });
 
     test('freezed 相等性', () {
       final json = {
-        'song': {
-          'info': [],
-          'count': 0,
-        },
+        'lists': [
+          {'type': 'song', 'total': 0, 'lists': []},
+        ],
       };
 
       final a = SearchComplexResponse.fromJson(json);
@@ -283,47 +248,25 @@ void main() {
 
     test('freezed copyWith', () {
       final json = {
-        'song': {
-          'info': [],
-          'count': 10,
-        },
+        'lists': [
+          {'type': 'song', 'total': 10, 'lists': []},
+        ],
       };
 
       final response = SearchComplexResponse.fromJson(json);
-      final copied = response.copyWith(
-        album: SearchComplexAlbum(info: [], count: 5),
-      );
-
-      expect(copied.song, isNotNull);
-      expect(copied.song!.count, 10);
-      expect(copied.album, isNotNull);
-      expect(copied.album!.count, 5);
-    });
-  });
-
-  group('SearchComplexSong', () {
-    test('fromJson 正常数据', () {
-      final json = {
-        'info': [
-          {
-            'songid': 1,
-            'songname': '测试',
-            'hash': 'h1',
-            'author_name': '歌手A',
-          },
+      final newGroup = SearchComplexGroup(
+        type: 'mv',
+        total: 5,
+        lists: [
+          {'mvid': 1, 'mvname': 'MV1', 'singername': 'x'},
         ],
-        'count': 100,
-      };
+      );
+      final copied = response.copyWith(lists: [newGroup]);
 
-      final song = SearchComplexSong.fromJson(json);
-      expect(song.info.length, 1);
-      expect(song.count, 100);
-    });
-
-    test('fromJson 默认值', () {
-      final song = SearchComplexSong.fromJson({});
-      expect(song.info, []);
-      expect(song.count, 0);
+      expect(copied.lists.length, 1);
+      expect(copied.lists.first.type, 'mv');
+      expect(copied.lists.first.total, 5);
+      expect(copied.lists.first.mvList.length, 1);
     });
   });
 }
