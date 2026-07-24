@@ -26,6 +26,7 @@ class DesktopScrollBehavior extends MaterialScrollBehavior {
 }
 
 void main() async {
+
   // 1. 初始化后台播放 (必须在 runApp 之前)
   await JustAudioBackground.init(
     androidNotificationChannelId: 'cn.tia.ku_gou_music.channel.audio',
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
-    
+
     return Layout(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
@@ -76,10 +77,16 @@ class MyApp extends StatelessWidget {
           '/playlist': (context) => const CurrentPlaylistScreen(),
           '/login': (context) => const LoginPage(),
           '/playlist/detail': (context) {
-            final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-            return PlaylistScreen(name: args?['name'], id: args?['id'], pic: args?['pic'],);
-          }
-        }
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            return PlaylistScreen(
+              name: args?['name'],
+              id: args?['id'],
+              pic: args?['pic'],
+            );
+          },
+        },
       ),
     );
   }

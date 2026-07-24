@@ -134,7 +134,7 @@ class RecentlyController extends GetxController {
     selectedIds.clear();
   }
 
-  /// 播放歌曲（点击后将歌曲移到最前面）
+  /// 播放歌曲（点击后将歌曲移到最前面并播放）
   Future<void> playSong(SongPlayHistory song) async {
     // 1. 将歌曲移到列表最前面
     final index = songHistory.indexWhere((item) => item.id == song.id);
@@ -150,25 +150,41 @@ class RecentlyController extends GetxController {
       await _historyService.addSong(item);
     }
 
-    // 3. 实际播放歌曲
-    final songItem = SongItemStruct(
-      hash: song.hash,
-      name: song.name,
-      audio_id: int.tryParse(song.id) ?? 0,
-      cover: song.cover,
-      mvhash: song.mvhash,
-      timelen: song.timelen,
-      origin_name: song.name,
-      privilege: song.privilege,
-      author: song.author,
-      is_hq: song.isHq,
-      is_sq: song.isSq,
-    );
-    await _musicController.addToPlaylist(songItem);
-    _musicController.audioService.play();
+    // 3. 将历史记录转换为播放列表并播放点击的歌曲
+    final songs = songHistory.map((item) => SongItemStruct(
+      hash: item.hash,
+      name: item.name,
+      audio_id: int.tryParse(item.id) ?? 0,
+      cover: item.cover,
+      mvhash: item.mvhash,
+      timelen: item.timelen,
+      origin_name: item.name,
+      privilege: item.privilege,
+      author: item.author,
+      is_hq: item.isHq,
+      is_sq: item.isSq,
+    )).toList();
+
+    if (songs.isEmpty) return;
+
+    try {
+      await _musicController.loadPlaylistMusic(songs);
+      final ok = await _musicController.playSong(0);
+      if (!ok) {
+        final reason = _musicController.audioService.lastUrlError ??
+            '《${song.name}》暂时无法播放';
+        Get.snackbar('无法播放', reason);
+        return;
+      }
+      // 确保播放器已开始播放（与歌单页保持一致）
+      _musicController.audioService.play();
+      Get.toNamed('/player');
+    } catch (e) {
+      Get.snackbar('播放失败', '无法播放该歌曲，请稍后重试');
+    }
   }
 
-  /// 播放歌单
+  /// 播放歌单（导航到歌单详情页）
   void playPlaylist(PlaylistPlayHistory playlist) {
     // 将歌单移到最前面
     final index = playlistHistory.indexWhere((item) => item.id == playlist.id);
@@ -176,7 +192,12 @@ class RecentlyController extends GetxController {
       playlistHistory.removeAt(index);
       playlistHistory.insert(0, playlist);
     }
-    // TODO: 导航到歌单详情页并播放
+    // 导航到歌单详情页
+    Get.toNamed('/playlist/detail', arguments: {
+      'id': playlist.id,
+      'name': playlist.name,
+      'pic': playlist.cover,
+    });
   }
 
   /// 播放专辑
@@ -187,7 +208,8 @@ class RecentlyController extends GetxController {
       albumHistory.removeAt(index);
       albumHistory.insert(0, album);
     }
-    // TODO: 导航到专辑详情页并播放
+    // 暂无专辑详情页，提示用户
+    Get.snackbar('提示', '专辑详情页开发中，敬请期待');
   }
 
   /// 将选中的歌曲加入下一首播放
@@ -211,10 +233,11 @@ class RecentlyController extends GetxController {
         is_hq: song.isHq,
         is_sq: song.isSq,
       );
-      await _musicController.addToPlaylist(songItem);
+      await _musicController.insertNextPlay(songItem);
     }
 
-    // 播放完成后退出编辑模式
+    Get.snackbar('提示', '已添加 ${selectedSongs.length} 首歌曲到下一首播放');
+    // 完成后退出编辑模式
     exitEditMode();
   }
 

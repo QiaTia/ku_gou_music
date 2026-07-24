@@ -61,14 +61,21 @@ class MusicController extends GetxController {
     await audioService.setLoopMode(mode);
   }
   
-  Future<void> playSong(int index) async {
+  /// 播放指定索引的歌曲，返回是否成功加载并播放
+  Future<bool> playSong(int index) async {
     if (index >= 0 && index < playlist.length) {
-      await audioService.playSongAtIndex(index);
+      return await audioService.playSongAtIndex(index);
     }
+    return false;
   }
   
   Future<void> addToPlaylist(SongItemStruct song) async {
     await audioService.addToQueue(song);
+  }
+
+  /// 插入歌曲到下一首播放
+  Future<void> insertNextPlay(SongItemStruct song) async {
+    await audioService.insertNext(song);
   }
   
   Future<void> clearPlaylist() async {
