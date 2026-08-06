@@ -12,34 +12,73 @@
 .swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
+# IntelliJ / Android Studio related
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
 /coverage/
 
-# Symbolication related
-app.*.symbols
+# Flutter generated plugin / registry files
+.flutter-plugins
+.plugin_symlinks/
 
-# Obfuscation related
-app.*.map.json
+# Build outputs
+/build/
 
-# Android Studio will place build artifacts here
+# Android
+/android/.gradle/
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android 签名密钥与本地 key.properties（密钥！禁止提交）
+android/key.properties
+**/*.jks
+**/*.keystore
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework/
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/Release.xcconfig
+**/ios/Flutter/Debug.xcconfig
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/.last_build_id
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+**/macos/Flutter/Flutter.framework/
+**/macos/Flutter/Flutter.podspec
+**/macos/Flutter/flutter_export_environment.sh
+**/macos/Flutter/Release.xcconfig
+**/macos/Flutter/Debug.xcconfig
+**/macos/Flutter/Generated.xcconfig
+**/macos/Runner/GeneratedPluginRegistrant.*
+
+# Windows / Linux ephemeral build dirs
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# Symbolication / obfuscation related
+app.*.symbols
+app.*.map.json
+
+# Debug symbols / build info output
+debugInfo/
+
+# Runtime app data (get_storage persistence) — DO NOT commit
+GetStorage.gs
+GetStorage.bak
+
+# WorkBuddy generated lock file
+skills-lock.json
