@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,10 +7,7 @@ import 'package:ku_gou_music/views/home/pc/plaza/plaza.controller.dart';
 import 'package:ku_gou_music/views/home/pc/router/router.dart';
 import 'package:layout/layout.dart';
 
-const _pinkColor = Color(0xFFFF5E8A);
-const _pinkBgColor = Color(0xFFFFEEF3);
 const _greyBgColor = Color(0xFFF5F5F5);
-const _greyBorderColor = Color(0xFFE8E8E8);
 
 class PlazaPage extends StatelessWidget {
   const PlazaPage({super.key});
@@ -66,9 +64,39 @@ class PlazaPage extends StatelessWidget {
   }
 }
 
-class _ParentTagBar extends StatelessWidget {
+class _ParentTagBar extends StatefulWidget {
   final PlazaController controller;
   const _ParentTagBar({required this.controller});
+
+  @override
+  State<_ParentTagBar> createState() => _ParentTagBarState();
+}
+
+class _ParentTagBarState extends State<_ParentTagBar> {
+  final List<GlobalKey> _keys = [];
+
+  GlobalKey _keyFor(int index) {
+    while (_keys.length <= index) {
+      _keys.add(GlobalKey());
+    }
+    return _keys[index];
+  }
+
+  /// 点击后把激活项滚动到可视区域中间
+  void _scrollToCenter(int index) {
+    final key = _keyFor(index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +105,85 @@ class _ParentTagBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: controller.parentTags.length,
+        itemCount: widget.controller.parentTags.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: _ParentTagChip(controller: controller, index: index),
+          return _ParentTagChip(
+            key: _keyFor(index),
+            controller: widget.controller,
+            index: index,
+            onActivate: () => _scrollToCenter(index),
           );
         },
+      ),
+    );
+  }
+}
+
+/// 液态玻璃风格的标签药丸，与底部 TabBar 的玻璃质感保持一致。
+class _LiquidGlassChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final Color themeColor;
+  final double radius;
+  final EdgeInsets padding;
+  final double fontSize;
+
+  const _LiquidGlassChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    required this.themeColor,
+    required this.radius,
+    required this.padding,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            padding: padding,
+            decoration: BoxDecoration(
+              // 选中态：主题色玻璃；未选中：半透明白色磨砂玻璃
+              color: isSelected
+                  ? themeColor.withValues(alpha: 0.85)
+                  : const Color(0x33FFFFFF),
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(
+                color: isSelected
+                    ? themeColor.withValues(alpha: 0.9)
+                    : Colors.white.withValues(alpha: 0.35),
+                width: 0.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.9),
+                fontSize: fontSize,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -92,53 +192,91 @@ class _ParentTagBar extends StatelessWidget {
 class _ParentTagChip extends StatelessWidget {
   final PlazaController controller;
   final int index;
-  const _ParentTagChip({required this.controller, required this.index});
+  final VoidCallback onActivate;
+  const _ParentTagChip({
+    super.key,
+    required this.controller,
+    required this.index,
+    required this.onActivate,
+  });
 
   @override
   Widget build(BuildContext context) {
     final tag = controller.parentTags[index];
+    final themeColor = Theme.of(context).colorScheme.primary;
     return Obx(() {
       final isSelected = controller.selectedParentIndex.value == index;
-      return GestureDetector(
-        onTap: () => controller.selectParent(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+      return Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: _LiquidGlassChip(
+          label: tag.tagName,
+          isSelected: isSelected,
+          onTap: () {
+            controller.selectParent(index);
+            onActivate();
+          },
+          themeColor: themeColor,
+          radius: 20,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? _pinkColor : _greyBgColor,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            tag.tagName,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black87,
-              fontSize: 14,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
+          fontSize: 14,
         ),
       );
     });
   }
 }
 
-class _ChildTagBar extends StatelessWidget {
+class _ChildTagBar extends StatefulWidget {
   final PlazaController controller;
   const _ChildTagBar({required this.controller});
 
   @override
+  State<_ChildTagBar> createState() => _ChildTagBarState();
+}
+
+class _ChildTagBarState extends State<_ChildTagBar> {
+  final List<GlobalKey> _keys = [];
+
+  GlobalKey _keyFor(int index) {
+    while (_keys.length <= index) {
+      _keys.add(GlobalKey());
+    }
+    return _keys[index];
+  }
+
+  /// 点击后把激活项滚动到可视区域中间
+  void _scrollToCenter(int index) {
+    final key = _keyFor(index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.childTags.isEmpty) return const SizedBox.shrink();
+      if (widget.controller.childTags.isEmpty) return const SizedBox.shrink();
       return SizedBox(
         height: 38,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: controller.childTags.length,
+          itemCount: widget.controller.childTags.length,
           separatorBuilder: (context, index) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
-            return _ChildTagChip(controller: controller, index: index);
+            return _ChildTagChip(
+              key: _keyFor(index),
+              controller: widget.controller,
+              index: index,
+              onActivate: () => _scrollToCenter(index),
+            );
           },
         ),
       );
@@ -149,35 +287,31 @@ class _ChildTagBar extends StatelessWidget {
 class _ChildTagChip extends StatelessWidget {
   final PlazaController controller;
   final int index;
-  const _ChildTagChip({required this.controller, required this.index});
+  final VoidCallback onActivate;
+  const _ChildTagChip({
+    super.key,
+    required this.controller,
+    required this.index,
+    required this.onActivate,
+  });
 
   @override
   Widget build(BuildContext context) {
     final tag = controller.childTags[index];
+    final themeColor = Theme.of(context).colorScheme.primary;
     return Obx(() {
       final isSelected = controller.selectedChildIndex.value == index;
-      return GestureDetector(
-        onTap: () => controller.selectChild(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? _pinkBgColor : _greyBgColor,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isSelected ? _pinkColor : _greyBorderColor,
-              width: 1,
-            ),
-          ),
-          child: Text(
-            tag.tagName,
-            style: TextStyle(
-              color: isSelected ? _pinkColor : Colors.black54,
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ),
+      return _LiquidGlassChip(
+        label: tag.tagName,
+        isSelected: isSelected,
+        onTap: () {
+          controller.selectChild(index);
+          onActivate();
+        },
+        themeColor: themeColor,
+        radius: 18,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        fontSize: 13,
       );
     });
   }
