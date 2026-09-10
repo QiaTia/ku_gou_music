@@ -82,3 +82,7 @@ GetStorage.bak
 
 # WorkBuddy generated lock file
 skills-lock.json
+
+# WorkBuddy 项目数据与任务产物（本地私有，禁止提交）
+.workbuddy/
+overview.md

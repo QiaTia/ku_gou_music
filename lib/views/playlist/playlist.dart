@@ -7,6 +7,7 @@ import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/widgets/add_to_playlist_dialog.dart';
 import 'playlist.controller.dart';
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 class PlaylistScreen extends GetWidget {
   final String id;
@@ -24,7 +25,8 @@ class PlaylistScreen extends GetWidget {
     final PlaylistController controller = Get.put(PlaylistController());
     final MusicController musicController = Get.find();
 
-    final mobileWidth = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width > 800;
 
     final bgCardColor = Theme.of(context).cardColor;
 
@@ -46,123 +48,379 @@ class PlaylistScreen extends GetWidget {
     }
 
     return Scaffold(
-      // appBar: TitleBar(title: name),
       body: NestedScrollView(
         floatHeaderSlivers: true, // 允许头部浮动
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              // leading : IconButton(
-              //   onPressed: routerController.goBack,
-              //   icon: Icon(Icons.arrow_back_ios_new_rounded),
-              // ),
-              expandedHeight: mobileWidth,
+              // PC 端固定横幅高度，避免超高方图；移动端保持方形封面
+              expandedHeight: isWide ? 260.0 : width,
               pinned: true, // 固定顶部
-              // floating: true,
-              // snap: true,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: false,
-                title: Text(name, style: Theme.of(context).textTheme.titleSmall),
-                background: Stack(
-                  fit: StackFit.expand,
+              title: isWide
+                  ? Text(name, style: Theme.of(context).textTheme.titleSmall)
+                  : null,
+              flexibleSpace: isWide
+                  ? FlexibleSpaceBar(
+                      background: _buildWideBanner(
+                        context,
+                        controller,
+                        onPlayPlaylist,
+                      ),
+                    )
+                  // 移动端用自定义头部：标题左边距随折叠进度变化，
+                  // 展开时贴左、折叠进工具栏时自动让开返回箭头
+                  : _MobileFlexibleSpace(
+                      background: _buildMobileBanner(context),
+                      title: _buildMobileTitle(),
+                    ),
+            ),
+            // 简介与操作按钮：仅移动端展示（PC 已整合进横幅）
+            if (!isWide)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Obx(
+                    () => ExpandText(
+                      content: controller.playListInfo.value.intro ?? '',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
+              ),
+            if (!isWide)
+              SliverToBoxAdapter(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(left: 8, top: 4, bottom: 12),
+                  decoration: BoxDecoration(color: bgCardColor),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      IconButton(
+                        onPressed: onPlayPlaylist,
+                        iconSize: 28,
+                        tooltip: '播放全部',
+                        icon: Icon(Icons.play_circle_outline_rounded),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        iconSize: 28,
+                        tooltip: '收藏',
+                        icon: Icon(Icons.favorite_outline_rounded),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        iconSize: 28,
+                        tooltip: '下载',
+                        icon: Icon(Icons.download_outlined),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        iconSize: 28,
+                        tooltip: '分享',
+                        icon: Icon(Icons.share_outlined),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ];
+        },
+        body: isWide
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: PlaylistView(id: id),
+                ),
+              )
+            : PlaylistView(id: id),
+      ),
+    );
+  }
+
+  /// 移动端封面上的标题：白色粗体 + 投影，保证在任意封面上都可读
+  Widget _buildMobileTitle() {
+    return Text(
+      name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        height: 1.2,
+        shadows: [
+          Shadow(
+            color: Colors.black54,
+            blurRadius: 10,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 移动端头部：方形封面 + 上下暗色蒙版（顶部保证返回箭头可读，底部保证标题可读）
+  Widget _buildMobileBanner(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Hero(
+          tag: id,
+          child: CachedNetworkImage(
+            imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.noRepeat,
+          ),
+        ),
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 0.22, 0.5, 1.0],
+              colors: [
+                Colors.black38,
+                Colors.transparent,
+                Colors.black12,
+                Colors.black87,
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// PC 端头部：模糊封面背景横幅 + 封面缩略图 + 歌单信息 + 操作按钮
+  Widget _buildWideBanner(
+    BuildContext context,
+    PlaylistController controller,
+    VoidCallback onPlay,
+  ) {
+    final theme = Theme.of(context);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 模糊封面背景
+        if (pic.isNotEmpty)
+          ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+            child: CachedNetworkImage(imageUrl: pic, fit: BoxFit.cover),
+          )
+        else
+          Container(color: theme.colorScheme.surfaceContainerHighest),
+        // 渐变压暗（顶部保证工具栏可读，底部保证文字可读）
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 0.45, 1.0],
+              colors: [Colors.black45, Colors.transparent, Colors.black54],
+            ),
+          ),
+        ),
+        // 横幅内容
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 20,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Hero(tag: id, child: CachedNetworkImage(
-                      imageUrl: pic.isEmpty ? 'https://picsum.photos/1200/600' : pic,
-                      fit: .fitHeight,
-                      repeat: .noRepeat,
-                    )),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: .bottomCenter,
-                          end: .topCenter,
-                          colors: [Colors.white54, Colors.transparent],
+                    Hero(
+                      tag: id,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: pic.isEmpty
+                              ? Container(
+                                  color: Colors.white24,
+                                  child: const Icon(
+                                    Icons.music_note,
+                                    color: Colors.white,
+                                    size: 42,
+                                  ),
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: pic,
+                                  fit: BoxFit.cover,
+                                ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Obx(
+                            () => Text(
+                              (controller.playListInfo.value.intro ?? '')
+                                  .replaceAll(RegExp(r'\s+'), ' '),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                height: 1.4,
+                                color: Colors.white.withValues(alpha: 0.75),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              FilledButton.icon(
+                                onPressed: onPlay,
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: Obx(
+                                  () => Text(
+                                    '播放全部 (${controller.playlist.length})',
+                                  ),
+                                ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.primary,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              _bannerButton(
+                                Icons.favorite_outline_rounded,
+                                '收藏',
+                              ),
+                              const SizedBox(width: 10),
+                              _bannerButton(Icons.download_outlined, '下载'),
+                              const SizedBox(width: 10),
+                              _bannerButton(Icons.share_outlined, '分享'),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: Row(
-                spacing: 8,
-                crossAxisAlignment: .start,
-                children: [
-                  SizedBox(width: 10),
-                  // SizedBox(
-                  //   width: 100,
-                  //   height: 100,
-                  //   child: Hero(
-                  //     tag: id,
-                  //     child: pic.isEmpty
-                  //         ? Icon(Icons.music_note)
-                  //         : CachedNetworkImage(imageUrl: pic),
-                  //   ),
-                  // ),
-                  Expanded(
-                    child: Column(
-                      spacing: 8,
-                      mainAxisAlignment: .spaceBetween,
-                      crossAxisAlignment: .start,
-                      children: [
-                        SizedBox(height: 10),
-                        // Text(
-                        //   name.replaceAll(RegExp('\\s+'), ' '),
-                        //   style: Theme.of(context).textTheme.titleLarge,
-                        // ),
-                        Obx(
-                          () => ExpandText(
-                            content: controller.playListInfo.value.intro ?? '',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ],
-                    ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// PC 横幅中的次级操作按钮
+  Widget _bannerButton(IconData icon, String label) {
+    return OutlinedButton.icon(
+      onPressed: () {},
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      ),
+    );
+  }
+}
+
+/// 移动端自定义折叠头部
+///
+/// 系统 [FlexibleSpaceBar] 在指定了 `titlePadding` 后，展开与折叠全程都用同一个
+/// 左边距，导致标题折叠进工具栏时压住返回箭头。这里读取 [FlexibleSpaceBarSettings]
+/// 拿到折叠进度 t，让标题左边距从「展开贴左 16」过渡到「折叠让开箭头的 66」，
+/// 同时顶部蒙版随折叠加深，保证白色标题在工具栏中依然清晰。
+class _MobileFlexibleSpace extends StatelessWidget {
+  final Widget background;
+  final Widget title;
+
+  const _MobileFlexibleSpace({required this.background, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final settings =
+            context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
+        final maxExtent = settings?.maxExtent ?? constraints.maxHeight;
+        final minExtent = settings?.minExtent ?? constraints.minHeight;
+        final delta = math.max(maxExtent - minExtent, 1.0);
+        // t: 0 = 完全展开，1 = 完全折叠
+        final t = ((maxExtent - (settings?.currentExtent ?? maxExtent)) / delta)
+            .clamp(0.0, 1.0);
+
+        // 有返回箭头时折叠态让开箭头（Material 规范为 72，取 66 更紧凑）
+        final collapsedStart = (settings?.hasLeading ?? true) ? 66.0 : 16.0;
+        final start = 16.0 + (collapsedStart - 16.0) * t;
+        // 展开时标题略大，折叠时回到常规字号
+        final scale = 1.2 + (1.0 - 1.2) * t;
+        // 展开时标题贴封面底部；折叠进工具栏后垂直居中，与返回箭头保持同一水平线
+        final titleAlignment =
+            Alignment.lerp(Alignment.bottomLeft, Alignment.centerLeft, t)!;
+        // 顶部蒙版随折叠加深：black38 -> 约 black70
+        final topScrim = Color.lerp(
+          const Color(0x61000000), // black38
+          const Color(0xB3000000), // black70
+          t,
+        )!;
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            background,
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.0, 0.38],
+                    colors: [topScrim, Colors.transparent],
                   ),
-                ],
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(left: 8, top: 8, bottom: 20),
-                decoration: BoxDecoration(color: bgCardColor),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    IconButton(
-                      onPressed: onPlayPlaylist,
-                      iconSize: 28,
-                      tooltip: '播放全部',
-                      icon: Icon(Icons.play_circle_outline_rounded),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      iconSize: 28,
-                      tooltip: '收藏',
-                      icon: Icon(Icons.favorite_outline_rounded),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      iconSize: 28,
-                      tooltip: '下载',
-                      icon: Icon(Icons.download_outlined),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      iconSize: 28,
-                      tooltip: '分享',
-                      icon: Icon(Icons.share_outlined),
-                    ),
-                  ],
                 ),
               ),
             ),
-          ];
-        },
-        body: PlaylistView(id: id),
-      ),
+            Positioned(
+              left: start,
+              right: 56.0 + (16.0 - 56.0) * t,
+              // 展开时距底 14（贴封面底部）；折叠时贴底且高度=工具栏，
+              // 配合居中对齐即可与返回箭头垂直居中对齐
+              bottom: 14.0 * (1 - t),
+              height: kToolbarHeight,
+              child: Align(
+                alignment: titleAlignment,
+                child: Transform.scale(
+                  alignment: titleAlignment,
+                  scale: scale,
+                  child: title,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -187,10 +445,12 @@ class PlaylistView extends GetView<PlaylistController> {
 
     return Obx(() {
       final len = controller.playlist.length;
+      // 当前播放歌曲 hash（用于行高亮）
+      final playingHash = musicController.currentSong?.hash;
       return CustomScrollView(
         slivers: [
-          // 表头 - 使用 SliverPersistentHeader 实现悬浮
-          if (len > 0)
+          // 表头 - 使用 SliverPersistentHeader 实现悬浮（仅 PC 宽屏展示，移动端隐藏避免占位与假排序箭头）
+          if (len > 0 && isWide)
             SliverPersistentHeader(
               pinned: true,
               delegate: _PlaylistHeaderDelegate(
@@ -211,7 +471,7 @@ class PlaylistView extends GetView<PlaylistController> {
                 index: index,
                 song: item,
                 isWide: isWide,
-                isPlaying: false, // TODO: 可以从musicController获取当前播放状态
+                isPlaying: item.hash == playingHash,
                 onTap: () async {
                   await musicController.loadPlaylistMusic(controller.playlist);
                   await musicController.playSong(index);
@@ -405,66 +665,42 @@ class _PlaylistTableHeader extends StatelessWidget {
           SizedBox(
             width: 40,
             child: Center(
-              child: Icon(Icons.music_note, size: 14, color: textColor),
+              child: Text('#', style: TextStyle(fontSize: 13, color: textColor)),
             ),
           ),
           // 歌名
           Expanded(
             flex: 3,
-            child: Row(
-              children: [
-                Text(
-                  '歌名',
-                  style: TextStyle(fontSize: 13, color: textColor),
-                ),
-                SizedBox(width: 2),
-                Icon(Icons.arrow_drop_down, size: 16, color: textColor),
-              ],
+            child: Text(
+              '歌名',
+              style: TextStyle(fontSize: 13, color: textColor),
             ),
           ),
           // 歌手
           if (isWide)
             Expanded(
               flex: 2,
-              child: Row(
-                children: [
-                  Text(
-                    '歌手',
-                    style: TextStyle(fontSize: 13, color: textColor),
-                  ),
-                  SizedBox(width: 2),
-                  Icon(Icons.arrow_drop_down, size: 16, color: textColor),
-                ],
+              child: Text(
+                '歌手',
+                style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
           // 专辑（宽屏模式）
           if (isWide)
             Expanded(
               flex: 2,
-              child: Row(
-                children: [
-                  Text(
-                    '专辑',
-                    style: TextStyle(fontSize: 13, color: textColor),
-                  ),
-                  SizedBox(width: 2),
-                  Icon(Icons.arrow_drop_down, size: 16, color: textColor),
-                ],
+              child: Text(
+                '专辑',
+                style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
           // 时间
           SizedBox(
             width: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  '时间',
-                  style: TextStyle(fontSize: 13, color: textColor),
-                ),
-                SizedBox(width: 2),
-                Icon(Icons.arrow_drop_down, size: 16, color: textColor),
-              ],
+            child: Text(
+              '时间',
+              style: TextStyle(fontSize: 13, color: textColor),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
@@ -552,16 +788,22 @@ class _PlaylistSongRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final playingColor = theme.colorScheme.primary;
+    final subColor = theme.textTheme.bodySmall?.color;
+
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
-      hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+      hoverColor: theme.colorScheme.primary.withValues(alpha: 0.08),
       child: Container(
-        padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),
+        padding: isWide
+            ? const EdgeInsets.only(right: 10, top: 10, bottom: 10)
+            : const EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 10),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
+              color: theme.dividerColor.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -570,20 +812,17 @@ class _PlaylistSongRow extends StatelessWidget {
           children: [
             // 序号列
             SizedBox(
-              width: 40,
+              width: isWide ? 40 : 36,
               child: Center(
                 child: isPlaying
                     ? Icon(
                         Icons.volume_up,
                         size: 16,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: playingColor,
                       )
                     : Text(
                         '${index + 1}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
+                        style: TextStyle(fontSize: 13, color: subColor),
                       ),
               ),
             ),
@@ -599,8 +838,9 @@ class _PlaylistSongRow extends StatelessWidget {
                         child: Text(
                           song.name,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: isWide ? 14 : 15,
                             fontWeight: FontWeight.w400,
+                            color: isPlaying ? playingColor : null,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -611,19 +851,20 @@ class _PlaylistSongRow extends StatelessWidget {
                     ],
                   ),
                   if (!isWide)
-                    Row(children: [
-                      Expanded(child: 
-                        Text(
-                          song.author,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Row(children: [
+                        Expanded(
+                          child: Text(
+                            song.author,
+                            style: TextStyle(fontSize: 12, color: subColor),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )),
-                      _buildBadges()
-                    ])
+                        ),
+                        _buildBadges()
+                      ]),
+                    )
                 ],
               ),
             ),
@@ -633,10 +874,7 @@ class _PlaylistSongRow extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   song.author,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+                  style: TextStyle(fontSize: 13, color: subColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -647,26 +885,28 @@ class _PlaylistSongRow extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   song.origin_name.split('-').first.trim(),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+                  style: TextStyle(fontSize: 13, color: subColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            // 时间
-            SizedBox(
-              width: 60,
-              child: Text(
-                formatMilliseconds(song.timelen),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
+            // 时间（仅宽屏）；移动端用更多按钮替代，释放横向空间
+            if (isWide)
+              SizedBox(
+                width: 60,
+                child: Text(
+                  formatMilliseconds(song.timelen),
+                  style: TextStyle(fontSize: 13, color: subColor),
+                  textAlign: TextAlign.right,
                 ),
-                textAlign: TextAlign.right,
+              )
+            else
+              IconButton(
+                onPressed: onLongPress,
+                icon: Icon(Icons.more_vert, size: 20, color: subColor),
+                tooltip: '更多',
+                visualDensity: VisualDensity.compact,
               ),
-            ),
           ],
         ),
       ),
