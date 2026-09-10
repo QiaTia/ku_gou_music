@@ -302,10 +302,10 @@ class _SongGridItem extends StatelessWidget {
                     song.songname,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFFF5E8A),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   // const SizedBox(height: 4),

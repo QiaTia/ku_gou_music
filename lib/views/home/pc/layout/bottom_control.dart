@@ -1,13 +1,17 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/widgets/rotating_album_cover.dart';
 
-final bgColor = const Color.fromARGB(255, 44, 41, 51);
-
 final iconColor = Color(0xFFBDBDBD);
 
+/// 液态玻璃风格底部控制栏
+///
+/// 与移动端 LiquidGlassBottomBar 保持一致的材质配方：
+/// BackdropFilter 高斯模糊 + 半透明深色渐变 + 顶部白色高光描边，
+/// 页面内容在底栏下方滚动时可透出磨砂玻璃质感。
 class BottomControl extends GetView<MusicController> {
   const BottomControl({super.key});
 
@@ -17,17 +21,40 @@ class BottomControl extends GetView<MusicController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: bgColor,
-      height: 75,
-      child: Row(
-        mainAxisAlignment: .spaceBetween,
-        crossAxisAlignment: .center,
-        children: [
-          currentSongTile(context),
-          playControls(context),
-          otherControls(),
-        ],
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: Container(
+          height: 75,
+          decoration: BoxDecoration(
+            // 深色半透明玻璃：顶部高光过渡到深色主体，保证白色图标可读
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.0, 0.15, 1.0],
+              colors: [
+                Colors.white.withValues(alpha: 0.14),
+                Color(0x8C37333F),
+                Color(0xD9262330),
+              ],
+            ),
+            border: Border(
+              top: BorderSide(
+                color: Colors.white.withValues(alpha: 0.22),
+                width: 0.8,
+              ),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: .center,
+            children: [
+              currentSongTile(context),
+              playControls(context),
+              otherControls(),
+            ],
+          ),
+        ),
       ),
     );
   }

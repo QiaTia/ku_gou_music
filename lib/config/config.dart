@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import './util.dart';
 
 const isLite = true;
+
+/// 应用主题色（品牌粉）
+const appPrimaryColor = Color(0xFFFF5E8A);
 const wx_appid = "wx79f2c4418704b4f8";
 const wx_lite_appid = "wx72b795aca60ad321";
 const wx_secret = "4efcab88b700769e376e3f6087b8abc9";

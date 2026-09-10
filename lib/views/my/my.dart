@@ -7,9 +7,6 @@ import 'package:ku_gou_music/views/home/pc/router/router.dart';
 import 'package:layout/layout.dart';
 import 'playlist.controller.dart';
 
-const _pinkColor = Color(0xFFFF5E8A);
-const _pinkBgColor = Color(0xFFFFEEF3);
-
 class MyScreen extends StatelessWidget {
   const MyScreen({super.key});
 
@@ -166,9 +163,9 @@ class _ProfileHeader extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFFFF5E8A),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                                 child: const Text(
                                   'VIP',
                                   style: TextStyle(
@@ -323,12 +320,12 @@ class _LikedSongsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '我喜欢听',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: _pinkColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 12),
@@ -414,6 +411,7 @@ class _TabBarSection extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           return Obx(() {
+            final primary = Theme.of(context).colorScheme.primary;
             final isSelected = controller.selectedTab.value == index;
             return GestureDetector(
               onTap: () => controller.selectedTab.value = index,
@@ -424,7 +422,7 @@ class _TabBarSection extends StatelessWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected ? _pinkColor : _pinkBgColor,
+                  color: isSelected ? primary : primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Center(
@@ -539,9 +537,9 @@ class _PlaylistGridSection extends StatelessWidget {
                     item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: _pinkColor,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

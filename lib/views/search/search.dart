@@ -10,7 +10,6 @@ import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
 import 'search.controller.dart' as search_ctrl;
 
-const _pinkColor = Color(0xFFFF5E8A);
 const _greyBgColor = Color(0xFFF5F5F5);
 
 class SearchPage extends StatelessWidget {
@@ -97,7 +96,9 @@ class SearchPage extends StatelessWidget {
               margin: const EdgeInsets.only(right: 12),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? _pinkColor : _greyBgColor,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : _greyBgColor,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -706,10 +707,10 @@ class _SongListItem extends StatelessWidget {
                     song.songName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: _pinkColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 4),

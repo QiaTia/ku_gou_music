@@ -350,7 +350,7 @@ class _PlaylistGrid extends StatelessWidget {
         itemCount: controller.playlistResults.length + 1,
         itemBuilder: (context, index) {
           if (index == controller.playlistResults.length) {
-            return SizedBox(height: 40);
+            return SizedBox(height: 4);
           }
           final item = controller.playlistResults[index];
           return _PlaylistCard(item: item);

@@ -43,11 +43,13 @@ class User {
   void setNewUser(Map<String, dynamic> json) {
     final user = UserStruct.fromJson(json);
     _user = user;
+    print('[User] setNewUser: userid=${user.userid} token=${user.token.substring(0, user.token.length > 8 ? 8 : user.token.length)}... dfid=${user.dfid}');
     storage.write(_userStorageKey, user.toJson());
   }
 
   void setDfid(String dfid) {
     _user.dfid = dfid;
+    print('[User] setDfid: $dfid');
     storage.write(_userStorageKey, _user.toJson());
   }
 
@@ -57,13 +59,15 @@ class User {
     _user.userid = json['userid'] ?? 0;
     _user.pic = json['pic'] ?? '';
     _user.nickname = json['nickname'] ?? '';
+    print('[User] onLogin: userid=${_user.userid} token=${_user.token.substring(0, _user.token.length > 8 ? 8 : _user.token.length)}... dfid=$_user.dfid}');
     storage.write(_userStorageKey, _user.toJson());
   }
 
-  /// 登出
+  /// 登出（保留 dfid 设备标识，避免重新登录后接口因缺少 dfid 失效）
   void clearUser() {
-    _user = UserStruct(token: '', dfid: '', userid: 0);
-    storage.remove(_userStorageKey);
+    print('[User] clearUser 登出: 清空 token/userid，保留 dfid=${_user.dfid}');
+    _user = UserStruct(token: '', dfid: _user.dfid, userid: 0);
+    storage.write(_userStorageKey, _user.toJson());
   }
 
   void init() {

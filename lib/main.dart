@@ -67,8 +67,17 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         scrollBehavior: DesktopScrollBehavior(),
-        theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-        darkTheme: ThemeData.dark(),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: appPrimaryColor,
+          ).copyWith(primary: appPrimaryColor),
+        ),
+        darkTheme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: appPrimaryColor,
+            brightness: Brightness.dark,
+          ).copyWith(primary: appPrimaryColor),
+        ),
         initialBinding: MusicBinding(),
         home: isMobile ? const MobileLayoutPage() : const HomePage(),
         navigatorObservers: [routeObserver],

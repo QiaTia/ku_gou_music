@@ -68,6 +68,7 @@ class _QrLoginState extends State<QrLogin> {
 
         if (status == 4) {
           _pollTimer?.cancel();
+          print('[QR] 扫码确认成功，执行 onLogin');
           userInstance.onLogin(response.body!['data'] ?? {});
           Get.back(result: true);
           Get.showSnackbar(
@@ -81,7 +82,9 @@ class _QrLoginState extends State<QrLogin> {
             setState(() {});
           }
         }
-      } catch (_) {}
+      } catch (e) {
+        print('[QR] 轮询状态异常: $e');
+      }
     });
   }
 

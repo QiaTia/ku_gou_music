@@ -74,7 +74,7 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
                         color: Colors.black.withOpacity(0.5),
                         child: Icon(
                           Icons.music_note,
-                          color: Colors.blueAccent,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 20,
                         ),
                       )
@@ -83,7 +83,7 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
               title: Text(
                 song.name,
                 style: TextStyle(
-                  color: isPlaying ? Colors.blueAccent : null,
+                  color: isPlaying ? Theme.of(context).colorScheme.primary : null,
                   fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -98,7 +98,7 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
                   if (isPlaying)
                     Icon(
                       Icons.equalizer,
-                      color: Colors.blueAccent,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   SizedBox(width: 8),
                   Text(

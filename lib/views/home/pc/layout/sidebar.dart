@@ -5,14 +5,13 @@ import 'package:ku_gou_music/views/home/pc/router/router.dart';
 
 final dividerColor = Color(0xFFE5E5E5);
 final iconColor = Color(0xFFA0A0A0);
-const _selectedColor = Color(0xFFFF5E8A);
-const _selectedBgColor = Color(0xFFFFEEF3);
 
 class Sidebar extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
   Sidebar({super.key});
 
   Widget sidebarItem({
+    required BuildContext context,
     required String label,
     required Widget leading,
     required String content,
@@ -21,14 +20,13 @@ class Sidebar extends StatelessWidget {
     EdgeInsetsGeometry? contentPadding,
     void Function()? onTap,
   }) {
-    final color = isSelected ? _selectedColor : iconColor;
+    final primary = Theme.of(context).colorScheme.primary;
+    final color = isSelected ? primary : iconColor;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? _selectedBgColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
+      child: Material(
+        color: isSelected ? primary.withValues(alpha: 0.08) : Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: ListTile(
           leading: IconTheme.merge(
             data: IconThemeData(color: color, size: 30),
@@ -39,7 +37,7 @@ class Sidebar extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               overflow: TextOverflow.ellipsis,
-              color: isSelected ? _selectedColor : null,
+              color: isSelected ? primary : null,
               fontWeight: isSelected ? FontWeight.w600 : null,
             ),
           ),
@@ -183,6 +181,7 @@ class Sidebar extends StatelessWidget {
                         final isSelected =
                             it.route != null && it.route == currentRoute;
                         return sidebarItem(
+                          context: context,
                           label: it.label,
                           leading: it.leading ?? SizedBox.shrink(),
                           content: it.content ?? '',

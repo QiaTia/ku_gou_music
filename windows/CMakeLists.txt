@@ -47,6 +47,13 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
 endfunction()
 
+# jni 插件（被 path_provider_android 间接引入）在 Windows 桌面构建时需要
+# JDK 的 jni.h / jni_md.h 头文件。将其加入全局 include 路径，避免 MSVC 报
+# "无法打开包括文件: jni.h"。JAVA_HOME 已配置在系统/用户环境变量中。
+if(WIN32 AND DEFINED ENV{JAVA_HOME})
+  include_directories("$ENV{JAVA_HOME}/include" "$ENV{JAVA_HOME}/include/win32")
+endif()
+
 # Flutter library and tool build rules.
 set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
 add_subdirectory(${FLUTTER_MANAGED_DIR})

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
-import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
 import 'bottom_control.dart';
 import 'sidebar.dart';
 import '../router/router.dart';
@@ -16,9 +15,10 @@ class HomePage extends GetView {
     Get.put(MusicController());
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
+          // 内容区延伸到底栏下方，为液态玻璃底栏提供模糊背景
+          Positioned.fill(
             child: Row(
               children: [
                 Sidebar(),
@@ -26,7 +26,7 @@ class HomePage extends GetView {
               ],
             ),
           ),
-          BottomControl(),
+          Positioned(left: 0, right: 0, bottom: 0, child: BottomControl()),
         ],
       ),
     );

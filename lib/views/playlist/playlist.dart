@@ -365,13 +365,16 @@ class PlaylistView extends GetView<PlaylistController> {
     Color? textColor,
     Color? iconColor,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor ?? Theme.of(context).iconTheme.color),
-      title: Text(
-        label,
-        style: TextStyle(color: textColor),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Icon(icon, color: iconColor ?? Theme.of(context).iconTheme.color),
+        title: Text(
+          label,
+          style: TextStyle(color: textColor),
+        ),
+        onTap: onTap,
       ),
-      onTap: onTap,
     );
   }
 }

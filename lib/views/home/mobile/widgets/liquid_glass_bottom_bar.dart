@@ -51,10 +51,7 @@ class LiquidGlassBottomBar extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x40FFFFFF),
-                    Color(0x1AFFFFFF),
-                  ],
+                  colors: [Color(0x40FFFFFF), Color(0x1AFFFFFF)],
                 ),
                 borderRadius: BorderRadius.circular(34),
                 border: Border.all(
@@ -95,10 +92,7 @@ class _BarItem {
   final IconData icon;
   final String label;
 
-  const _BarItem({
-    required this.icon,
-    required this.label,
-  });
+  const _BarItem({required this.icon, required this.label});
 }
 
 class _BarItemWidget extends StatelessWidget {
@@ -116,8 +110,9 @@ class _BarItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelColor =
-        isSelected ? Colors.white : Colors.white.withValues(alpha: 0.75);
+    final labelColor = isSelected
+        ? Colors.white
+        : Colors.white.withValues(alpha: 0.75);
 
     // 固定宽度容器：选中态的药丸背景尺寸恒定，不会撑宽整项
     return GestureDetector(
@@ -125,48 +120,45 @@ class _BarItemWidget extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: LiquidGlassBottomBar._itemWidth,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutCubic,
-              width: 48,
-              height: 38,
-              alignment: Alignment.center,
-              decoration: isSelected
-                  ? BoxDecoration(
-                      color: activeBg.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: activeBg.withValues(alpha: 0.35),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    )
-                  : null,
-              child: Icon(
-                item.icon,
-                size: 22,
-                color: Colors.white,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          width: 48,
+          height: 40,
+          alignment: Alignment.center,
+          decoration: isSelected
+              ? BoxDecoration(
+                  color: activeBg.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: activeBg.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                )
+              : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 2,
+            children: [
+              Icon(item.icon, size: 22, color: Colors.white),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 250),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: labelColor,
+                  letterSpacing: 0.2,
+                  height: 1.1,
+                ),
+                child: Text(item.label),
               ),
-            ),
-            const SizedBox(height: 1),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 250),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: labelColor,
-                letterSpacing: 0.2,
-                height: 1.1,
-              ),
-              child: Text(item.label),
-            ),
-          ],
+              const SizedBox(height: 1),
+            ],
+          ),
         ),
       ),
     );
@@ -198,10 +190,7 @@ class _AlbumCoverButton extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0x40FFFFFF),
-                Color(0x1AFFFFFF),
-              ],
+              colors: [Color(0x40FFFFFF), Color(0x1AFFFFFF)],
             ),
             shape: BoxShape.circle,
             border: Border.all(
@@ -225,9 +214,7 @@ class _AlbumCoverButton extends StatelessWidget {
                 child: SizedBox(
                   width: 50,
                   height: 50,
-                  child: RotatingAlbumCover(
-                    musicController: controller,
-                  ),
+                  child: RotatingAlbumCover(musicController: controller),
                 ),
               ),
             ),
