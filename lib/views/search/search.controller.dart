@@ -2,8 +2,14 @@ import 'package:get/get.dart';
 import 'package:ku_gou_music/api/search/search.dart' as search_api;
 import 'package:ku_gou_music/models/search/search_complex_response.dart';
 import 'package:ku_gou_music/models/search/search_song_response.dart';
+import 'package:ku_gou_music/models/search/search_special_response.dart';
+import 'package:ku_gou_music/models/search/search_album_response.dart';
+import 'package:ku_gou_music/models/search/search_mv_response.dart';
+import 'package:ku_gou_music/models/search/search_author_response.dart';
 
 /// 搜索控制器
+///
+/// 各类型搜索接口返回结构不同，因此按类型分别持有结果。
 class SearchController extends GetxController {
   /// 搜索关键词
   final RxString keyword = ''.obs;
@@ -17,8 +23,24 @@ class SearchController extends GetxController {
     null,
   );
 
-  /// 分类搜索结果（单曲/歌单/专辑/MV/歌手）
-  final Rx<SearchSongResponse?> typedResult = Rx<SearchSongResponse?>(null);
+  /// 单曲搜索结果
+  final Rx<SearchSongResponse?> songResult = Rx<SearchSongResponse?>(null);
+
+  /// 歌单搜索结果
+  final Rx<SearchSpecialResponse?> specialResult = Rx<SearchSpecialResponse?>(
+    null,
+  );
+
+  /// 专辑搜索结果
+  final Rx<SearchAlbumResponse?> albumResult = Rx<SearchAlbumResponse?>(null);
+
+  /// MV搜索结果
+  final Rx<SearchMvResponse?> mvResult = Rx<SearchMvResponse?>(null);
+
+  /// 歌手搜索结果
+  final Rx<SearchAuthorResponse?> authorResult = Rx<SearchAuthorResponse?>(
+    null,
+  );
 
   /// 加载状态
   final RxBool isLoading = false.obs;
@@ -41,12 +63,12 @@ class SearchController extends GetxController {
     if (query.trim().isEmpty) return;
 
     keyword.value = query.trim();
+    _resetTypeResults();
     isLoading.value = true;
     isFailed.value = false;
 
     try {
       final result = await search_api.searchComplex(keyword.value);
-      print(result);
       complexResult.value = result;
     } catch (e) {
       isFailed.value = true;
@@ -55,7 +77,7 @@ class SearchController extends GetxController {
     }
   }
 
-  /// 执行分类搜索
+  /// 执行分类搜索（按类型分发到对应接口）
   Future<void> searchByType(String type) async {
     if (keyword.value.isEmpty) return;
 
@@ -63,12 +85,45 @@ class SearchController extends GetxController {
     isFailed.value = false;
 
     try {
-      final result = await search_api.search(keyword.value, type);
-      typedResult.value = result;
+      switch (type) {
+        case 'song':
+          songResult.value = await search_api.searchSong(keyword.value);
+          break;
+        case 'special':
+          specialResult.value = await search_api.searchSpecial(keyword.value);
+          break;
+        case 'album':
+          albumResult.value = await search_api.searchAlbum(keyword.value);
+          break;
+        case 'mv':
+          mvResult.value = await search_api.searchMv(keyword.value);
+          break;
+        case 'author':
+          authorResult.value = await search_api.searchAuthor(keyword.value);
+          break;
+      }
     } catch (e) {
       isFailed.value = true;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// 指定类型是否已有结果
+  bool hasTypeResult(String type) {
+    switch (type) {
+      case 'song':
+        return songResult.value != null;
+      case 'special':
+        return specialResult.value != null;
+      case 'album':
+        return albumResult.value != null;
+      case 'mv':
+        return mvResult.value != null;
+      case 'author':
+        return authorResult.value != null;
+      default:
+        return false;
     }
   }
 
@@ -80,10 +135,19 @@ class SearchController extends GetxController {
     // 非综合 Tab 时，如果还没有加载过数据，则加载对应类型的数据
     if (index > 0) {
       final type = tabs[index]['key']!;
-      if (typedResult.value == null || typedResult.value!.lists.isEmpty) {
+      if (!hasTypeResult(type)) {
         searchByType(type);
       }
     }
+  }
+
+  /// 清空各分类结果
+  void _resetTypeResults() {
+    songResult.value = null;
+    specialResult.value = null;
+    albumResult.value = null;
+    mvResult.value = null;
+    authorResult.value = null;
   }
 
   /// 重置搜索状态
@@ -91,7 +155,7 @@ class SearchController extends GetxController {
     keyword.value = '';
     selectedTabIndex.value = 0;
     complexResult.value = null;
-    typedResult.value = null;
+    _resetTypeResults();
     isLoading.value = false;
     isFailed.value = false;
   }

@@ -32,9 +32,9 @@ void main() {
               {
                 'albumid': 4001,
                 'albumname': '范特西',
-                'singername': '周杰伦',
-                'imgurl': 'https://img.kugou.com/al/100.jpg',
-                'song_count': 10,
+                'singer': '周杰伦',
+                'img': 'https://img.kugou.com/al/100.jpg',
+                'songcount': 10,
               },
             ],
           },
@@ -43,11 +43,11 @@ void main() {
             'total': 30,
             'lists': [
               {
-                'mvid': 5001,
-                'mvname': '晴天MV',
-                'singername': '周杰伦',
-                'imgurl': 'https://img.kugou.com/mv/100.jpg',
-                'play_count': 2000000,
+                'MvID': 5001,
+                'MvName': '晴天MV',
+                'SingerName': '周杰伦',
+                'Pic': '20200620174316264397.jpg',
+                'MvHot': 2000000,
               },
             ],
           },
@@ -214,7 +214,7 @@ void main() {
             'type': 'album',
             'total': 50,
             'lists': [
-              {'albumid': 4001, 'albumname': '范特西', 'singername': '周杰伦'},
+              {'albumid': 4001, 'albumname': '范特西', 'singer': '周杰伦'},
             ],
           },
         ],
@@ -258,7 +258,7 @@ void main() {
         type: 'mv',
         total: 5,
         lists: [
-          {'mvid': 1, 'mvname': 'MV1', 'singername': 'x'},
+          {'MvID': 1, 'MvName': 'MV1', 'SingerName': 'x'},
         ],
       );
       final copied = response.copyWith(lists: [newGroup]);

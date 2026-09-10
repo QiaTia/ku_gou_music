@@ -15,23 +15,27 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchSongInfo {
 
-/// 歌曲ID（如：32157565）
-@IntFromStringConverter()@JsonKey(name: 'ID') int get id;/// 歌曲名
-@JsonKey(name: 'SongName') String get songName;/// 歌手名
+/// 歌曲ID
+@IntFromStringConverter()@JsonKey(name: 'ID') int get id;/// 歌曲名（可能含 <em> 高亮标记）
+@JsonKey(name: 'SongName') String get songName;/// 歌手名（可能含 <em> 高亮标记）
 @JsonKey(name: 'SingerName') String get singerName;/// 歌曲Hash（用于播放）
 @JsonKey(name: 'FileHash') String get fileHash;/// 歌曲时长（秒）
 @IntFromStringConverter()@JsonKey(name: 'Duration') int get duration;/// 封面图URL（含 {size} 占位符）
 @JsonKey(name: 'Image') String get image;/// 专辑ID
-@IntFromStringConverter()@JsonKey(name: 'AlbumID') int get albumId;/// 专辑名
+@IntFromStringConverter()@JsonKey(name: 'AlbumID') int get albumId;/// 加密专辑ID
+@JsonKey(name: 'EAlbumID') String get eAlbumId;/// 专辑名
 @JsonKey(name: 'AlbumName') String get albumName;/// 音质等级
 @IntFromStringConverter()@JsonKey(name: 'QualityLevel') int get qualityLevel;/// 是否原唱
 @IntFromStringConverter()@JsonKey(name: 'IsOriginal') int get isOriginal;/// 文件大小（字节）
 @IntFromStringConverter()@JsonKey(name: 'FileSize') int get fileSize;/// 无损Hash
-@JsonKey(name: 'SQFileHash') String get sqFileHash;/// HQ Hash
-@JsonKey(name: 'HQFileHash') String get hqFileHash;/// 是否VIP（Privilege字段）
+@JsonKey(name: 'SQFileHash') String get sqFileHash;/// 无损文件大小（字节）
+@IntFromStringConverter()@JsonKey(name: 'SQFileSize') int get sqFileSize;/// HQ Hash
+@JsonKey(name: 'HQFileHash') String get hqFileHash;/// HQ 文件大小（字节）
+@IntFromStringConverter()@JsonKey(name: 'HQFileSize') int get hqFileSize;/// 是否VIP（Privilege字段）
 @IntFromStringConverter()@JsonKey(name: 'Privilege') int get privilege;/// 发布日期
-@JsonKey(name: 'PublishDate') String get publishDate;/// 歌曲标签
-@JsonKey(name: 'SongLabel') String get songLabel;/// 文件名（完整格式）
+@JsonKey(name: 'PublishDate') String get publishDate;/// 歌曲标签（如 TOP500 第53名）
+@JsonKey(name: 'TagContent') String get tagContent;/// 歌曲标签
+@JsonKey(name: 'SongLabel') String get songLabel;/// 文件名（完整格式，含 <em> 高亮标记）
 @JsonKey(name: 'FileName') String get fileName;/// MV Hash
 @JsonKey(name: 'MvHash') String get mvHash;/// 原歌曲名（不带后缀）
 @JsonKey(name: 'OriSongName') String get oriSongName;/// 其他名称
@@ -44,7 +48,11 @@ mixin _$SearchSongInfo {
 @IntFromStringConverter()@JsonKey(name: 'PayType') int get payType;/// 价格
 @IntFromStringConverter()@JsonKey(name: 'Price') int get price;/// 热度等级
 @IntFromStringConverter()@JsonKey(name: 'HeatLevel') int get heatLevel;/// 是否预发布
-@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int get isPrepublish;
+@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int get isPrepublish;/// MixSongID
+@JsonKey(name: 'MixSongID') String get mixSongId;/// 加密 MixSongID
+@JsonKey(name: 'EMixSongID') String get eMixSongId;/// 收藏数
+@IntFromStringConverter()@JsonKey(name: 'OwnerCount') int get ownerCount;/// 是否有专辑
+@IntFromStringConverter()@JsonKey(name: 'HasAlbum') int get hasAlbum;
 /// Create a copy of SearchSongInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -57,16 +65,16 @@ $SearchSongInfoCopyWith<SearchSongInfo> get copyWith => _$SearchSongInfoCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchSongInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.songName, songName) || other.songName == songName)&&(identical(other.singerName, singerName) || other.singerName == singerName)&&(identical(other.fileHash, fileHash) || other.fileHash == fileHash)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.image, image) || other.image == image)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.qualityLevel, qualityLevel) || other.qualityLevel == qualityLevel)&&(identical(other.isOriginal, isOriginal) || other.isOriginal == isOriginal)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.sqFileHash, sqFileHash) || other.sqFileHash == sqFileHash)&&(identical(other.hqFileHash, hqFileHash) || other.hqFileHash == hqFileHash)&&(identical(other.privilege, privilege) || other.privilege == privilege)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&(identical(other.songLabel, songLabel) || other.songLabel == songLabel)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mvHash, mvHash) || other.mvHash == mvHash)&&(identical(other.oriSongName, oriSongName) || other.oriSongName == oriSongName)&&(identical(other.otherName, otherName) || other.otherName == otherName)&&(identical(other.suffix, suffix) || other.suffix == suffix)&&const DeepCollectionEquality().equals(other.singerId, singerId)&&const DeepCollectionEquality().equals(other.singers, singers)&&(identical(other.extName, extName) || other.extName == extName)&&(identical(other.bitrate, bitrate) || other.bitrate == bitrate)&&(identical(other.payType, payType) || other.payType == payType)&&(identical(other.price, price) || other.price == price)&&(identical(other.heatLevel, heatLevel) || other.heatLevel == heatLevel)&&(identical(other.isPrepublish, isPrepublish) || other.isPrepublish == isPrepublish));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchSongInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.songName, songName) || other.songName == songName)&&(identical(other.singerName, singerName) || other.singerName == singerName)&&(identical(other.fileHash, fileHash) || other.fileHash == fileHash)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.image, image) || other.image == image)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.eAlbumId, eAlbumId) || other.eAlbumId == eAlbumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.qualityLevel, qualityLevel) || other.qualityLevel == qualityLevel)&&(identical(other.isOriginal, isOriginal) || other.isOriginal == isOriginal)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.sqFileHash, sqFileHash) || other.sqFileHash == sqFileHash)&&(identical(other.sqFileSize, sqFileSize) || other.sqFileSize == sqFileSize)&&(identical(other.hqFileHash, hqFileHash) || other.hqFileHash == hqFileHash)&&(identical(other.hqFileSize, hqFileSize) || other.hqFileSize == hqFileSize)&&(identical(other.privilege, privilege) || other.privilege == privilege)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&(identical(other.tagContent, tagContent) || other.tagContent == tagContent)&&(identical(other.songLabel, songLabel) || other.songLabel == songLabel)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mvHash, mvHash) || other.mvHash == mvHash)&&(identical(other.oriSongName, oriSongName) || other.oriSongName == oriSongName)&&(identical(other.otherName, otherName) || other.otherName == otherName)&&(identical(other.suffix, suffix) || other.suffix == suffix)&&const DeepCollectionEquality().equals(other.singerId, singerId)&&const DeepCollectionEquality().equals(other.singers, singers)&&(identical(other.extName, extName) || other.extName == extName)&&(identical(other.bitrate, bitrate) || other.bitrate == bitrate)&&(identical(other.payType, payType) || other.payType == payType)&&(identical(other.price, price) || other.price == price)&&(identical(other.heatLevel, heatLevel) || other.heatLevel == heatLevel)&&(identical(other.isPrepublish, isPrepublish) || other.isPrepublish == isPrepublish)&&(identical(other.mixSongId, mixSongId) || other.mixSongId == mixSongId)&&(identical(other.eMixSongId, eMixSongId) || other.eMixSongId == eMixSongId)&&(identical(other.ownerCount, ownerCount) || other.ownerCount == ownerCount)&&(identical(other.hasAlbum, hasAlbum) || other.hasAlbum == hasAlbum));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,songName,singerName,fileHash,duration,image,albumId,albumName,qualityLevel,isOriginal,fileSize,sqFileHash,hqFileHash,privilege,publishDate,songLabel,fileName,mvHash,oriSongName,otherName,suffix,const DeepCollectionEquality().hash(singerId),const DeepCollectionEquality().hash(singers),extName,bitrate,payType,price,heatLevel,isPrepublish]);
+int get hashCode => Object.hashAll([runtimeType,id,songName,singerName,fileHash,duration,image,albumId,eAlbumId,albumName,qualityLevel,isOriginal,fileSize,sqFileHash,sqFileSize,hqFileHash,hqFileSize,privilege,publishDate,tagContent,songLabel,fileName,mvHash,oriSongName,otherName,suffix,const DeepCollectionEquality().hash(singerId),const DeepCollectionEquality().hash(singers),extName,bitrate,payType,price,heatLevel,isPrepublish,mixSongId,eMixSongId,ownerCount,hasAlbum]);
 
 @override
 String toString() {
-  return 'SearchSongInfo(id: $id, songName: $songName, singerName: $singerName, fileHash: $fileHash, duration: $duration, image: $image, albumId: $albumId, albumName: $albumName, qualityLevel: $qualityLevel, isOriginal: $isOriginal, fileSize: $fileSize, sqFileHash: $sqFileHash, hqFileHash: $hqFileHash, privilege: $privilege, publishDate: $publishDate, songLabel: $songLabel, fileName: $fileName, mvHash: $mvHash, oriSongName: $oriSongName, otherName: $otherName, suffix: $suffix, singerId: $singerId, singers: $singers, extName: $extName, bitrate: $bitrate, payType: $payType, price: $price, heatLevel: $heatLevel, isPrepublish: $isPrepublish)';
+  return 'SearchSongInfo(id: $id, songName: $songName, singerName: $singerName, fileHash: $fileHash, duration: $duration, image: $image, albumId: $albumId, eAlbumId: $eAlbumId, albumName: $albumName, qualityLevel: $qualityLevel, isOriginal: $isOriginal, fileSize: $fileSize, sqFileHash: $sqFileHash, sqFileSize: $sqFileSize, hqFileHash: $hqFileHash, hqFileSize: $hqFileSize, privilege: $privilege, publishDate: $publishDate, tagContent: $tagContent, songLabel: $songLabel, fileName: $fileName, mvHash: $mvHash, oriSongName: $oriSongName, otherName: $otherName, suffix: $suffix, singerId: $singerId, singers: $singers, extName: $extName, bitrate: $bitrate, payType: $payType, price: $price, heatLevel: $heatLevel, isPrepublish: $isPrepublish, mixSongId: $mixSongId, eMixSongId: $eMixSongId, ownerCount: $ownerCount, hasAlbum: $hasAlbum)';
 }
 
 
@@ -77,7 +85,7 @@ abstract mixin class $SearchSongInfoCopyWith<$Res>  {
   factory $SearchSongInfoCopyWith(SearchSongInfo value, $Res Function(SearchSongInfo) _then) = _$SearchSongInfoCopyWithImpl;
 @useResult
 $Res call({
-@IntFromStringConverter()@JsonKey(name: 'ID') int id,@JsonKey(name: 'SongName') String songName,@JsonKey(name: 'SingerName') String singerName,@JsonKey(name: 'FileHash') String fileHash,@IntFromStringConverter()@JsonKey(name: 'Duration') int duration,@JsonKey(name: 'Image') String image,@IntFromStringConverter()@JsonKey(name: 'AlbumID') int albumId,@JsonKey(name: 'AlbumName') String albumName,@IntFromStringConverter()@JsonKey(name: 'QualityLevel') int qualityLevel,@IntFromStringConverter()@JsonKey(name: 'IsOriginal') int isOriginal,@IntFromStringConverter()@JsonKey(name: 'FileSize') int fileSize,@JsonKey(name: 'SQFileHash') String sqFileHash,@JsonKey(name: 'HQFileHash') String hqFileHash,@IntFromStringConverter()@JsonKey(name: 'Privilege') int privilege,@JsonKey(name: 'PublishDate') String publishDate,@JsonKey(name: 'SongLabel') String songLabel,@JsonKey(name: 'FileName') String fileName,@JsonKey(name: 'MvHash') String mvHash,@JsonKey(name: 'OriSongName') String oriSongName,@JsonKey(name: 'OtherName') String otherName,@JsonKey(name: 'Suffix') String suffix,@JsonKey(name: 'SingerId') List<int> singerId,@JsonKey(name: 'Singers') List<SearchSinger> singers,@JsonKey(name: 'ExtName') String extName,@IntFromStringConverter()@JsonKey(name: 'Bitrate') int bitrate,@IntFromStringConverter()@JsonKey(name: 'PayType') int payType,@IntFromStringConverter()@JsonKey(name: 'Price') int price,@IntFromStringConverter()@JsonKey(name: 'HeatLevel') int heatLevel,@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int isPrepublish
+@IntFromStringConverter()@JsonKey(name: 'ID') int id,@JsonKey(name: 'SongName') String songName,@JsonKey(name: 'SingerName') String singerName,@JsonKey(name: 'FileHash') String fileHash,@IntFromStringConverter()@JsonKey(name: 'Duration') int duration,@JsonKey(name: 'Image') String image,@IntFromStringConverter()@JsonKey(name: 'AlbumID') int albumId,@JsonKey(name: 'EAlbumID') String eAlbumId,@JsonKey(name: 'AlbumName') String albumName,@IntFromStringConverter()@JsonKey(name: 'QualityLevel') int qualityLevel,@IntFromStringConverter()@JsonKey(name: 'IsOriginal') int isOriginal,@IntFromStringConverter()@JsonKey(name: 'FileSize') int fileSize,@JsonKey(name: 'SQFileHash') String sqFileHash,@IntFromStringConverter()@JsonKey(name: 'SQFileSize') int sqFileSize,@JsonKey(name: 'HQFileHash') String hqFileHash,@IntFromStringConverter()@JsonKey(name: 'HQFileSize') int hqFileSize,@IntFromStringConverter()@JsonKey(name: 'Privilege') int privilege,@JsonKey(name: 'PublishDate') String publishDate,@JsonKey(name: 'TagContent') String tagContent,@JsonKey(name: 'SongLabel') String songLabel,@JsonKey(name: 'FileName') String fileName,@JsonKey(name: 'MvHash') String mvHash,@JsonKey(name: 'OriSongName') String oriSongName,@JsonKey(name: 'OtherName') String otherName,@JsonKey(name: 'Suffix') String suffix,@JsonKey(name: 'SingerId') List<int> singerId,@JsonKey(name: 'Singers') List<SearchSinger> singers,@JsonKey(name: 'ExtName') String extName,@IntFromStringConverter()@JsonKey(name: 'Bitrate') int bitrate,@IntFromStringConverter()@JsonKey(name: 'PayType') int payType,@IntFromStringConverter()@JsonKey(name: 'Price') int price,@IntFromStringConverter()@JsonKey(name: 'HeatLevel') int heatLevel,@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int isPrepublish,@JsonKey(name: 'MixSongID') String mixSongId,@JsonKey(name: 'EMixSongID') String eMixSongId,@IntFromStringConverter()@JsonKey(name: 'OwnerCount') int ownerCount,@IntFromStringConverter()@JsonKey(name: 'HasAlbum') int hasAlbum
 });
 
 
@@ -94,7 +102,7 @@ class _$SearchSongInfoCopyWithImpl<$Res>
 
 /// Create a copy of SearchSongInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? songName = null,Object? singerName = null,Object? fileHash = null,Object? duration = null,Object? image = null,Object? albumId = null,Object? albumName = null,Object? qualityLevel = null,Object? isOriginal = null,Object? fileSize = null,Object? sqFileHash = null,Object? hqFileHash = null,Object? privilege = null,Object? publishDate = null,Object? songLabel = null,Object? fileName = null,Object? mvHash = null,Object? oriSongName = null,Object? otherName = null,Object? suffix = null,Object? singerId = null,Object? singers = null,Object? extName = null,Object? bitrate = null,Object? payType = null,Object? price = null,Object? heatLevel = null,Object? isPrepublish = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? songName = null,Object? singerName = null,Object? fileHash = null,Object? duration = null,Object? image = null,Object? albumId = null,Object? eAlbumId = null,Object? albumName = null,Object? qualityLevel = null,Object? isOriginal = null,Object? fileSize = null,Object? sqFileHash = null,Object? sqFileSize = null,Object? hqFileHash = null,Object? hqFileSize = null,Object? privilege = null,Object? publishDate = null,Object? tagContent = null,Object? songLabel = null,Object? fileName = null,Object? mvHash = null,Object? oriSongName = null,Object? otherName = null,Object? suffix = null,Object? singerId = null,Object? singers = null,Object? extName = null,Object? bitrate = null,Object? payType = null,Object? price = null,Object? heatLevel = null,Object? isPrepublish = null,Object? mixSongId = null,Object? eMixSongId = null,Object? ownerCount = null,Object? hasAlbum = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,songName: null == songName ? _self.songName : songName // ignore: cast_nullable_to_non_nullable
@@ -103,14 +111,18 @@ as String,fileHash: null == fileHash ? _self.fileHash : fileHash // ignore: cast
 as String,duration: null == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as int,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String,albumId: null == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
-as int,albumName: null == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
+as int,eAlbumId: null == eAlbumId ? _self.eAlbumId : eAlbumId // ignore: cast_nullable_to_non_nullable
+as String,albumName: null == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
 as String,qualityLevel: null == qualityLevel ? _self.qualityLevel : qualityLevel // ignore: cast_nullable_to_non_nullable
 as int,isOriginal: null == isOriginal ? _self.isOriginal : isOriginal // ignore: cast_nullable_to_non_nullable
 as int,fileSize: null == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
 as int,sqFileHash: null == sqFileHash ? _self.sqFileHash : sqFileHash // ignore: cast_nullable_to_non_nullable
-as String,hqFileHash: null == hqFileHash ? _self.hqFileHash : hqFileHash // ignore: cast_nullable_to_non_nullable
-as String,privilege: null == privilege ? _self.privilege : privilege // ignore: cast_nullable_to_non_nullable
+as String,sqFileSize: null == sqFileSize ? _self.sqFileSize : sqFileSize // ignore: cast_nullable_to_non_nullable
+as int,hqFileHash: null == hqFileHash ? _self.hqFileHash : hqFileHash // ignore: cast_nullable_to_non_nullable
+as String,hqFileSize: null == hqFileSize ? _self.hqFileSize : hqFileSize // ignore: cast_nullable_to_non_nullable
+as int,privilege: null == privilege ? _self.privilege : privilege // ignore: cast_nullable_to_non_nullable
 as int,publishDate: null == publishDate ? _self.publishDate : publishDate // ignore: cast_nullable_to_non_nullable
+as String,tagContent: null == tagContent ? _self.tagContent : tagContent // ignore: cast_nullable_to_non_nullable
 as String,songLabel: null == songLabel ? _self.songLabel : songLabel // ignore: cast_nullable_to_non_nullable
 as String,fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String,mvHash: null == mvHash ? _self.mvHash : mvHash // ignore: cast_nullable_to_non_nullable
@@ -125,6 +137,10 @@ as int,payType: null == payType ? _self.payType : payType // ignore: cast_nullab
 as int,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as int,heatLevel: null == heatLevel ? _self.heatLevel : heatLevel // ignore: cast_nullable_to_non_nullable
 as int,isPrepublish: null == isPrepublish ? _self.isPrepublish : isPrepublish // ignore: cast_nullable_to_non_nullable
+as int,mixSongId: null == mixSongId ? _self.mixSongId : mixSongId // ignore: cast_nullable_to_non_nullable
+as String,eMixSongId: null == eMixSongId ? _self.eMixSongId : eMixSongId // ignore: cast_nullable_to_non_nullable
+as String,ownerCount: null == ownerCount ? _self.ownerCount : ownerCount // ignore: cast_nullable_to_non_nullable
+as int,hasAlbum: null == hasAlbum ? _self.hasAlbum : hasAlbum // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -210,10 +226,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'EAlbumID')  String eAlbumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @IntFromStringConverter()@JsonKey(name: 'SQFileSize')  int sqFileSize, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'HQFileSize')  int hqFileSize, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'TagContent')  String tagContent, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish, @JsonKey(name: 'MixSongID')  String mixSongId, @JsonKey(name: 'EMixSongID')  String eMixSongId, @IntFromStringConverter()@JsonKey(name: 'OwnerCount')  int ownerCount, @IntFromStringConverter()@JsonKey(name: 'HasAlbum')  int hasAlbum)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchSongInfo() when $default != null:
-return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.hqFileHash,_that.privilege,_that.publishDate,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish);case _:
+return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.eAlbumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.sqFileSize,_that.hqFileHash,_that.hqFileSize,_that.privilege,_that.publishDate,_that.tagContent,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish,_that.mixSongId,_that.eMixSongId,_that.ownerCount,_that.hasAlbum);case _:
   return orElse();
 
 }
@@ -231,10 +247,10 @@ return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'EAlbumID')  String eAlbumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @IntFromStringConverter()@JsonKey(name: 'SQFileSize')  int sqFileSize, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'HQFileSize')  int hqFileSize, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'TagContent')  String tagContent, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish, @JsonKey(name: 'MixSongID')  String mixSongId, @JsonKey(name: 'EMixSongID')  String eMixSongId, @IntFromStringConverter()@JsonKey(name: 'OwnerCount')  int ownerCount, @IntFromStringConverter()@JsonKey(name: 'HasAlbum')  int hasAlbum)  $default,) {final _that = this;
 switch (_that) {
 case _SearchSongInfo():
-return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.hqFileHash,_that.privilege,_that.publishDate,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish);case _:
+return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.eAlbumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.sqFileSize,_that.hqFileHash,_that.hqFileSize,_that.privilege,_that.publishDate,_that.tagContent,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish,_that.mixSongId,_that.eMixSongId,_that.ownerCount,_that.hasAlbum);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -251,10 +267,10 @@ return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.du
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@IntFromStringConverter()@JsonKey(name: 'ID')  int id, @JsonKey(name: 'SongName')  String songName, @JsonKey(name: 'SingerName')  String singerName, @JsonKey(name: 'FileHash')  String fileHash, @IntFromStringConverter()@JsonKey(name: 'Duration')  int duration, @JsonKey(name: 'Image')  String image, @IntFromStringConverter()@JsonKey(name: 'AlbumID')  int albumId, @JsonKey(name: 'EAlbumID')  String eAlbumId, @JsonKey(name: 'AlbumName')  String albumName, @IntFromStringConverter()@JsonKey(name: 'QualityLevel')  int qualityLevel, @IntFromStringConverter()@JsonKey(name: 'IsOriginal')  int isOriginal, @IntFromStringConverter()@JsonKey(name: 'FileSize')  int fileSize, @JsonKey(name: 'SQFileHash')  String sqFileHash, @IntFromStringConverter()@JsonKey(name: 'SQFileSize')  int sqFileSize, @JsonKey(name: 'HQFileHash')  String hqFileHash, @IntFromStringConverter()@JsonKey(name: 'HQFileSize')  int hqFileSize, @IntFromStringConverter()@JsonKey(name: 'Privilege')  int privilege, @JsonKey(name: 'PublishDate')  String publishDate, @JsonKey(name: 'TagContent')  String tagContent, @JsonKey(name: 'SongLabel')  String songLabel, @JsonKey(name: 'FileName')  String fileName, @JsonKey(name: 'MvHash')  String mvHash, @JsonKey(name: 'OriSongName')  String oriSongName, @JsonKey(name: 'OtherName')  String otherName, @JsonKey(name: 'Suffix')  String suffix, @JsonKey(name: 'SingerId')  List<int> singerId, @JsonKey(name: 'Singers')  List<SearchSinger> singers, @JsonKey(name: 'ExtName')  String extName, @IntFromStringConverter()@JsonKey(name: 'Bitrate')  int bitrate, @IntFromStringConverter()@JsonKey(name: 'PayType')  int payType, @IntFromStringConverter()@JsonKey(name: 'Price')  int price, @IntFromStringConverter()@JsonKey(name: 'HeatLevel')  int heatLevel, @IntFromStringConverter()@JsonKey(name: 'isPrepublish')  int isPrepublish, @JsonKey(name: 'MixSongID')  String mixSongId, @JsonKey(name: 'EMixSongID')  String eMixSongId, @IntFromStringConverter()@JsonKey(name: 'OwnerCount')  int ownerCount, @IntFromStringConverter()@JsonKey(name: 'HasAlbum')  int hasAlbum)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchSongInfo() when $default != null:
-return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.hqFileHash,_that.privilege,_that.publishDate,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish);case _:
+return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.duration,_that.image,_that.albumId,_that.eAlbumId,_that.albumName,_that.qualityLevel,_that.isOriginal,_that.fileSize,_that.sqFileHash,_that.sqFileSize,_that.hqFileHash,_that.hqFileSize,_that.privilege,_that.publishDate,_that.tagContent,_that.songLabel,_that.fileName,_that.mvHash,_that.oriSongName,_that.otherName,_that.suffix,_that.singerId,_that.singers,_that.extName,_that.bitrate,_that.payType,_that.price,_that.heatLevel,_that.isPrepublish,_that.mixSongId,_that.eMixSongId,_that.ownerCount,_that.hasAlbum);case _:
   return null;
 
 }
@@ -266,14 +282,14 @@ return $default(_that.id,_that.songName,_that.singerName,_that.fileHash,_that.du
 @JsonSerializable()
 
 class _SearchSongInfo extends SearchSongInfo {
-  const _SearchSongInfo({@IntFromStringConverter()@JsonKey(name: 'ID') this.id = 0, @JsonKey(name: 'SongName') this.songName = '', @JsonKey(name: 'SingerName') this.singerName = '', @JsonKey(name: 'FileHash') this.fileHash = '', @IntFromStringConverter()@JsonKey(name: 'Duration') this.duration = 0, @JsonKey(name: 'Image') this.image = '', @IntFromStringConverter()@JsonKey(name: 'AlbumID') this.albumId = 0, @JsonKey(name: 'AlbumName') this.albumName = '', @IntFromStringConverter()@JsonKey(name: 'QualityLevel') this.qualityLevel = 0, @IntFromStringConverter()@JsonKey(name: 'IsOriginal') this.isOriginal = 0, @IntFromStringConverter()@JsonKey(name: 'FileSize') this.fileSize = 0, @JsonKey(name: 'SQFileHash') this.sqFileHash = '', @JsonKey(name: 'HQFileHash') this.hqFileHash = '', @IntFromStringConverter()@JsonKey(name: 'Privilege') this.privilege = 0, @JsonKey(name: 'PublishDate') this.publishDate = '', @JsonKey(name: 'SongLabel') this.songLabel = '', @JsonKey(name: 'FileName') this.fileName = '', @JsonKey(name: 'MvHash') this.mvHash = '', @JsonKey(name: 'OriSongName') this.oriSongName = '', @JsonKey(name: 'OtherName') this.otherName = '', @JsonKey(name: 'Suffix') this.suffix = '', @JsonKey(name: 'SingerId') final  List<int> singerId = const [], @JsonKey(name: 'Singers') final  List<SearchSinger> singers = const [], @JsonKey(name: 'ExtName') this.extName = '', @IntFromStringConverter()@JsonKey(name: 'Bitrate') this.bitrate = 0, @IntFromStringConverter()@JsonKey(name: 'PayType') this.payType = 0, @IntFromStringConverter()@JsonKey(name: 'Price') this.price = 0, @IntFromStringConverter()@JsonKey(name: 'HeatLevel') this.heatLevel = 0, @IntFromStringConverter()@JsonKey(name: 'isPrepublish') this.isPrepublish = 0}): _singerId = singerId,_singers = singers,super._();
+  const _SearchSongInfo({@IntFromStringConverter()@JsonKey(name: 'ID') this.id = 0, @JsonKey(name: 'SongName') this.songName = '', @JsonKey(name: 'SingerName') this.singerName = '', @JsonKey(name: 'FileHash') this.fileHash = '', @IntFromStringConverter()@JsonKey(name: 'Duration') this.duration = 0, @JsonKey(name: 'Image') this.image = '', @IntFromStringConverter()@JsonKey(name: 'AlbumID') this.albumId = 0, @JsonKey(name: 'EAlbumID') this.eAlbumId = '', @JsonKey(name: 'AlbumName') this.albumName = '', @IntFromStringConverter()@JsonKey(name: 'QualityLevel') this.qualityLevel = 0, @IntFromStringConverter()@JsonKey(name: 'IsOriginal') this.isOriginal = 0, @IntFromStringConverter()@JsonKey(name: 'FileSize') this.fileSize = 0, @JsonKey(name: 'SQFileHash') this.sqFileHash = '', @IntFromStringConverter()@JsonKey(name: 'SQFileSize') this.sqFileSize = 0, @JsonKey(name: 'HQFileHash') this.hqFileHash = '', @IntFromStringConverter()@JsonKey(name: 'HQFileSize') this.hqFileSize = 0, @IntFromStringConverter()@JsonKey(name: 'Privilege') this.privilege = 0, @JsonKey(name: 'PublishDate') this.publishDate = '', @JsonKey(name: 'TagContent') this.tagContent = '', @JsonKey(name: 'SongLabel') this.songLabel = '', @JsonKey(name: 'FileName') this.fileName = '', @JsonKey(name: 'MvHash') this.mvHash = '', @JsonKey(name: 'OriSongName') this.oriSongName = '', @JsonKey(name: 'OtherName') this.otherName = '', @JsonKey(name: 'Suffix') this.suffix = '', @JsonKey(name: 'SingerId') final  List<int> singerId = const [], @JsonKey(name: 'Singers') final  List<SearchSinger> singers = const [], @JsonKey(name: 'ExtName') this.extName = '', @IntFromStringConverter()@JsonKey(name: 'Bitrate') this.bitrate = 0, @IntFromStringConverter()@JsonKey(name: 'PayType') this.payType = 0, @IntFromStringConverter()@JsonKey(name: 'Price') this.price = 0, @IntFromStringConverter()@JsonKey(name: 'HeatLevel') this.heatLevel = 0, @IntFromStringConverter()@JsonKey(name: 'isPrepublish') this.isPrepublish = 0, @JsonKey(name: 'MixSongID') this.mixSongId = '', @JsonKey(name: 'EMixSongID') this.eMixSongId = '', @IntFromStringConverter()@JsonKey(name: 'OwnerCount') this.ownerCount = 0, @IntFromStringConverter()@JsonKey(name: 'HasAlbum') this.hasAlbum = 0}): _singerId = singerId,_singers = singers,super._();
   factory _SearchSongInfo.fromJson(Map<String, dynamic> json) => _$SearchSongInfoFromJson(json);
 
-/// 歌曲ID（如：32157565）
+/// 歌曲ID
 @override@IntFromStringConverter()@JsonKey(name: 'ID') final  int id;
-/// 歌曲名
+/// 歌曲名（可能含 <em> 高亮标记）
 @override@JsonKey(name: 'SongName') final  String songName;
-/// 歌手名
+/// 歌手名（可能含 <em> 高亮标记）
 @override@JsonKey(name: 'SingerName') final  String singerName;
 /// 歌曲Hash（用于播放）
 @override@JsonKey(name: 'FileHash') final  String fileHash;
@@ -283,6 +299,8 @@ class _SearchSongInfo extends SearchSongInfo {
 @override@JsonKey(name: 'Image') final  String image;
 /// 专辑ID
 @override@IntFromStringConverter()@JsonKey(name: 'AlbumID') final  int albumId;
+/// 加密专辑ID
+@override@JsonKey(name: 'EAlbumID') final  String eAlbumId;
 /// 专辑名
 @override@JsonKey(name: 'AlbumName') final  String albumName;
 /// 音质等级
@@ -293,15 +311,21 @@ class _SearchSongInfo extends SearchSongInfo {
 @override@IntFromStringConverter()@JsonKey(name: 'FileSize') final  int fileSize;
 /// 无损Hash
 @override@JsonKey(name: 'SQFileHash') final  String sqFileHash;
+/// 无损文件大小（字节）
+@override@IntFromStringConverter()@JsonKey(name: 'SQFileSize') final  int sqFileSize;
 /// HQ Hash
 @override@JsonKey(name: 'HQFileHash') final  String hqFileHash;
+/// HQ 文件大小（字节）
+@override@IntFromStringConverter()@JsonKey(name: 'HQFileSize') final  int hqFileSize;
 /// 是否VIP（Privilege字段）
 @override@IntFromStringConverter()@JsonKey(name: 'Privilege') final  int privilege;
 /// 发布日期
 @override@JsonKey(name: 'PublishDate') final  String publishDate;
+/// 歌曲标签（如 TOP500 第53名）
+@override@JsonKey(name: 'TagContent') final  String tagContent;
 /// 歌曲标签
 @override@JsonKey(name: 'SongLabel') final  String songLabel;
-/// 文件名（完整格式）
+/// 文件名（完整格式，含 <em> 高亮标记）
 @override@JsonKey(name: 'FileName') final  String fileName;
 /// MV Hash
 @override@JsonKey(name: 'MvHash') final  String mvHash;
@@ -341,6 +365,14 @@ class _SearchSongInfo extends SearchSongInfo {
 @override@IntFromStringConverter()@JsonKey(name: 'HeatLevel') final  int heatLevel;
 /// 是否预发布
 @override@IntFromStringConverter()@JsonKey(name: 'isPrepublish') final  int isPrepublish;
+/// MixSongID
+@override@JsonKey(name: 'MixSongID') final  String mixSongId;
+/// 加密 MixSongID
+@override@JsonKey(name: 'EMixSongID') final  String eMixSongId;
+/// 收藏数
+@override@IntFromStringConverter()@JsonKey(name: 'OwnerCount') final  int ownerCount;
+/// 是否有专辑
+@override@IntFromStringConverter()@JsonKey(name: 'HasAlbum') final  int hasAlbum;
 
 /// Create a copy of SearchSongInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -355,16 +387,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchSongInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.songName, songName) || other.songName == songName)&&(identical(other.singerName, singerName) || other.singerName == singerName)&&(identical(other.fileHash, fileHash) || other.fileHash == fileHash)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.image, image) || other.image == image)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.qualityLevel, qualityLevel) || other.qualityLevel == qualityLevel)&&(identical(other.isOriginal, isOriginal) || other.isOriginal == isOriginal)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.sqFileHash, sqFileHash) || other.sqFileHash == sqFileHash)&&(identical(other.hqFileHash, hqFileHash) || other.hqFileHash == hqFileHash)&&(identical(other.privilege, privilege) || other.privilege == privilege)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&(identical(other.songLabel, songLabel) || other.songLabel == songLabel)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mvHash, mvHash) || other.mvHash == mvHash)&&(identical(other.oriSongName, oriSongName) || other.oriSongName == oriSongName)&&(identical(other.otherName, otherName) || other.otherName == otherName)&&(identical(other.suffix, suffix) || other.suffix == suffix)&&const DeepCollectionEquality().equals(other._singerId, _singerId)&&const DeepCollectionEquality().equals(other._singers, _singers)&&(identical(other.extName, extName) || other.extName == extName)&&(identical(other.bitrate, bitrate) || other.bitrate == bitrate)&&(identical(other.payType, payType) || other.payType == payType)&&(identical(other.price, price) || other.price == price)&&(identical(other.heatLevel, heatLevel) || other.heatLevel == heatLevel)&&(identical(other.isPrepublish, isPrepublish) || other.isPrepublish == isPrepublish));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchSongInfo&&(identical(other.id, id) || other.id == id)&&(identical(other.songName, songName) || other.songName == songName)&&(identical(other.singerName, singerName) || other.singerName == singerName)&&(identical(other.fileHash, fileHash) || other.fileHash == fileHash)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.image, image) || other.image == image)&&(identical(other.albumId, albumId) || other.albumId == albumId)&&(identical(other.eAlbumId, eAlbumId) || other.eAlbumId == eAlbumId)&&(identical(other.albumName, albumName) || other.albumName == albumName)&&(identical(other.qualityLevel, qualityLevel) || other.qualityLevel == qualityLevel)&&(identical(other.isOriginal, isOriginal) || other.isOriginal == isOriginal)&&(identical(other.fileSize, fileSize) || other.fileSize == fileSize)&&(identical(other.sqFileHash, sqFileHash) || other.sqFileHash == sqFileHash)&&(identical(other.sqFileSize, sqFileSize) || other.sqFileSize == sqFileSize)&&(identical(other.hqFileHash, hqFileHash) || other.hqFileHash == hqFileHash)&&(identical(other.hqFileSize, hqFileSize) || other.hqFileSize == hqFileSize)&&(identical(other.privilege, privilege) || other.privilege == privilege)&&(identical(other.publishDate, publishDate) || other.publishDate == publishDate)&&(identical(other.tagContent, tagContent) || other.tagContent == tagContent)&&(identical(other.songLabel, songLabel) || other.songLabel == songLabel)&&(identical(other.fileName, fileName) || other.fileName == fileName)&&(identical(other.mvHash, mvHash) || other.mvHash == mvHash)&&(identical(other.oriSongName, oriSongName) || other.oriSongName == oriSongName)&&(identical(other.otherName, otherName) || other.otherName == otherName)&&(identical(other.suffix, suffix) || other.suffix == suffix)&&const DeepCollectionEquality().equals(other._singerId, _singerId)&&const DeepCollectionEquality().equals(other._singers, _singers)&&(identical(other.extName, extName) || other.extName == extName)&&(identical(other.bitrate, bitrate) || other.bitrate == bitrate)&&(identical(other.payType, payType) || other.payType == payType)&&(identical(other.price, price) || other.price == price)&&(identical(other.heatLevel, heatLevel) || other.heatLevel == heatLevel)&&(identical(other.isPrepublish, isPrepublish) || other.isPrepublish == isPrepublish)&&(identical(other.mixSongId, mixSongId) || other.mixSongId == mixSongId)&&(identical(other.eMixSongId, eMixSongId) || other.eMixSongId == eMixSongId)&&(identical(other.ownerCount, ownerCount) || other.ownerCount == ownerCount)&&(identical(other.hasAlbum, hasAlbum) || other.hasAlbum == hasAlbum));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,songName,singerName,fileHash,duration,image,albumId,albumName,qualityLevel,isOriginal,fileSize,sqFileHash,hqFileHash,privilege,publishDate,songLabel,fileName,mvHash,oriSongName,otherName,suffix,const DeepCollectionEquality().hash(_singerId),const DeepCollectionEquality().hash(_singers),extName,bitrate,payType,price,heatLevel,isPrepublish]);
+int get hashCode => Object.hashAll([runtimeType,id,songName,singerName,fileHash,duration,image,albumId,eAlbumId,albumName,qualityLevel,isOriginal,fileSize,sqFileHash,sqFileSize,hqFileHash,hqFileSize,privilege,publishDate,tagContent,songLabel,fileName,mvHash,oriSongName,otherName,suffix,const DeepCollectionEquality().hash(_singerId),const DeepCollectionEquality().hash(_singers),extName,bitrate,payType,price,heatLevel,isPrepublish,mixSongId,eMixSongId,ownerCount,hasAlbum]);
 
 @override
 String toString() {
-  return 'SearchSongInfo(id: $id, songName: $songName, singerName: $singerName, fileHash: $fileHash, duration: $duration, image: $image, albumId: $albumId, albumName: $albumName, qualityLevel: $qualityLevel, isOriginal: $isOriginal, fileSize: $fileSize, sqFileHash: $sqFileHash, hqFileHash: $hqFileHash, privilege: $privilege, publishDate: $publishDate, songLabel: $songLabel, fileName: $fileName, mvHash: $mvHash, oriSongName: $oriSongName, otherName: $otherName, suffix: $suffix, singerId: $singerId, singers: $singers, extName: $extName, bitrate: $bitrate, payType: $payType, price: $price, heatLevel: $heatLevel, isPrepublish: $isPrepublish)';
+  return 'SearchSongInfo(id: $id, songName: $songName, singerName: $singerName, fileHash: $fileHash, duration: $duration, image: $image, albumId: $albumId, eAlbumId: $eAlbumId, albumName: $albumName, qualityLevel: $qualityLevel, isOriginal: $isOriginal, fileSize: $fileSize, sqFileHash: $sqFileHash, sqFileSize: $sqFileSize, hqFileHash: $hqFileHash, hqFileSize: $hqFileSize, privilege: $privilege, publishDate: $publishDate, tagContent: $tagContent, songLabel: $songLabel, fileName: $fileName, mvHash: $mvHash, oriSongName: $oriSongName, otherName: $otherName, suffix: $suffix, singerId: $singerId, singers: $singers, extName: $extName, bitrate: $bitrate, payType: $payType, price: $price, heatLevel: $heatLevel, isPrepublish: $isPrepublish, mixSongId: $mixSongId, eMixSongId: $eMixSongId, ownerCount: $ownerCount, hasAlbum: $hasAlbum)';
 }
 
 
@@ -375,7 +407,7 @@ abstract mixin class _$SearchSongInfoCopyWith<$Res> implements $SearchSongInfoCo
   factory _$SearchSongInfoCopyWith(_SearchSongInfo value, $Res Function(_SearchSongInfo) _then) = __$SearchSongInfoCopyWithImpl;
 @override @useResult
 $Res call({
-@IntFromStringConverter()@JsonKey(name: 'ID') int id,@JsonKey(name: 'SongName') String songName,@JsonKey(name: 'SingerName') String singerName,@JsonKey(name: 'FileHash') String fileHash,@IntFromStringConverter()@JsonKey(name: 'Duration') int duration,@JsonKey(name: 'Image') String image,@IntFromStringConverter()@JsonKey(name: 'AlbumID') int albumId,@JsonKey(name: 'AlbumName') String albumName,@IntFromStringConverter()@JsonKey(name: 'QualityLevel') int qualityLevel,@IntFromStringConverter()@JsonKey(name: 'IsOriginal') int isOriginal,@IntFromStringConverter()@JsonKey(name: 'FileSize') int fileSize,@JsonKey(name: 'SQFileHash') String sqFileHash,@JsonKey(name: 'HQFileHash') String hqFileHash,@IntFromStringConverter()@JsonKey(name: 'Privilege') int privilege,@JsonKey(name: 'PublishDate') String publishDate,@JsonKey(name: 'SongLabel') String songLabel,@JsonKey(name: 'FileName') String fileName,@JsonKey(name: 'MvHash') String mvHash,@JsonKey(name: 'OriSongName') String oriSongName,@JsonKey(name: 'OtherName') String otherName,@JsonKey(name: 'Suffix') String suffix,@JsonKey(name: 'SingerId') List<int> singerId,@JsonKey(name: 'Singers') List<SearchSinger> singers,@JsonKey(name: 'ExtName') String extName,@IntFromStringConverter()@JsonKey(name: 'Bitrate') int bitrate,@IntFromStringConverter()@JsonKey(name: 'PayType') int payType,@IntFromStringConverter()@JsonKey(name: 'Price') int price,@IntFromStringConverter()@JsonKey(name: 'HeatLevel') int heatLevel,@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int isPrepublish
+@IntFromStringConverter()@JsonKey(name: 'ID') int id,@JsonKey(name: 'SongName') String songName,@JsonKey(name: 'SingerName') String singerName,@JsonKey(name: 'FileHash') String fileHash,@IntFromStringConverter()@JsonKey(name: 'Duration') int duration,@JsonKey(name: 'Image') String image,@IntFromStringConverter()@JsonKey(name: 'AlbumID') int albumId,@JsonKey(name: 'EAlbumID') String eAlbumId,@JsonKey(name: 'AlbumName') String albumName,@IntFromStringConverter()@JsonKey(name: 'QualityLevel') int qualityLevel,@IntFromStringConverter()@JsonKey(name: 'IsOriginal') int isOriginal,@IntFromStringConverter()@JsonKey(name: 'FileSize') int fileSize,@JsonKey(name: 'SQFileHash') String sqFileHash,@IntFromStringConverter()@JsonKey(name: 'SQFileSize') int sqFileSize,@JsonKey(name: 'HQFileHash') String hqFileHash,@IntFromStringConverter()@JsonKey(name: 'HQFileSize') int hqFileSize,@IntFromStringConverter()@JsonKey(name: 'Privilege') int privilege,@JsonKey(name: 'PublishDate') String publishDate,@JsonKey(name: 'TagContent') String tagContent,@JsonKey(name: 'SongLabel') String songLabel,@JsonKey(name: 'FileName') String fileName,@JsonKey(name: 'MvHash') String mvHash,@JsonKey(name: 'OriSongName') String oriSongName,@JsonKey(name: 'OtherName') String otherName,@JsonKey(name: 'Suffix') String suffix,@JsonKey(name: 'SingerId') List<int> singerId,@JsonKey(name: 'Singers') List<SearchSinger> singers,@JsonKey(name: 'ExtName') String extName,@IntFromStringConverter()@JsonKey(name: 'Bitrate') int bitrate,@IntFromStringConverter()@JsonKey(name: 'PayType') int payType,@IntFromStringConverter()@JsonKey(name: 'Price') int price,@IntFromStringConverter()@JsonKey(name: 'HeatLevel') int heatLevel,@IntFromStringConverter()@JsonKey(name: 'isPrepublish') int isPrepublish,@JsonKey(name: 'MixSongID') String mixSongId,@JsonKey(name: 'EMixSongID') String eMixSongId,@IntFromStringConverter()@JsonKey(name: 'OwnerCount') int ownerCount,@IntFromStringConverter()@JsonKey(name: 'HasAlbum') int hasAlbum
 });
 
 
@@ -392,7 +424,7 @@ class __$SearchSongInfoCopyWithImpl<$Res>
 
 /// Create a copy of SearchSongInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? songName = null,Object? singerName = null,Object? fileHash = null,Object? duration = null,Object? image = null,Object? albumId = null,Object? albumName = null,Object? qualityLevel = null,Object? isOriginal = null,Object? fileSize = null,Object? sqFileHash = null,Object? hqFileHash = null,Object? privilege = null,Object? publishDate = null,Object? songLabel = null,Object? fileName = null,Object? mvHash = null,Object? oriSongName = null,Object? otherName = null,Object? suffix = null,Object? singerId = null,Object? singers = null,Object? extName = null,Object? bitrate = null,Object? payType = null,Object? price = null,Object? heatLevel = null,Object? isPrepublish = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? songName = null,Object? singerName = null,Object? fileHash = null,Object? duration = null,Object? image = null,Object? albumId = null,Object? eAlbumId = null,Object? albumName = null,Object? qualityLevel = null,Object? isOriginal = null,Object? fileSize = null,Object? sqFileHash = null,Object? sqFileSize = null,Object? hqFileHash = null,Object? hqFileSize = null,Object? privilege = null,Object? publishDate = null,Object? tagContent = null,Object? songLabel = null,Object? fileName = null,Object? mvHash = null,Object? oriSongName = null,Object? otherName = null,Object? suffix = null,Object? singerId = null,Object? singers = null,Object? extName = null,Object? bitrate = null,Object? payType = null,Object? price = null,Object? heatLevel = null,Object? isPrepublish = null,Object? mixSongId = null,Object? eMixSongId = null,Object? ownerCount = null,Object? hasAlbum = null,}) {
   return _then(_SearchSongInfo(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,songName: null == songName ? _self.songName : songName // ignore: cast_nullable_to_non_nullable
@@ -401,14 +433,18 @@ as String,fileHash: null == fileHash ? _self.fileHash : fileHash // ignore: cast
 as String,duration: null == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as int,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String,albumId: null == albumId ? _self.albumId : albumId // ignore: cast_nullable_to_non_nullable
-as int,albumName: null == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
+as int,eAlbumId: null == eAlbumId ? _self.eAlbumId : eAlbumId // ignore: cast_nullable_to_non_nullable
+as String,albumName: null == albumName ? _self.albumName : albumName // ignore: cast_nullable_to_non_nullable
 as String,qualityLevel: null == qualityLevel ? _self.qualityLevel : qualityLevel // ignore: cast_nullable_to_non_nullable
 as int,isOriginal: null == isOriginal ? _self.isOriginal : isOriginal // ignore: cast_nullable_to_non_nullable
 as int,fileSize: null == fileSize ? _self.fileSize : fileSize // ignore: cast_nullable_to_non_nullable
 as int,sqFileHash: null == sqFileHash ? _self.sqFileHash : sqFileHash // ignore: cast_nullable_to_non_nullable
-as String,hqFileHash: null == hqFileHash ? _self.hqFileHash : hqFileHash // ignore: cast_nullable_to_non_nullable
-as String,privilege: null == privilege ? _self.privilege : privilege // ignore: cast_nullable_to_non_nullable
+as String,sqFileSize: null == sqFileSize ? _self.sqFileSize : sqFileSize // ignore: cast_nullable_to_non_nullable
+as int,hqFileHash: null == hqFileHash ? _self.hqFileHash : hqFileHash // ignore: cast_nullable_to_non_nullable
+as String,hqFileSize: null == hqFileSize ? _self.hqFileSize : hqFileSize // ignore: cast_nullable_to_non_nullable
+as int,privilege: null == privilege ? _self.privilege : privilege // ignore: cast_nullable_to_non_nullable
 as int,publishDate: null == publishDate ? _self.publishDate : publishDate // ignore: cast_nullable_to_non_nullable
+as String,tagContent: null == tagContent ? _self.tagContent : tagContent // ignore: cast_nullable_to_non_nullable
 as String,songLabel: null == songLabel ? _self.songLabel : songLabel // ignore: cast_nullable_to_non_nullable
 as String,fileName: null == fileName ? _self.fileName : fileName // ignore: cast_nullable_to_non_nullable
 as String,mvHash: null == mvHash ? _self.mvHash : mvHash // ignore: cast_nullable_to_non_nullable
@@ -423,6 +459,10 @@ as int,payType: null == payType ? _self.payType : payType // ignore: cast_nullab
 as int,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as int,heatLevel: null == heatLevel ? _self.heatLevel : heatLevel // ignore: cast_nullable_to_non_nullable
 as int,isPrepublish: null == isPrepublish ? _self.isPrepublish : isPrepublish // ignore: cast_nullable_to_non_nullable
+as int,mixSongId: null == mixSongId ? _self.mixSongId : mixSongId // ignore: cast_nullable_to_non_nullable
+as String,eMixSongId: null == eMixSongId ? _self.eMixSongId : eMixSongId // ignore: cast_nullable_to_non_nullable
+as String,ownerCount: null == ownerCount ? _self.ownerCount : ownerCount // ignore: cast_nullable_to_non_nullable
+as int,hasAlbum: null == hasAlbum ? _self.hasAlbum : hasAlbum // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

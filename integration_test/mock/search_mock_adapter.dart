@@ -47,6 +47,7 @@ class MockHttpClientAdapter implements HttpClientAdapter {
           "lists": [
             {
               "specialid": "456",
+              "gid": "collection_3_2132029040_287_0",
               "specialname": "Test Playlist",
               "img": "http://example.com/p.png",
               "song_count": "10",

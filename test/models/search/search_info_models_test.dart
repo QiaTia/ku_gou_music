@@ -7,52 +7,53 @@ import 'package:ku_gou_music/models/search/search_lyric_info.dart';
 
 void main() {
   group('SearchSpecialInfo', () {
-    test('fromJson 正常数据', () {
+    test('fromJson 真实接口数据（/v1/search/special）', () {
+      // 来自 complexsearch.kugou.com/v1/search/special 真实返回
       final json = {
-        'specialid': 12345,
-        'specialname': '华语经典老歌',
-        'singername': '各种歌手',
-        'imgurl': 'https://img.kugou.com/special/100.jpg',
-        'intro': '精选华语经典',
-        'play_count': 50000,
-        'collectcount': 1200,
-        'global_collection_id': 'gc_12345',
-        'nickname': '小编',
-        'song_count': 100,
-        'tag': '华语,经典',
-        'publishtime': '2024-01-01',
+        'specialid': 6409645,
+        'specialname': '<em>周杰伦</em>必听热歌｜聆听周式金曲，聆听青春记忆',
+        'song_count': 154,
+        'img': 'http://imge.kugou.com/soft/collection/150/20260414/xxx.png',
+        'intro': '',
+        'publish_time': '2023-01-10 19:31:00',
+        'collect_count': '0',
+        'play_count': '189226',
+        'total_play_count': '33328117',
+        'nickname': '酷乐推荐',
+        'suid': '2132029040',
+        'gid': 'collection_3_2132029040_287_0',
+        'egid': 'gcid_3z15kqlufz87z048',
+        'isvip': 0,
+        'isugc': 0,
+        'ispublish': 1,
+        'tag_str': '',
       };
 
       final info = SearchSpecialInfo.fromJson(json);
 
-      expect(info.specialId, 12345);
-      expect(info.specialName, '华语经典老歌');
-      expect(info.singerName, '各种歌手');
-      expect(info.imgUrl, 'https://img.kugou.com/special/100.jpg');
-      expect(info.intro, '精选华语经典');
-      expect(info.playCount, 50000);
-      expect(info.collectcount, 1200);
-      expect(info.globalCollectionId, 'gc_12345');
-      expect(info.nickname, '小编');
-      expect(info.songCount, 100);
-      expect(info.tag, '华语,经典');
-      expect(info.publishtime, '2024-01-01');
+      expect(info.specialId, 6409645);
+      expect(info.songCount, 154);
+      expect(info.playCount, 189226);
+      expect(info.collectCount, 0);
+      expect(info.totalPlayCount, 33328117);
+      expect(info.nickname, '酷乐推荐');
+      expect(info.suid, '2132029040');
+      expect(info.isVip, 0);
+      expect(info.isUgc, 0);
+      // 高亮标记清理
+      expect(info.displaySpecialName, '周杰伦必听热歌｜聆听周式金曲，聆听青春记忆');
     });
 
     test('fromJson IntFromStringConverter 兼容 String', () {
-      final json = {
+      final info = SearchSpecialInfo.fromJson({
         'specialid': '12345',
-        'play_count': '50000',
-        'collectcount': '1200',
         'song_count': '100',
-      };
-
-      final info = SearchSpecialInfo.fromJson(json);
+        'play_count': '50000',
+      });
 
       expect(info.specialId, 12345);
-      expect(info.playCount, 50000);
-      expect(info.collectcount, 1200);
       expect(info.songCount, 100);
+      expect(info.playCount, 50000);
     });
 
     test('fromJson 缺失字段使用默认值', () {
@@ -61,55 +62,54 @@ void main() {
       expect(info.specialId, 0);
       expect(info.specialName, '');
       expect(info.playCount, 0);
-      expect(info.collectcount, 0);
-    });
-
-    test('toJson round-trip', () {
-      final json = {
-        'specialid': 12345,
-        'specialname': '歌单A',
-        'singername': '',
-        'imgurl': '',
-        'intro': '',
-        'play_count': 100,
-        'collectcount': 0,
-        'global_collection_id': '',
-        'nickname': '',
-        'song_count': 10,
-        'tag': '',
-        'publishtime': '',
-      };
-
-      final info = SearchSpecialInfo.fromJson(json);
-      final restored = SearchSpecialInfo.fromJson(info.toJson());
-
-      expect(restored.specialId, 12345);
-      expect(restored.specialName, '歌单A');
-      expect(restored.playCount, 100);
+      expect(info.songCount, 0);
     });
   });
 
   group('SearchAlbumInfo', () {
-    test('fromJson 正常数据', () {
+    test('fromJson 真实接口数据（/v1/search/album）', () {
+      // 来自 complexsearch.kugou.com/v1/search/album 真实返回
       final json = {
-        'albumid': 56789,
-        'albumname': '范特西',
-        'singername': '周杰伦',
-        'imgurl': 'https://img.kugou.com/album/200.jpg',
-        'intro': '2001年专辑',
-        'publish_date': '2001-09-14',
-        'song_count': 10,
-        'type': 1,
+        'albumid': 960399,
+        'albumname': '魔<em>杰</em>座',
+        'singer': '<em>周杰伦</em>',
+        'singerid': '0',
+        'img': 'http://imge.kugou.com/stdmusic/240/xxx.jpg',
+        'intro': '',
+        'company': '',
+        'publish_time': '2008-10-15',
+        'language': '华语',
+        'songcount': 11,
+        'collect_count': 0,
+        'privilege': 0,
+        'quality': 2,
+        'singerids': [3520],
+        'singers': [
+          {'name': '<em>周杰伦</em>', 'id': 3520},
+        ],
       };
 
       final info = SearchAlbumInfo.fromJson(json);
 
+      expect(info.albumId, 960399);
+      expect(info.songCount, 11);
+      expect(info.publishTime, '2008-10-15');
+      expect(info.language, '华语');
+      expect(info.singerIds, [3520]);
+      expect(info.singers, hasLength(1));
+      // 高亮标记清理
+      expect(info.displayAlbumName, '魔杰座');
+      expect(info.displayArtistName, '周杰伦');
+    });
+
+    test('fromJson IntFromStringConverter 兼容 String', () {
+      final info = SearchAlbumInfo.fromJson({
+        'albumid': '56789',
+        'songcount': '10',
+      });
+
       expect(info.albumId, 56789);
-      expect(info.albumName, '范特西');
-      expect(info.singerName, '周杰伦');
-      expect(info.publishDate, '2001-09-14');
       expect(info.songCount, 10);
-      expect(info.type, 1);
     });
 
     test('fromJson 缺失字段使用默认值', () {
@@ -118,45 +118,50 @@ void main() {
       expect(info.albumId, 0);
       expect(info.albumName, '');
       expect(info.songCount, 0);
+      expect(info.singers, isEmpty);
     });
   });
 
   group('SearchAuthorInfo', () {
-    test('fromJson 正常数据', () {
+    test('fromJson 真实接口数据（/v1/search/author）', () {
+      // 来自 complexsearch.kugou.com/v1/search/author 真实返回
       final json = {
-        'AuthorId': 3066,
-        'AuthorName': '周杰伦',
-        'Avatar': 'https://img.kugou.com/singer/3066.jpg',
-        'AudioCount': 300,
-        'AlbumCount': 30,
-        'VideoCount': 50,
-        'FansNum': 5000000,
-        'IsSettledAuthor': 1,
-        'Heat': 9999,
+        'AuthorId': 3520,
+        'AuthorName': '<em>周杰伦</em>',
+        'IsSettledAuthor': 0,
+        'Avatar': 'http://singerimg.kugou.com/uploadpic/softhead/240/xxx.jpg',
+        'Heat': 19459918,
+        'AlbumCount': 49,
+        'AudioCount': 1820,
+        'VideoCount': 2823,
+        'LyricistCount': 0,
+        'ComposerCount': 0,
+        'Identity': 1135,
+        'FansNum': 25615021,
+        'UserId': 0,
+        'IsReal': 1,
+        'FirstFrameImage': 'http://singerimg.kugou.com/uploadpic/softhead/{size}/xxx.jpg',
       };
 
       final info = SearchAuthorInfo.fromJson(json);
 
-      expect(info.authorId, 3066);
-      expect(info.authorName, '周杰伦');
-      expect(info.avatar, 'https://img.kugou.com/singer/3066.jpg');
-      expect(info.audioCount, 300);
-      expect(info.albumCount, 30);
-      expect(info.videoCount, 50);
-      expect(info.fansNum, 5000000);
-      expect(info.isSettledAuthor, 1);
-      expect(info.heat, 9999);
+      expect(info.authorId, 3520);
+      expect(info.audioCount, 1820);
+      expect(info.albumCount, 49);
+      expect(info.videoCount, 2823);
+      expect(info.fansNum, 25615021);
+      expect(info.heat, 19459918);
+      expect(info.isReal, 1);
+      // 高亮标记清理
+      expect(info.displayAuthorName, '周杰伦');
     });
 
     test('fromJson IntFromStringConverter 兼容 String', () {
-      final json = {
+      final info = SearchAuthorInfo.fromJson({
         'AuthorId': '3066',
-        'AuthorName': '周杰伦',
         'AudioCount': '300',
         'FansNum': '5000000',
-      };
-
-      final info = SearchAuthorInfo.fromJson(json);
+      });
 
       expect(info.authorId, 3066);
       expect(info.audioCount, 300);
@@ -174,29 +179,61 @@ void main() {
   });
 
   group('SearchMvInfo', () {
-    test('fromJson 正常数据', () {
+    test('fromJson 真实接口数据（/v1/search/mv）', () {
+      // 来自 complexsearch.kugou.com/v1/search/mv 真实返回
       final json = {
-        'mvid': 78901,
-        'mvname': '晴天MV',
-        'singername': '周杰伦',
-        'imgurl': 'https://img.kugou.com/mv/78901.jpg',
-        'play_count': 1000000,
-        'publish_date': '2003-08-01',
-        'time_length': 280,
-        'hash': 'mv_hash_abc',
-        'songid': 12345678,
+        'MvID': 117613,
+        'AudioID': '20505418',
+        'EMvID': '2ir1f4',
+        'FileName': '<em>周杰伦</em> - 晴天',
+        'SingerName': '<em>周杰伦</em>',
+        'MvName': '晴天',
+        'MvHot': 4293,
+        'MvHash': '3B1F32C55F9774501794213C09168A18',
+        'Duration': 317,
+        'PublishDate': '2003-07-31 00:00:00',
+        'Pic': '20200620174316264397.jpg',
+        'ErectPic': '20231208231353568089.jpg',
+        'IsOfficial': 1,
+        'IsUgc': 0,
+        'HistoryHeat': 103196149,
+        'MvHashMark': '1080P',
+        'Privilege': 10,
+        'MixSongID': '32100650',
+        'AlbumID': '966846',
+        'SingerID': [3520],
+        'Singers': [
+          {'name': '<em>周杰伦</em>', 'id': 3520},
+        ],
+        'ThumbGif': 'http://musiclibpicbssdl.cloud.kugou.com/xxx.gif',
       };
 
       final info = SearchMvInfo.fromJson(json);
 
-      expect(info.mvId, 78901);
-      expect(info.mvName, '晴天MV');
-      expect(info.singerName, '周杰伦');
-      expect(info.playCount, 1000000);
-      expect(info.publishDate, '2003-08-01');
-      expect(info.timeLength, 280);
-      expect(info.hash, 'mv_hash_abc');
-      expect(info.songId, 12345678);
+      expect(info.mvId, 117613);
+      expect(info.audioId, '20505418');
+      expect(info.duration, 317);
+      expect(info.mvHot, 4293);
+      expect(info.historyHeat, 103196149);
+      expect(info.isOfficial, 1);
+      expect(info.isUgc, 0);
+      expect(info.mvHashMark, '1080P');
+      expect(info.singerId, [3520]);
+      expect(info.singers, hasLength(1));
+      // 封面拼接（含 {size} 占位符）
+      expect(info.coverUrl, 'https://imge.kugou.com/mvpic/{size}/20200620174316264397.jpg');
+      // 时长格式化与高亮清理
+      expect(info.durationLabel, '5:17');
+      expect(info.displayMvName, '晴天');
+      expect(info.displaySingerName, '周杰伦');
+    });
+
+    test('coverUrl 无 Pic 时回退 ThumbGif', () {
+      final info = SearchMvInfo.fromJson({
+        'ThumbGif': 'http://musiclibpicbssdl.cloud.kugou.com/xxx.gif',
+      });
+
+      expect(info.coverUrl, 'http://musiclibpicbssdl.cloud.kugou.com/xxx.gif');
     });
 
     test('fromJson 缺失字段使用默认值', () {
@@ -204,62 +241,83 @@ void main() {
 
       expect(info.mvId, 0);
       expect(info.mvName, '');
-      expect(info.playCount, 0);
-      expect(info.timeLength, 0);
+      expect(info.duration, 0);
+      expect(info.coverUrl, '');
+      expect(info.singers, isEmpty);
     });
   });
 
   group('SearchLyricInfo', () {
-    test('fromJson 正常数据', () {
+    test('fromJson 真实接口数据（/v1/search/lyric）', () {
+      // 来自 complexsearch.kugou.com/v1/search/lyric 真实返回
       final json = {
-        'id': 45678,
-        'accesskey': 'AK_ABC123',
-        'songname': '晴天',
-        'singername': '周杰伦',
-        'hash': 'lyric_hash_xyz',
-        'duration': 269,
-        'album_id': 87654,
-        'album_audio_id': 99999,
+        'TimeLength': 269,
+        'OwnerCount': 3009405,
+        'Lyric': '晴天 - 周杰伦 (Jay Chou)  词：周杰伦  曲：周杰伦',
+        'ExtName': 'mp3',
+        'BitRate': 128,
+        'Quality': 2,
+        'FileSize': 4317292,
+        'FileName': '周杰伦 - 晴天',
+        'SingerName': '周杰伦',
+        'SingerID': [3520],
+        'SongName': '晴天',
+        'FileHash': 'B3A52A7A958BF0AED0EBFBA2E9A818B7',
+        'LyricID': 32100650,
+        'MvHash': '92B86DA2E11C3C84DE3A944ED12D97F1',
+        'HasMv': false,
+        'PublishAge': 255,
+        'SQType': 0,
+        'SQSize': 31633244,
+        'SQHash': '0A69169202DE95AAF24A9944CCF0730D',
+        '320Size': 10792943,
+        '320Hash': '1B56126A8A03924F1DD066259C095CBC',
+        'AlbumID': '966846',
+        'Scid': 20505418,
+        'MixSongID': 32100650,
+        'Privilege': 10,
+        'PayType': 3,
+        'Image': 'http://imge.kugou.com/stdmusic/{size}/xxx.jpg',
+        'Singers': [
+          {'name': '周杰伦', 'id': 3520},
+        ],
       };
 
       final info = SearchLyricInfo.fromJson(json);
 
-      expect(info.id, 45678);
-      expect(info.accesskey, 'AK_ABC123');
+      expect(info.lyricId, 32100650);
       expect(info.songName, '晴天');
       expect(info.singerName, '周杰伦');
-      expect(info.hash, 'lyric_hash_xyz');
+      expect(info.fileHash, 'B3A52A7A958BF0AED0EBFBA2E9A818B7');
       expect(info.duration, 269);
-      expect(info.albumId, 87654);
-      expect(info.albumAudioId, 99999);
+      expect(info.bitRate, 128);
+      expect(info.fileSize, 4317292);
+      expect(info.hqHash, '1B56126A8A03924F1DD066259C095CBC');
+      expect(info.sqHash, '0A69169202DE95AAF24A9944CCF0730D');
+      expect(info.hasMv, false);
+      expect(info.albumId, '966846');
+      expect(info.mixSongId, 32100650);
+      expect(info.durationLabel, '4:29');
+      expect(info.displaySongName, '晴天');
     });
 
     test('fromJson IntFromStringConverter 兼容 String', () {
-      final json = {
-        'id': '45678',
-        'duration': '269',
-        'album_id': '87654',
-      };
+      final info = SearchLyricInfo.fromJson({
+        'LyricID': '45678',
+        'TimeLength': '269',
+      });
 
-      final info = SearchLyricInfo.fromJson(json);
-
-      expect(info.id, 45678);
+      expect(info.lyricId, 45678);
       expect(info.duration, 269);
-      expect(info.albumId, 87654);
     });
 
-    test('fromJson 缺失可选字段使用默认值', () {
-      final json = {'id': 1};
+    test('fromJson 缺失字段使用默认值', () {
+      final info = SearchLyricInfo.fromJson({});
 
-      final info = SearchLyricInfo.fromJson(json);
-
-      expect(info.accesskey, '');
+      expect(info.lyricId, 0);
       expect(info.songName, '');
-      expect(info.singerName, '');
-      expect(info.hash, '');
       expect(info.duration, 0);
-      expect(info.albumId, 0);
-      expect(info.albumAudioId, 0);
+      expect(info.hasMv, false);
     });
   });
 }

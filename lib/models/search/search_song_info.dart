@@ -1,21 +1,22 @@
 // models/search/search_song_info.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ku_gou_music/models/converters/int_from_string_converter.dart';
+import 'package:ku_gou_music/utils/utils.dart';
 
 part 'search_song_info.freezed.dart';
 part 'search_song_info.g.dart';
 
-/// 搜索结果 - 单曲信息（对应综合搜索返回的 song 类型）
+/// 搜索结果 - 单曲信息（对应 /v2/search/song 或综合搜索返回的 song 类型）
 @freezed
 abstract class SearchSongInfo with _$SearchSongInfo {
   const SearchSongInfo._();
 
   const factory SearchSongInfo({
-    /// 歌曲ID（如：32157565）
+    /// 歌曲ID
     @IntFromStringConverter() @JsonKey(name: 'ID') @Default(0) int id,
-    /// 歌曲名
+    /// 歌曲名（可能含 <em> 高亮标记）
     @JsonKey(name: 'SongName') @Default('') String songName,
-    /// 歌手名
+    /// 歌手名（可能含 <em> 高亮标记）
     @JsonKey(name: 'SingerName') @Default('') String singerName,
     /// 歌曲Hash（用于播放）
     @JsonKey(name: 'FileHash') @Default('') String fileHash,
@@ -25,6 +26,8 @@ abstract class SearchSongInfo with _$SearchSongInfo {
     @JsonKey(name: 'Image') @Default('') String image,
     /// 专辑ID
     @IntFromStringConverter() @JsonKey(name: 'AlbumID') @Default(0) int albumId,
+    /// 加密专辑ID
+    @JsonKey(name: 'EAlbumID') @Default('') String eAlbumId,
     /// 专辑名
     @JsonKey(name: 'AlbumName') @Default('') String albumName,
     /// 音质等级
@@ -35,15 +38,21 @@ abstract class SearchSongInfo with _$SearchSongInfo {
     @IntFromStringConverter() @JsonKey(name: 'FileSize') @Default(0) int fileSize,
     /// 无损Hash
     @JsonKey(name: 'SQFileHash') @Default('') String sqFileHash,
+    /// 无损文件大小（字节）
+    @IntFromStringConverter() @JsonKey(name: 'SQFileSize') @Default(0) int sqFileSize,
     /// HQ Hash
     @JsonKey(name: 'HQFileHash') @Default('') String hqFileHash,
+    /// HQ 文件大小（字节）
+    @IntFromStringConverter() @JsonKey(name: 'HQFileSize') @Default(0) int hqFileSize,
     /// 是否VIP（Privilege字段）
     @IntFromStringConverter() @JsonKey(name: 'Privilege') @Default(0) int privilege,
     /// 发布日期
     @JsonKey(name: 'PublishDate') @Default('') String publishDate,
+    /// 歌曲标签（如 TOP500 第53名）
+    @JsonKey(name: 'TagContent') @Default('') String tagContent,
     /// 歌曲标签
     @JsonKey(name: 'SongLabel') @Default('') String songLabel,
-    /// 文件名（完整格式）
+    /// 文件名（完整格式，含 <em> 高亮标记）
     @JsonKey(name: 'FileName') @Default('') String fileName,
     /// MV Hash
     @JsonKey(name: 'MvHash') @Default('') String mvHash,
@@ -69,6 +78,14 @@ abstract class SearchSongInfo with _$SearchSongInfo {
     @IntFromStringConverter() @JsonKey(name: 'HeatLevel') @Default(0) int heatLevel,
     /// 是否预发布
     @IntFromStringConverter() @JsonKey(name: 'isPrepublish') @Default(0) int isPrepublish,
+    /// MixSongID
+    @JsonKey(name: 'MixSongID') @Default('') String mixSongId,
+    /// 加密 MixSongID
+    @JsonKey(name: 'EMixSongID') @Default('') String eMixSongId,
+    /// 收藏数
+    @IntFromStringConverter() @JsonKey(name: 'OwnerCount') @Default(0) int ownerCount,
+    /// 是否有专辑
+    @IntFromStringConverter() @JsonKey(name: 'HasAlbum') @Default(0) int hasAlbum,
   }) = _SearchSongInfo;
 
   factory SearchSongInfo.fromJson(Map<String, dynamic> json) =>
@@ -78,22 +95,24 @@ abstract class SearchSongInfo with _$SearchSongInfo {
   String get coverUrl150 => image.replaceAll('{size}', '150');
 
   /// 时长格式化 mm:ss
-  String get durationLabel {
-    final m = duration ~/ 60;
-    final s = (duration % 60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
+  String get durationLabel => formatDuration(duration);
 
   /// 歌手名（从Singers列表获取，或返回SingerName）
   String get artistName => singers.isNotEmpty
       ? singers.map((e) => e.name).join('、')
       : singerName;
 
+  /// 显示用歌名（去除高亮标记）
+  String get displaySongName => stripHtmlTags(songName);
+
+  /// 显示用歌手名（去除高亮标记）
+  String get displayArtistName => stripHtmlTags(artistName);
+
   /// 是否VIP歌曲
   bool get isVip => privilege > 0;
 
   /// 显示歌名（带后缀）
-  String get displayName => suffix.isNotEmpty ? '$songName ($suffix)' : songName;
+  String get displayName => suffix.isNotEmpty ? '${displaySongName} ($suffix)' : displaySongName;
 }
 
 /// 搜索结果中的歌手信息

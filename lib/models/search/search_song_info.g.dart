@@ -21,6 +21,7 @@ _SearchSongInfo _$SearchSongInfoFromJson(Map<String, dynamic> json) =>
       albumId: json['AlbumID'] == null
           ? 0
           : const IntFromStringConverter().fromJson(json['AlbumID']),
+      eAlbumId: json['EAlbumID'] as String? ?? '',
       albumName: json['AlbumName'] as String? ?? '',
       qualityLevel: json['QualityLevel'] == null
           ? 0
@@ -32,11 +33,18 @@ _SearchSongInfo _$SearchSongInfoFromJson(Map<String, dynamic> json) =>
           ? 0
           : const IntFromStringConverter().fromJson(json['FileSize']),
       sqFileHash: json['SQFileHash'] as String? ?? '',
+      sqFileSize: json['SQFileSize'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['SQFileSize']),
       hqFileHash: json['HQFileHash'] as String? ?? '',
+      hqFileSize: json['HQFileSize'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['HQFileSize']),
       privilege: json['Privilege'] == null
           ? 0
           : const IntFromStringConverter().fromJson(json['Privilege']),
       publishDate: json['PublishDate'] as String? ?? '',
+      tagContent: json['TagContent'] as String? ?? '',
       songLabel: json['SongLabel'] as String? ?? '',
       fileName: json['FileName'] as String? ?? '',
       mvHash: json['MvHash'] as String? ?? '',
@@ -69,6 +77,14 @@ _SearchSongInfo _$SearchSongInfoFromJson(Map<String, dynamic> json) =>
       isPrepublish: json['isPrepublish'] == null
           ? 0
           : const IntFromStringConverter().fromJson(json['isPrepublish']),
+      mixSongId: json['MixSongID'] as String? ?? '',
+      eMixSongId: json['EMixSongID'] as String? ?? '',
+      ownerCount: json['OwnerCount'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['OwnerCount']),
+      hasAlbum: json['HasAlbum'] == null
+          ? 0
+          : const IntFromStringConverter().fromJson(json['HasAlbum']),
     );
 
 Map<String, dynamic> _$SearchSongInfoToJson(
@@ -81,14 +97,18 @@ Map<String, dynamic> _$SearchSongInfoToJson(
   'Duration': const IntFromStringConverter().toJson(instance.duration),
   'Image': instance.image,
   'AlbumID': const IntFromStringConverter().toJson(instance.albumId),
+  'EAlbumID': instance.eAlbumId,
   'AlbumName': instance.albumName,
   'QualityLevel': const IntFromStringConverter().toJson(instance.qualityLevel),
   'IsOriginal': const IntFromStringConverter().toJson(instance.isOriginal),
   'FileSize': const IntFromStringConverter().toJson(instance.fileSize),
   'SQFileHash': instance.sqFileHash,
+  'SQFileSize': const IntFromStringConverter().toJson(instance.sqFileSize),
   'HQFileHash': instance.hqFileHash,
+  'HQFileSize': const IntFromStringConverter().toJson(instance.hqFileSize),
   'Privilege': const IntFromStringConverter().toJson(instance.privilege),
   'PublishDate': instance.publishDate,
+  'TagContent': instance.tagContent,
   'SongLabel': instance.songLabel,
   'FileName': instance.fileName,
   'MvHash': instance.mvHash,
@@ -103,6 +123,10 @@ Map<String, dynamic> _$SearchSongInfoToJson(
   'Price': const IntFromStringConverter().toJson(instance.price),
   'HeatLevel': const IntFromStringConverter().toJson(instance.heatLevel),
   'isPrepublish': const IntFromStringConverter().toJson(instance.isPrepublish),
+  'MixSongID': instance.mixSongId,
+  'EMixSongID': instance.eMixSongId,
+  'OwnerCount': const IntFromStringConverter().toJson(instance.ownerCount),
+  'HasAlbum': const IntFromStringConverter().toJson(instance.hasAlbum),
 };
 
 _SearchSinger _$SearchSingerFromJson(Map<String, dynamic> json) =>

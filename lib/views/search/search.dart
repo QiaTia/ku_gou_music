@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ku_gou_music/models/search/search_album_info.dart';
 import 'package:ku_gou_music/models/search/search_author_info.dart';
-import 'package:ku_gou_music/models/search/search_collect_info.dart';
 import 'package:ku_gou_music/models/search/search_complex_response.dart';
 import 'package:ku_gou_music/models/search/search_mv_info.dart';
 import 'package:ku_gou_music/models/search/search_song_info.dart';
@@ -57,7 +57,14 @@ class SearchPage extends StatelessWidget {
           const SizedBox(height: 12),
           const Text('搜索失败'),
           TextButton(
-            onPressed: () => controller.search(controller.keyword.value),
+            onPressed: () {
+              final index = controller.selectedTabIndex.value;
+              if (index > 0) {
+                controller.searchByType(search_ctrl.SearchController.tabs[index]['key']!);
+              } else {
+                controller.search(controller.keyword.value);
+              }
+            },
             child: const Text('重试'),
           ),
         ],
@@ -124,15 +131,15 @@ class SearchPage extends StatelessWidget {
         case 0:
           return _buildComplexTab(controller, context);
         case 1:
-          return _buildSongList(controller, isFullList: true);
+          return _buildSongList(controller);
         case 2:
-          return _buildSpecialGrid(controller, isFullList: true);
+          return _buildSpecialGrid(controller);
         case 3:
-          return _buildAlbumGrid(controller, isFullList: true);
+          return _buildAlbumGrid(controller);
         case 4:
-          return _buildMvGrid(controller, isFullList: true);
+          return _buildMvGrid(controller);
         case 5:
-          return _buildAuthorList(controller, isFullList: true);
+          return _buildAuthorList(controller);
         default:
           return const SizedBox.shrink();
       }
@@ -257,7 +264,13 @@ class SearchPage extends StatelessWidget {
               return Container(
                 width: 160,
                 margin: const EdgeInsets.only(right: 12),
-                child: _SpecialCard(collect: collects[index]),
+                child: _SpecialCard(
+                  id: collects[index].specialId.toString(),
+                  name: stripHtmlTags(collects[index].specialName),
+                  img: collects[index].img,
+                  songCount: collects[index].songCount,
+                  nickname: collects[index].nickname,
+                ),
               );
             },
           ),
@@ -319,7 +332,7 @@ class SearchPage extends StatelessWidget {
 
   // ==================== 单曲列表（完整） ====================
 
-  Widget _buildSongList(search_ctrl.SearchController controller, {required bool isFullList}) {
+  Widget _buildSongList(search_ctrl.SearchController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
         return CustomScrollView(
@@ -337,9 +350,7 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final songs = isFullList
-          ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'song')?.songList ?? []);
+      final songs = controller.songResult.value?.lists ?? [];
 
       if (songs.isEmpty) {
         return CustomScrollView(
@@ -378,7 +389,7 @@ class SearchPage extends StatelessWidget {
 
   // ==================== 歌单网格（完整） ====================
 
-  Widget _buildSpecialGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
+  Widget _buildSpecialGrid(search_ctrl.SearchController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
         return CustomScrollView(
@@ -396,10 +407,9 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final collectGroup = _findGroup(controller.complexResult.value!, 'collect');
-      final collects = collectGroup?.collectList ?? [];
+      final specials = controller.specialResult.value?.lists ?? [];
 
-      if (collects.isEmpty) {
+      if (specials.isEmpty) {
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -433,8 +443,14 @@ class SearchPage extends StatelessWidget {
                 childAspectRatio: 0.82,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _SpecialCard(collect: collects[index]),
-                childCount: collects.length,
+                (context, index) => _SpecialCard(
+                  id: specials[index].gid,
+                  name: specials[index].displaySpecialName,
+                  img: specials[index].img,
+                  songCount: specials[index].songCount,
+                  nickname: specials[index].nickname,
+                ),
+                childCount: specials.length,
               ),
             ),
           ),
@@ -445,7 +461,7 @@ class SearchPage extends StatelessWidget {
 
   // ==================== 专辑网格（完整） ====================
 
-  Widget _buildAlbumGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
+  Widget _buildAlbumGrid(search_ctrl.SearchController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
         return CustomScrollView(
@@ -463,11 +479,9 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final songs = isFullList
-          ? (controller.typedResult.value?.lists ?? [])
-          : (_findGroup(controller.complexResult.value!, 'album')?.songList ?? []);
+      final albums = controller.albumResult.value?.lists ?? [];
 
-      if (songs.isEmpty) {
+      if (albums.isEmpty) {
         return CustomScrollView(
           slivers: [
             SliverPersistentHeader(
@@ -501,8 +515,8 @@ class SearchPage extends StatelessWidget {
                 childAspectRatio: 0.82,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _AlbumCard(song: songs[index]),
-                childCount: songs.length,
+                (context, index) => _AlbumCard(album: albums[index]),
+                childCount: albums.length,
               ),
             ),
           ),
@@ -513,7 +527,7 @@ class SearchPage extends StatelessWidget {
 
   // ==================== MV 网格（完整） ====================
 
-  Widget _buildMvGrid(search_ctrl.SearchController controller, {required bool isFullList}) {
+  Widget _buildMvGrid(search_ctrl.SearchController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
         return CustomScrollView(
@@ -531,8 +545,7 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final mvGroup = _findGroup(controller.complexResult.value!, 'mv');
-      final mvs = mvGroup?.mvList ?? [];
+      final mvs = controller.mvResult.value?.lists ?? [];
 
       if (mvs.isEmpty) {
         return CustomScrollView(
@@ -580,7 +593,7 @@ class SearchPage extends StatelessWidget {
 
   // ==================== 歌手列表（完整） ====================
 
-  Widget _buildAuthorList(search_ctrl.SearchController controller, {required bool isFullList}) {
+  Widget _buildAuthorList(search_ctrl.SearchController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
         return CustomScrollView(
@@ -598,8 +611,7 @@ class SearchPage extends StatelessWidget {
         );
       }
 
-      final authorGroup = _findGroup(controller.complexResult.value!, 'author');
-      final authors = authorGroup?.authorList ?? [];
+      final authors = controller.authorResult.value?.lists ?? [];
 
       if (authors.isEmpty) {
         return CustomScrollView(
@@ -704,7 +716,7 @@ class _SongListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    song.songName,
+                    song.displaySongName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -715,7 +727,7 @@ class _SongListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    song.artistName,
+                    song.displayArtistName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
@@ -815,7 +827,7 @@ class _AuthorListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    author.authorName,
+                    author.displayAuthorName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -839,20 +851,34 @@ class _AuthorListItem extends StatelessWidget {
   }
 }
 
-/// 歌单卡片
+/// 歌单卡片（综合搜索与歌单搜索共用，接收展示字段）
 class _SpecialCard extends StatelessWidget {
-  final SearchCollectInfo collect;
+  /// 全局收藏ID（`collection_3_xxx` 格式，即 gid 字段）
+  ///
+  /// 歌单详情接口 /pubsongs/v2/get_other_list_file_nofilt 仅接受此格式，
+  /// 数字 specialid 与 gcid_xxx 格式均会返回 error_code=20010。
+  final String id;
+  final String name;
+  final String img;
+  final int songCount;
+  final String nickname;
 
-  const _SpecialCard({required this.collect});
+  const _SpecialCard({
+    required this.id,
+    required this.name,
+    required this.img,
+    required this.songCount,
+    required this.nickname,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
         Get.toNamed('/playlist/detail', arguments: {
-          'id': collect.specialId.toString(),
-          'name': collect.specialName,
-          'pic': collect.img,
+          'id': id,
+          'name': name,
+          'pic': img,
         });
       },
       child: Column(
@@ -863,7 +889,7 @@ class _SpecialCard extends StatelessWidget {
             child: AspectRatio(
               aspectRatio: 1,
               child: CachedNetworkImage(
-                imageUrl: getImageUri(collect.img),
+                imageUrl: getImageUri(img),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => Container(
                   color: _greyBgColor,
@@ -878,14 +904,14 @@ class _SpecialCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  collect.specialName,
+                  name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${collect.songCount}首 · ${collect.nickname}',
+                  '$songCount首 · $nickname',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 11, color: Colors.grey[500]),
@@ -922,7 +948,7 @@ class _MvCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   CachedNetworkImage(
-                    imageUrl: getImageUri(mv.imgUrl),
+                    imageUrl: getImageUri(mv.coverUrl, size: 240),
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) => Container(
                       color: _greyBgColor,
@@ -938,14 +964,14 @@ class _MvCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            mv.mvName,
+            mv.displayMvName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
-            mv.singerName,
+            mv.displaySingerName,
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
         ],
@@ -956,9 +982,9 @@ class _MvCard extends StatelessWidget {
 
 /// 专辑卡片
 class _AlbumCard extends StatelessWidget {
-  final SearchSongInfo song;
+  final SearchAlbumInfo album;
 
-  const _AlbumCard({required this.song});
+  const _AlbumCard({required this.album});
 
   @override
   Widget build(BuildContext context) {
@@ -974,7 +1000,7 @@ class _AlbumCard extends StatelessWidget {
             child: AspectRatio(
               aspectRatio: 1,
               child: CachedNetworkImage(
-                imageUrl: getImageUri(song.image),
+                imageUrl: getImageUri(album.img),
                 fit: BoxFit.cover,
                 errorWidget: (context, url, error) => Container(
                   color: _greyBgColor,
@@ -985,14 +1011,14 @@ class _AlbumCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            song.albumName.isNotEmpty ? song.albumName : song.songName,
+            album.displayAlbumName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
-            song.artistName,
+            album.displayArtistName,
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
         ],
