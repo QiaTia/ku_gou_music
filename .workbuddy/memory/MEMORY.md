@@ -4,10 +4,18 @@
 - 这是 **Flutter/Dart 音乐 App（酷狗音乐客户端）**，**不是 Web 应用**。无 `web/` 目录。
 - 架构：GetX（Get.put/Get.find 依赖注入）+ audioplayers/just_audio（播放）+ get_storage + dio + freezed + sqflite。
 
-## 测试套件状态（2026-07-22）
+## 测试套件状态
 - 工具链：Flutter 3.44.1 / Dart 3.12.1；`flutter test` 跑单元/Widget 测试。
-- 基线：修复后 **67 个用例全部通过**，连跑 2 次稳定（无 flaky）。
+- 2026-09-11：`flutter analyze` 0 error；`flutter test` **73 通过 / 1 失败**。唯一失败 `test/controllers/recently_controller_test.dart: playSong 应该将歌曲移到最前面` 是**既有失败**（已在 HEAD ba28beb 上复现）：单测无 just_audio 平台实现 → `setPlaylist` 抛异常 → `Get.snackbar` 在无 overlay 的测试环境崩（`SnackbarController._configureOverlay` Null check）。
 - 关键约定：**任何用到 GetStorage 的测试文件，path_provider mock 必须返回各自独立的 `Directory.systemTemp.createTemp(...)` 目录**，否则 `flutter test` 并行跑多文件时会争用同一 `.\GetStorage.gs` 文件锁（errno=33）导致偶发失败。
+
+## 酷狗接口约定（2026-09-11 真实接口实测）
+- **歌单详情 `/pubsongs/v2/get_other_list_file_nofilt` 的 `global_collection_id` 只接受 gid**（形如 `collection_3_2132029040_287_0`）。
+  - 传数字 specialid → `error_code=20010` 且 `data` 为空对象（**不抛异常**，旧代码表现为页面永久转圈）。
+  - 传 gcid_xxx（egid）同样无效。所有可用入口（首页/广场/我的/搜索歌单 Tab）都传 gid。
+- `AudioService` 索引不变式：`songList[i]` ↔ `playlist[i]` 必须等长。`player.insertAudioSource(i, src)` 是「在 i 处插入」（序列会变长），但只要总插在自身索引 i 处，i 之前的映射不受影响，因此该方案可工作（勿改成 `addAudioSource` 追加到末尾）。
+- `_prefetchSong` 会被 `isLoadingIndices` 拦截 → 「立即播放刚入队的歌」前必须先等它结束（`AudioService.addAndPlay` 已内置）。
+- 接口签名：web 用 salt `NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt` + appid 1014 + dfid=- 可匿名调 `/v1/search/*`、`/v2/search/song`；app(android) 用 salt `LnT6xpN3khm36zse0QzvmgTZ3waWdRSA`（isLite）+ appid 3116/clientver 11440，`/v6/search/complex` 与 gateway 接口还需设备注册 dfid，否则返回 20006。
 
 ## 运行环境（安卓模拟器）
 - **Android SDK 不在默认路径**，而在 `D:\runtime`（含 emulator / system-images / platforms / build-tools 全套）。已持久化用户级 `ANDROID_HOME=D:\runtime` 与 `ANDROID_SDK_ROOT=D:\runtime`。

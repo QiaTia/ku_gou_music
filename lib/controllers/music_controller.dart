@@ -73,6 +73,15 @@ class MusicController extends GetxController {
     await audioService.addToQueue(song);
   }
 
+  /// 将歌曲加入播放列表并立即切换到该歌曲播放
+  ///
+  /// 返回 true 表示已成功获取播放资源并开始播放；
+  /// 返回 false 表示资源获取失败（VIP 无权限 / 无版权等），
+  /// 失败原因可读取 [AudioService.lastUrlError]。
+  Future<bool> addAndPlaySong(SongItemStruct song) {
+    return audioService.addAndPlay(song);
+  }
+
   /// 插入歌曲到下一首播放
   Future<void> insertNextPlay(SongItemStruct song) async {
     await audioService.insertNext(song);

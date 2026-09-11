@@ -75,12 +75,12 @@ class User {
     if (user != null) {
       _user = UserStruct.fromJson(user);
     } else {
-      _user = UserStruct(
-        token: '3f26d402d64d4276dc8ad8cdd50814fdba1cbab7d88921c619bd45f8fe2dcb30',
-        dfid: '',
-        userid: 487837317,
-      );
-      storage.write(_userStorageKey, _user.toJson());
+      // _user = UserStruct(
+      //   token: '',
+      //   dfid: '',
+      //   userid: 0,
+      // );
+      // storage.write(_userStorageKey, _user.toJson());
     }
   }
 }

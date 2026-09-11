@@ -463,7 +463,29 @@ class PlaylistView extends GetView<PlaylistController> {
               if (len == 0) {
                 return SizedBox(
                   height: 200,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: controller.isFailed.value
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                size: 32,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '歌单加载失败',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              TextButton(
+                                onPressed: () => controller.getPlaylist(id),
+                                child: const Text('重试'),
+                              ),
+                            ],
+                          )
+                        : const CircularProgressIndicator(),
+                  ),
                 );
               }
               final item = controller.playlist[index];

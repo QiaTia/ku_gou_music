@@ -237,9 +237,39 @@ class AudioService extends GetxService {
   }
 
   Future<void> addToQueue(SongItemStruct song) async {
+    // 若该歌曲（按 hash 判定）已在列表中，直接返回，避免重复入队
+    if (songList.any((s) => s.hash == song.hash)) return;
+    // songList 与 playlist 必须保持等长，索引 i 才能稳定映射到 songList[i]
     songList.add(song);
-    // await player.add(AudioSource.uri(Uri.parse(song.url)));
     playlist.add(_generateSilenceSource(song));
+    // 仅为新条目预加载播放地址；等到用户真切到这首时若未加载会再重试
+    await _prefetchSong(song, songList.length - 1);
+  }
+
+  /// 将歌曲追加到播放列表并立即切换播放该歌曲。
+  ///
+  /// - 若歌曲（按 hash 判定）已在播放列表中，则直接切换到已有条目，避免重复入队；
+  /// - 否则追加到列表末尾，并预加载播放地址后切歌。
+  ///
+  /// 返回 true 表示已成功获取播放资源并开始播放；
+  /// 返回 false 表示未能获取资源（如 VIP 无权限 / 无版权）。
+  Future<bool> addAndPlay(SongItemStruct song) async {
+    // 等可能正在进行的预加载结束，否则本次预加载会被 isLoadingIndices 拦截，
+    // 导致刚入队的歌曲拿不到资源而误报失败
+    int waitCount = 0;
+    while (isLoadingIndices && waitCount < 100) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      waitCount++;
+    }
+
+    final existingIndex = songList.indexWhere((s) => s.hash == song.hash);
+    if (existingIndex >= 0) {
+      return playSongAtIndex(existingIndex);
+    }
+
+    songList.add(song);
+    playlist.add(_generateSilenceSource(song));
+    return playSongAtIndex(songList.length - 1);
   }
 
   /// 插入歌曲到下一首播放（当前播放歌曲之后）

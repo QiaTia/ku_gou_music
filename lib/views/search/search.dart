@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/models/search/search_album_info.dart';
 import 'package:ku_gou_music/models/search/search_author_info.dart';
 import 'package:ku_gou_music/models/search/search_complex_response.dart';
@@ -8,9 +9,37 @@ import 'package:ku_gou_music/models/search/search_mv_info.dart';
 import 'package:ku_gou_music/models/search/search_song_info.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
+import 'package:ku_gou_music/views/playlist/playlist.controller.dart'
+    show SongItemStruct;
 import 'search.controller.dart' as search_ctrl;
 
 const _greyBgColor = Color(0xFFF5F5F5);
+
+/// 歌单详情接口 `/pubsongs/v2/get_other_list_file_nofilt` 的 `global_collection_id`
+/// 只接受「全局收藏ID」（gid，形如 `collection_3_2132029040_287_0`）；
+/// 传数字 specialid 会返回 error_code=20010，详情页将拿不到任何歌曲。
+String _specialDetailId({required String gid, required int specialId}) {
+  if (gid.isNotEmpty) return gid;
+  return specialId > 0 ? specialId.toString() : '';
+}
+
+/// 将搜索返回的单曲信息转换为播放器使用的歌曲结构
+SongItemStruct _searchSongToItem(SearchSongInfo song) {
+  return SongItemStruct(
+    hash: song.fileHash,
+    name: song.displaySongName,
+    audio_id: song.id,
+    cover: song.image.isEmpty ? '' : getImageUri(song.image),
+    mvhash: song.mvHash,
+    // SearchSongInfo.duration 单位为秒，播放器统一用毫秒
+    timelen: song.duration * 1000,
+    origin_name: '${song.displayArtistName} - ${song.displaySongName}',
+    privilege: song.privilege,
+    author: song.displayArtistName,
+    is_hq: song.hqFileHash.isNotEmpty,
+    is_sq: song.sqFileHash.isNotEmpty,
+  );
+}
 
 class SearchPage extends StatelessWidget {
   final String? initialKeyword;
@@ -261,15 +290,19 @@ class SearchPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: collects.length,
             itemBuilder: (context, index) {
+              final collect = collects[index];
               return Container(
                 width: 160,
                 margin: const EdgeInsets.only(right: 12),
                 child: _SpecialCard(
-                  id: collects[index].specialId.toString(),
-                  name: stripHtmlTags(collects[index].specialName),
-                  img: collects[index].img,
-                  songCount: collects[index].songCount,
-                  nickname: collects[index].nickname,
+                  id: _specialDetailId(
+                    gid: collect.gid,
+                    specialId: collect.specialId,
+                  ),
+                  name: stripHtmlTags(collect.specialName),
+                  img: collect.img,
+                  songCount: collect.songCount,
+                  nickname: collect.nickname,
                 ),
               );
             },
@@ -443,13 +476,19 @@ class SearchPage extends StatelessWidget {
                 childAspectRatio: 0.82,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _SpecialCard(
-                  id: specials[index].gid,
-                  name: specials[index].displaySpecialName,
-                  img: specials[index].img,
-                  songCount: specials[index].songCount,
-                  nickname: specials[index].nickname,
-                ),
+                (context, index) {
+                  final special = specials[index];
+                  return _SpecialCard(
+                    id: _specialDetailId(
+                      gid: special.gid,
+                      specialId: special.specialId,
+                    ),
+                    name: special.displaySpecialName,
+                    img: special.img,
+                    songCount: special.songCount,
+                    nickname: special.nickname,
+                  );
+                },
                 childCount: specials.length,
               ),
             ),
@@ -685,64 +724,91 @@ class _SongListItem extends StatelessWidget {
 
   const _SongListItem({required this.song});
 
+  /// 点击单曲：加入播放列表并立即切换到这首歌播放
+  Future<void> _play() async {
+    final musicController = Get.find<MusicController>();
+    final ok = await musicController.addAndPlaySong(_searchSongToItem(song));
+    if (!ok) {
+      Get.snackbar(
+        '无法播放',
+        musicController.audioService.lastUrlError ??
+            '《${song.displaySongName}》暂时无法播放',
+      );
+      return;
+    }
+    Get.toNamed('/player');
+  }
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // TODO: 跳转到歌曲详情页
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: CachedNetworkImage(
-                  imageUrl: getImageUri(song.coverUrl150),
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
-                    color: _greyBgColor,
-                    child: const Icon(Icons.music_note, color: Colors.grey, size: 20),
+    final musicController = Get.find<MusicController>();
+    return Obx(() {
+      // 当前正在播放的歌曲高亮（与歌单页 / 播放列表保持一致）
+      final isPlaying = song.fileHash.isNotEmpty &&
+          musicController.currentSong?.hash == song.fileHash;
+      final playingColor = Theme.of(context).colorScheme.primary;
+
+      return InkWell(
+        onTap: _play,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: CachedNetworkImage(
+                    imageUrl: getImageUri(song.coverUrl150),
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => Container(
+                      color: _greyBgColor,
+                      child: const Icon(
+                        Icons.music_note,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    song.displaySongName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.primary,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      song.displaySongName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: playingColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    song.displayArtistName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      song.displayArtistName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Text(
-              song.durationLabel,
-              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-            ),
-          ],
+              isPlaying
+                  ? Icon(Icons.volume_up, size: 18, color: playingColor)
+                  : Text(
+                      song.durationLabel,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -873,8 +939,29 @@ class _SpecialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 详情页（PlaylistScreen）的封面用 Hero(tag: id) 承接转场，
+    // 这里必须用同一个 tag，否则点击进入详情时封面「飞入」动画会丢失。
+    Widget cover = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: CachedNetworkImage(
+          imageUrl: getImageUri(img),
+          fit: BoxFit.cover,
+          errorWidget: (context, url, error) => Container(
+            color: _greyBgColor,
+            child: const Icon(Icons.music_note, color: Colors.grey),
+          ),
+        ),
+      ),
+    );
+    if (id.isNotEmpty) {
+      cover = Hero(tag: id, child: cover);
+    }
+
     return InkWell(
       onTap: () {
+        if (id.isEmpty) return;
         Get.toNamed('/playlist/detail', arguments: {
           'id': id,
           'name': name,
@@ -884,20 +971,7 @@ class _SpecialCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: CachedNetworkImage(
-                imageUrl: getImageUri(img),
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Container(
-                  color: _greyBgColor,
-                  child: const Icon(Icons.music_note, color: Colors.grey),
-                ),
-              ),
-            ),
-          ),
+          cover,
           const SizedBox(height: 6),
           Expanded(
             child: Column(
