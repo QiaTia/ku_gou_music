@@ -30,7 +30,6 @@ import 'package:ku_gou_music/services/song_cache_service.dart';
 import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/home/pc/home/home.dart';
 import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
-import 'package:ku_gou_music/views/home/pc/plaza/plaza.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.dart';
 import 'package:ku_gou_music/views/home/pc/recently/recently.dart';
 import 'package:ku_gou_music/views/login/login_page.dart';
@@ -93,8 +92,7 @@ void main() {
       // 侧边栏品牌与菜单
       expect(find.text('Music'), findsWidgets);
       expect(find.text('首页'), findsOneWidget);
-      expect(find.text('广场'), findsOneWidget);
-      expect(find.text('排行榜'), findsOneWidget);
+      expect(find.text('发现'), findsOneWidget);
       expect(find.text('最近播放'), findsOneWidget);
       expect(find.text('我的'), findsOneWidget);
 
@@ -109,17 +107,13 @@ void main() {
     testWidgets('点击各菜单可切换到对应页面', (tester) async {
       await pumpApp(tester);
 
-      await tester.tap(find.text('排行榜'));
+      await tester.tap(find.text('发现'));
       await tester.pumpAndSettle();
       expect(find.byType(RankingPage), findsOneWidget);
 
       await tester.tap(find.text('最近播放'));
       await tester.pumpAndSettle();
       expect(find.byType(RecentlyPage), findsOneWidget);
-
-      await tester.tap(find.text('广场'));
-      await tester.pumpAndSettle();
-      expect(find.byType(PlazaPage), findsOneWidget);
 
       // 默认存在 token，进入「我的」页而非登录页
       await tester.tap(find.text('我的'));

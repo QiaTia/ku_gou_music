@@ -65,15 +65,6 @@ class Sidebar extends StatelessWidget {
           routerController.navigateTo('/home');
         },
       ),
-      SidebarItemStruct(
-        label: 'albums',
-        content: '广场',
-        leading: Icon(Icons.all_inclusive_sharp, size: 30),
-        route: '/plaza',
-        onTap: () {
-          routerController.navigateTo('/plaza');
-        },
-      ),
       // Divider
       SidebarItemStruct(
         label: 'divider_line',
@@ -89,12 +80,12 @@ class Sidebar extends StatelessWidget {
         ),
       ),
       SidebarItemStruct(
-        label: 'ranking',
-        content: '排行榜',
-        leading: Icon(Icons.trending_up, size: 30),
-        route: '/ranking',
+        label: 'discover',
+        content: '发现',
+        leading: Icon(Icons.explore, size: 30),
+        route: '/discover',
         onTap: () {
-          routerController.navigateTo('/ranking');
+          routerController.navigateTo('/discover');
         },
       ),
       SidebarItemStruct(

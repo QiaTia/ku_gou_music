@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/api/discover/discover.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.controller.dart';
+import 'package:ku_gou_music/views/home/pc/ranking/ranking_layout.dart';
 
 /// 音乐榜单内容（对应 RankingContent.vue）
 class RankingContent extends StatefulWidget {
@@ -52,7 +53,7 @@ class _RankingContentState extends State<RankingContent> {
           Expanded(
             child: GridView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(bottom: DiscoverLayout.bottomInset(context)),
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 700,
                 mainAxisSpacing: 18,

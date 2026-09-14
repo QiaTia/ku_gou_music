@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
 import 'package:ku_gou_music/config/config.dart';
+import 'package:ku_gou_music/controllers/settings_controller.dart';
 import 'package:ku_gou_music/views/home/mobile/layout.dart';
 import 'package:ku_gou_music/views/playlist/playlist.dart';
 import 'package:layout/layout.dart';
@@ -40,8 +41,10 @@ void main() async {
   );
 
   await GetStorage.init();
+  await GetStorage.init(SettingsController.boxName);
   // 初始化歌曲缓存服务（必须在 runApp 之前，AudioService 依赖它）
   await Get.putAsync<SongCacheService>(() => SongCacheService().init());
+  Get.put(SettingsController());
   userInstance.init();
   if (userInstance.dfid.isEmpty) {
     registerDevice()
@@ -58,43 +61,55 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  ThemeData _buildTheme(SettingsController settings, Brightness brightness) {
+    final primary = settings.primaryColor;
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primary,
+        brightness: brightness,
+      ).copyWith(primary: primary),
+      fontFamily: settings.fontFamily,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < size.height;
+    final settings = Get.find<SettingsController>();
 
     return Layout(
-      child: GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        scrollBehavior: DesktopScrollBehavior(),
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: appPrimaryColor,
-          ).copyWith(primary: appPrimaryColor),
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: appPrimaryColor,
-            brightness: Brightness.dark,
-          ).copyWith(primary: appPrimaryColor),
-        ),
-        initialBinding: MusicBinding(),
-        home: isMobile ? const MobileLayoutPage() : const HomePage(),
-        navigatorObservers: [routeObserver],
-        routes: {
-          '/player': (context) => MusicPlayerScreen(),
-          '/playlist': (context) => const CurrentPlaylistScreen(),
-          '/login': (context) => const LoginPage(),
-          '/playlist/detail': (context) {
-            final args =
-                ModalRoute.of(context)?.settings.arguments
-                    as Map<String, dynamic>?;
-            return PlaylistScreen(
-              name: args?['name'],
-              id: args?['id'],
-              pic: args?['pic'],
-            );
-          },
+      child: Obx(
+        // 读取主题相关 obs，主题切换时整体重建
+        () {
+          settings.values['theme'];
+          settings.values['themeColor'];
+          settings.values['font'];
+          return GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            scrollBehavior: DesktopScrollBehavior(),
+            themeMode: settings.themeMode,
+            theme: _buildTheme(settings, Brightness.light),
+            darkTheme: _buildTheme(settings, Brightness.dark),
+            initialBinding: MusicBinding(),
+            home: isMobile ? const MobileLayoutPage() : const HomePage(),
+            navigatorObservers: [routeObserver],
+            routes: {
+              '/player': (context) => MusicPlayerScreen(),
+              '/playlist': (context) => const CurrentPlaylistScreen(),
+              '/login': (context) => const LoginPage(),
+              '/playlist/detail': (context) {
+                final args =
+                    ModalRoute.of(context)?.settings.arguments
+                        as Map<String, dynamic>?;
+                return PlaylistScreen(
+                  name: args?['name'],
+                  id: args?['id'],
+                  pic: args?['pic'],
+                );
+              },
+            },
+          );
         },
       ),
     );

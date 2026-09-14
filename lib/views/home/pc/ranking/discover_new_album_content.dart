@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/discover/discover.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.controller.dart';
+import 'package:ku_gou_music/views/home/pc/ranking/ranking_layout.dart';
 
 /// 新碟上架内容（对应 DiscoverNewAlbumContent.vue）
 class DiscoverNewAlbumContent extends StatefulWidget {
@@ -190,12 +191,12 @@ class _AlbumGrid extends StatelessWidget {
       }
       return GridView.builder(
         controller: scrollController,
-        padding: const EdgeInsets.only(bottom: 20),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 210,
-          mainAxisSpacing: 18,
-          crossAxisSpacing: 18,
-          childAspectRatio: 0.72,
+        padding: EdgeInsets.only(bottom: DiscoverLayout.bottomInset(context)),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: DiscoverLayout.gridMaxExtent(context),
+          mainAxisSpacing: DiscoverLayout.gridSpacing(context),
+          crossAxisSpacing: DiscoverLayout.gridSpacing(context),
+          childAspectRatio: DiscoverLayout.gridAspectRatio(context),
         ),
         itemCount: albums.length,
         itemBuilder: (context, index) => _AlbumCard(album: albums[index]),
@@ -255,8 +256,8 @@ class _AlbumCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            SizedBox(
-              height: 40,
+            // Expanded 让简介自适应剩余空间，避免固定高度在小宽度卡片下溢出
+            Expanded(
               child: Text(
                 description,
                 maxLines: 2,
@@ -284,12 +285,12 @@ class _AlbumSkeleton extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF0F1F5);
     return GridView.builder(
-      padding: const EdgeInsets.only(bottom: 20),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 210,
-        mainAxisSpacing: 18,
-        crossAxisSpacing: 18,
-        childAspectRatio: 0.72,
+      padding: EdgeInsets.only(bottom: DiscoverLayout.bottomInset(context)),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: DiscoverLayout.gridMaxExtent(context),
+        mainAxisSpacing: DiscoverLayout.gridSpacing(context),
+        crossAxisSpacing: DiscoverLayout.gridSpacing(context),
+        childAspectRatio: DiscoverLayout.gridAspectRatio(context),
       ),
       itemCount: 12,
       itemBuilder: (context, index) => Container(

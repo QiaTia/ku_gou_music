@@ -6,6 +6,7 @@ import 'package:ku_gou_music/views/home/pc/recently/recently.dart';
 import 'package:ku_gou_music/views/my/my.dart';
 import 'package:ku_gou_music/views/playlist/playlist.dart';
 import 'package:ku_gou_music/views/search/search.dart';
+import 'package:ku_gou_music/views/settings/settings.dart';
 import '../home/home.dart';
 
 /// 路由注册表
@@ -13,9 +14,9 @@ Map<String, Widget Function(BuildContext)> routes = {
   '/home': (context) => const HomeTopPage(),
   '/plaza': (_) => const PlazaPage(),
   '/artists': (context) => SizedBox.shrink(),
-  '/settings': (context) => SizedBox.shrink(),
+  '/settings': (context) => const SettingsPage(),
   '/albums': (context) => SizedBox.shrink(),
-  '/ranking': (context) => const RankingPage(),
+  '/discover': (context) => const RankingPage(),
   '/profile': (context) => SizedBox.shrink(),
   '/recently': (context) => const RecentlyPage(),
   '/my': (context) => const MyScreen(),

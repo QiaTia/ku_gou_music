@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ku_gou_music/api/discover/discover.dart';
 import 'package:ku_gou_music/utils/utils.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.controller.dart';
+import 'package:ku_gou_music/views/home/pc/ranking/ranking_layout.dart';
 
 /// 新歌速递内容（对应 DiscoverNewSongContent.vue）
 class DiscoverNewSongContent extends StatefulWidget {
@@ -55,7 +56,7 @@ class _DiscoverNewSongContentState extends State<DiscoverNewSongContent> {
           Expanded(
             child: ListView.separated(
               controller: _scrollController,
-              padding: const EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(bottom: DiscoverLayout.bottomInset(context)),
               itemCount: controller.newSongs.length,
               separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemBuilder: (context, index) => _NewSongItem(
@@ -65,7 +66,15 @@ class _DiscoverNewSongContentState extends State<DiscoverNewSongContent> {
             ),
           ),
           if (controller.totalSongPages.value > 1)
-            _SongPagination(controller: controller),
+            // 分页器在滚动区之外，移动端会被悬浮 TabBar 盖住，需要单独避让
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: DiscoverLayout.isCompact(context)
+                    ? DiscoverLayout.mobileTabBarHeight
+                    : 0,
+              ),
+              child: _SongPagination(controller: controller),
+            ),
         ],
       );
     });

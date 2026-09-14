@@ -184,7 +184,7 @@ class TitleBar extends StatelessWidget implements PreferredSizeWidget {
                   if (actions == null)
                     IconButton(
                       onPressed: () {
-                      // panelManager.pushPanel('settings');
+                        controller.navigateTo('/settings');
                       },
                       icon: Icon(Icons.settings_outlined, size: 20),
                     ),

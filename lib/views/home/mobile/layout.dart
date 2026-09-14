@@ -70,11 +70,12 @@ class _MobileLayoutPageState extends State<MobileLayoutPage> {
           currentIndex: _currentIndex,
           musicController: musicController,
           onTap: (index) {
+            // 我的（末位 Tab）需要登录态
             if (index == 3 && userInstance.token.isEmpty) {
               Get.toNamed('/login');
               return;
             }
-            final paths = ['/home', '/plaza', '/ranking', '/my'];
+            final paths = ['/home', '/discover', '/recently', '/my'];
             routerController.navigateTo(paths[index]);
             setState(() => _currentIndex = index);
           },

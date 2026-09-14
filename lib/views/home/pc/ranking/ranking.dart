@@ -6,6 +6,7 @@ import 'package:ku_gou_music/views/home/pc/ranking/discover_new_song_content.dar
 import 'package:ku_gou_music/views/home/pc/ranking/discover_playlist_content.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.controller.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking_content.dart';
+import 'package:ku_gou_music/views/home/pc/ranking/ranking_layout.dart';
 
 /// 发现页（对应 MoeKoeMusic 的 Discover.vue）
 ///
@@ -47,7 +48,7 @@ class _RankingPageState extends State<RankingPage> {
             const _CollapsingHeader(),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                padding: DiscoverLayout.contentPadding(context),
                 child: Stack(
                   children: [
                     Obx(() {
@@ -62,10 +63,11 @@ class _RankingPageState extends State<RankingPage> {
                           return const DiscoverNewSongContent();
                       }
                     }),
-                    const Positioned(
+                    Positioned(
                       right: 0,
-                      bottom: 0,
-                      child: _BackToTopButton(),
+                      // 移动端底部有悬浮 TabBar（外层 extendBody），按钮需上移避让
+                      bottom: DiscoverLayout.isCompact(context) ? 76 : 0,
+                      child: const _BackToTopButton(),
                     ),
                   ],
                 ),
@@ -152,11 +154,18 @@ class _CollapsingHeader extends StatelessWidget {
             children: [
               backIcon(),
               Expanded(
-                child: Center(
-                  child: SizedBox(
-                    width: 420,
-                    child: _DiscoverSwitch(),
-                  ),
+                // 窄屏（手机）下 420 固定宽会顶破行约束，按可用宽度收敛
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width =
+                        constraints.maxWidth < 420 ? constraints.maxWidth : 420.0;
+                    return Center(
+                      child: SizedBox(
+                        width: width,
+                        child: const _DiscoverSwitch(),
+                      ),
+                    );
+                  },
                 ),
               ),
               SizedBox(width: 48, child: Center(child: setIcon())),
@@ -184,6 +193,9 @@ class _DiscoverSwitch extends StatelessWidget {
     final controller = Get.find<DiscoverController>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
+    // 窄屏收窄字号，保证四个 Tab 文字不挤爆
+    final compact = DiscoverLayout.isCompact(context);
+    final fontSize = compact ? 12.5 : 14.0;
 
     return Obx(() {
       final activeIndex =
@@ -245,8 +257,10 @@ class _DiscoverSwitch extends StatelessWidget {
                                 child: Center(
                                   child: Text(
                                     tab.$2,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: fontSize,
                                       fontWeight: FontWeight.w600,
                                       color: index == activeIndex
                                           ? primary

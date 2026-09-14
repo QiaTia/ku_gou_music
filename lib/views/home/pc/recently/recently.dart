@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/services/play_history_service.dart';
 import 'package:ku_gou_music/views/home/pc/layout/title_bar.dart';
+import 'package:ku_gou_music/views/home/pc/ranking/ranking_layout.dart';
 import 'package:ku_gou_music/views/home/pc/recently/recently.controller.dart';
 
 /// 最近播放页面
@@ -102,9 +103,13 @@ class _RecentlyPageState extends State<RecentlyPage>
   /// 构建Tab栏
   Widget _buildTabBar() {
     final tabs = _controller.tabTitles;
+    final isCompact = DiscoverLayout.isCompact(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isCompact ? 12 : 20,
+        vertical: 8,
+      ),
       child: Row(
         children: List.generate(tabs.length, (index) {
           return Obx(() {
@@ -112,8 +117,11 @@ class _RecentlyPageState extends State<RecentlyPage>
             return GestureDetector(
               onTap: () => _controller.switchTab(index),
               child: Container(
-                margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                margin: EdgeInsets.only(right: isCompact ? 8 : 16),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 12 : 16,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
@@ -138,6 +146,11 @@ class _RecentlyPageState extends State<RecentlyPage>
     );
   }
 
+  /// 列表底部内边距：移动端需要避开悬浮 TabBar（extendBody: true）
+  EdgeInsets _listPadding() {
+    return EdgeInsets.fromLTRB(20, 8, 20, DiscoverLayout.bottomInset(context));
+  }
+
   /// 构建歌曲列表
   Widget _buildSongList() {
     return Obx(() {
@@ -146,7 +159,7 @@ class _RecentlyPageState extends State<RecentlyPage>
         return _buildEmptyState('暂无最近播放的歌曲');
       }
       return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: _listPadding(),
         itemCount: songs.length,
         itemBuilder: (context, index) {
           final song = songs[index];
@@ -170,7 +183,7 @@ class _RecentlyPageState extends State<RecentlyPage>
         return _buildEmptyState('暂无最近播放的歌单');
       }
       return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: _listPadding(),
         itemCount: playlists.length,
         itemBuilder: (context, index) {
           final playlist = playlists[index];
@@ -194,7 +207,7 @@ class _RecentlyPageState extends State<RecentlyPage>
         return _buildEmptyState('暂无最近播放的专辑');
       }
       return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: _listPadding(),
         itemCount: albums.length,
         itemBuilder: (context, index) {
           final album = albums[index];
@@ -238,8 +251,13 @@ class _RecentlyPageState extends State<RecentlyPage>
   Widget _buildBottomEditBar() {
     return Obx(() {
       if (!_controller.isEditing.value) return const SizedBox.shrink();
+      // 移动端外壳是 extendBody: true，底部编辑栏会被悬浮 TabBar 遮挡，
+      // 这里补上避开悬浮 TabBar 的下内边距。
+      final bottomAvoid = DiscoverLayout.isCompact(context)
+          ? DiscoverLayout.mobileTabBarHeight
+          : 0.0;
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 12 + bottomAvoid),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           border: Border(

@@ -23,17 +23,37 @@ class LiquidGlassBottomBar extends StatelessWidget {
 
   static const _items = [
     _BarItem(icon: Icons.home, label: '首页'),
-    _BarItem(icon: Icons.all_inclusive_sharp, label: '广场'),
-    _BarItem(icon: Icons.trending_up, label: '排行榜'),
+    _BarItem(icon: Icons.explore, label: '发现'),
+    _BarItem(icon: Icons.history, label: '最近播放'),
     _BarItem(icon: Icons.playlist_play, label: '我的'),
   ];
 
-  /// 单个选项卡固定宽度（选中态不再加横向内边距，宽度保持不变）
-  static const double _itemWidth = 60.0;
+  /// 单个选项卡的最大宽度（窄屏会按可用宽度收敛，避免溢出）
+  static const double _maxItemWidth = 60.0;
+
+  /// 右侧圆形封面直径
+  static const double _albumCoverSize = 58.0;
+
+  /// 胶囊与封面之间的间隔
+  static const double _gap = 12.0;
+
+  /// 胶囊左右内边距
+  static const double _pillPadding = 8.0;
 
   @override
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).colorScheme.primary;
+
+    // 窄屏收敛：4 项 + 右侧封面在 360px 级屏幕上按最大宽度会溢出，
+    // 这里按可用宽度反推每项宽度（下限 46，保证图标 22 + 文字可容纳）。
+    final available = MediaQuery.sizeOf(context).width;
+    final pillChrome = _pillPadding * 2 + _gap + _albumCoverSize;
+    final itemWidth = ((available - pillChrome - 16) / _items.length)
+        .clamp(46.0, _maxItemWidth)
+        .toDouble();
+
+    // 选项卡药丸背景宽度（比单元格窄，居中显示）
+    final pillWidth = (itemWidth - 12).clamp(36.0, 48.0).toDouble();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -46,7 +66,7 @@ class LiquidGlassBottomBar extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
             child: Container(
               height: 66,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: _pillPadding),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
@@ -73,6 +93,8 @@ class LiquidGlassBottomBar extends StatelessWidget {
                     item: _items[i],
                     isSelected: i == currentIndex,
                     activeBg: themeColor,
+                    width: itemWidth,
+                    pillWidth: pillWidth,
                     onTap: () => onTap(i),
                   );
                 }),
@@ -80,9 +102,9 @@ class LiquidGlassBottomBar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: _gap),
         // 右侧：当前播放歌曲的旋转封面组件（取代原搜索按钮）
-        _AlbumCoverButton(controller: musicController),
+        _AlbumCoverButton(controller: musicController, size: _albumCoverSize),
       ],
     );
   }
@@ -99,12 +121,16 @@ class _BarItemWidget extends StatelessWidget {
   final _BarItem item;
   final bool isSelected;
   final Color activeBg;
+  final double width;
+  final double pillWidth;
   final VoidCallback onTap;
 
   const _BarItemWidget({
     required this.item,
     required this.isSelected,
     required this.activeBg,
+    required this.width,
+    required this.pillWidth,
     required this.onTap,
   });
 
@@ -119,11 +145,11 @@ class _BarItemWidget extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: LiquidGlassBottomBar._itemWidth,
+        width: width,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          width: 48,
+          width: pillWidth,
           height: 40,
           alignment: Alignment.center,
           decoration: isSelected
@@ -148,13 +174,17 @@ class _BarItemWidget extends StatelessWidget {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 250),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: item.label.length > 2 ? 9 : 10,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: labelColor,
                   letterSpacing: 0.2,
                   height: 1.1,
                 ),
-                child: Text(item.label),
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(height: 1),
             ],
@@ -170,8 +200,9 @@ class _BarItemWidget extends StatelessWidget {
 /// 复刻原始中间 FAB 的 [RotatingAlbumCover]，置于右侧并与左侧选项卡垂直对齐。
 class _AlbumCoverButton extends StatelessWidget {
   final MusicController controller;
+  final double size;
 
-  const _AlbumCoverButton({required this.controller});
+  const _AlbumCoverButton({required this.controller, required this.size});
 
   void _openPlayer() {
     Get.to(() => const MusicPlayerScreen());
@@ -183,8 +214,8 @@ class _AlbumCoverButton extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
-          width: 58,
-          height: 58,
+          width: size,
+          height: size,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -212,8 +243,8 @@ class _AlbumCoverButton extends StatelessWidget {
               onTap: _openPlayer,
               child: Center(
                 child: SizedBox(
-                  width: 50,
-                  height: 50,
+                  width: size - 8,
+                  height: size - 8,
                   child: RotatingAlbumCover(musicController: controller),
                 ),
               ),
