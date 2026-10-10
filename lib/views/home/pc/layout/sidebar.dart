@@ -58,7 +58,7 @@ class Sidebar extends StatelessWidget {
     final List<SidebarItemStruct> menuList = [
       SidebarItemStruct(
         label: 'home',
-        content: '首页',
+        content: '首页'.tr.tr,
         leading: Icon(Icons.home, size: 30),
         route: '/home',
         onTap: () {
@@ -81,7 +81,7 @@ class Sidebar extends StatelessWidget {
       ),
       SidebarItemStruct(
         label: 'discover',
-        content: '发现',
+        content: '发现'.tr.tr,
         leading: Icon(Icons.explore, size: 30),
         route: '/discover',
         onTap: () {
@@ -90,7 +90,7 @@ class Sidebar extends StatelessWidget {
       ),
       SidebarItemStruct(
         label: 'recently',
-        content: '最近播放',
+        content: '最近播放'.tr.tr,
         leading: Icon(Icons.history, size: 30),
         route: '/recently',
         onTap: () {
@@ -113,7 +113,7 @@ class Sidebar extends StatelessWidget {
       ),
       SidebarItemStruct(
         label: 'playlists',
-        content: '我的',
+        content: '我的'.tr.tr,
         leading: Icon(Icons.playlist_play, size: 30),
         route: '/my',
         onTap: () {

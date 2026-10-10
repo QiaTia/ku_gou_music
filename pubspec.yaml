@@ -63,6 +63,16 @@ dependencies:
   video_player_media_kit: ^2.0.0
   media_kit_libs_windows_video: ^1.0.11
   media_kit_native_event_loop: ^1.0.9
+  window_manager: ^0.5.2
+  system_tray: ^0.1.1
+  flutter_localizations:
+    sdk: flutter
+
+# 本地修复 fork：上游 3.4.2 在 Windows 上并发写缓存索引 JSON 触发 errno 5，
+# 修复点见 third_party/flutter_cache_manager/lib/src/storage/cache_info_repositories/json_cache_info_repository.dart
+dependency_overrides:
+  flutter_cache_manager:
+    path: third_party/flutter_cache_manager
 
 dev_dependencies:
   flutter_test:
@@ -76,8 +86,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  build_runner: ^2.4.13 
-  freezed: ^3.2.5 
+  analyzer: ^10.2.0
+  build_runner: ^2.4.13
+  freezed: ^3.2.5
   json_serializable: ^6.14.0
   basic_utils: ^5.7.0 # 用于解析 PEM 公钥
   
@@ -95,6 +106,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/i18n/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

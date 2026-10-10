@@ -49,13 +49,14 @@ class SearchController extends GetxController {
   final RxBool isFailed = false.obs;
 
   /// Tab 名称映射
-  static const List<Map<String, String>> tabs = [
-    {'key': 'complex', 'label': '综合'},
-    {'key': 'song', 'label': '单曲'},
-    {'key': 'special', 'label': '歌单'},
-    {'key': 'album', 'label': '专辑'},
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static List<Map<String, String>> get tabs => [
+    {'key': 'complex', 'label': '综合'.tr},
+    {'key': 'song', 'label': '单曲'.tr},
+    {'key': 'special', 'label': '歌单'.tr},
+    {'key': 'album', 'label': '专辑'.tr},
     {'key': 'mv', 'label': 'MV'},
-    {'key': 'author', 'label': '歌手'},
+    {'key': 'author', 'label': '歌手'.tr},
   ];
 
   /// 执行综合搜索

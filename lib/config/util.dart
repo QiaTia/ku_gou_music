@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:get/get.dart';
 export 'config.dart';
 export '../api/request/helper.dart';
 import 'dart:typed_data';
@@ -234,7 +235,7 @@ dynamic cryptoAesDecrypt(String data, String key, [String? iv]) {
     final validBytes = encryptedBytes.sublist(0, paddedLength);
     
     if (validBytes.isEmpty) {
-      throw Exception('解密数据为空');
+      throw Exception('解密数据为空'.tr);
     }
     
     final encrypted = enc.Encrypted(Uint8List.fromList(validBytes));
@@ -247,7 +248,8 @@ dynamic cryptoAesDecrypt(String data, String key, [String? iv]) {
       return decrypted;
     }
   } catch (e) {
-    throw Exception('AES解密失败: $e');
+    // 模板翻译后注入变量：\$e 保持字面 $e 以命中词典模板键
+    throw Exception('AES解密失败: \$e'.tr.replaceAll(r'$e', e.toString()));
   }
 }
 
@@ -429,7 +431,7 @@ dynamic playlistAesDecrypt(Map<String, String> data) {
     final validBytes = encryptedBytes.sublist(0, paddedLength);
     
     if (validBytes.isEmpty) {
-      throw Exception('解密数据为空');
+      throw Exception('解密数据为空'.tr);
     }
     
     // 执行AES-128-CBC解密
@@ -446,7 +448,10 @@ dynamic playlistAesDecrypt(Map<String, String> data) {
       return decrypted;
     }
   } catch (e) {
-    throw Exception('播放列表AES解密失败: $e');
+    // 模板翻译后注入变量：\$e 保持字面 $e 以命中词典模板键
+    throw Exception(
+      '播放列表AES解密失败: \$e'.tr.replaceAll(r'$e', e.toString()),
+    );
   }
 }
 

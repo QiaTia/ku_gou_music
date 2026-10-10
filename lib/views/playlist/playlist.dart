@@ -17,34 +17,34 @@ Future<void> collectSongToLike(SongItemStruct song) async {
     final res = await getUserPlaylist(page: 1, pagesize: 100);
     final list = res.body?['data']?['list'];
     if (list is! List) {
-      throw Exception(res.body?['msg'] ?? '获取歌单失败');
+      throw Exception(res.body?['msg'] ?? '获取歌单失败'.tr);
     }
     Map<String, dynamic>? like;
     for (final item in list) {
-      if (item is Map && item['name']?.toString() == '我喜欢') {
+      if (item is Map && item['name']?.toString() == '我喜欢'.tr) {
         like = Map<String, dynamic>.from(item);
         break;
       }
     }
     if (like == null) {
-      Get.snackbar('提示', '未找到「我喜欢」歌单', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('提示'.tr, '未找到「我喜欢」歌单'.tr, snackPosition: SnackPosition.BOTTOM);
       return;
     }
     final listid = like['listid'];
     if (listid is! int) {
-      Get.snackbar('提示', '「我喜欢」歌单信息异常', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('提示'.tr, '「我喜欢」歌单信息异常'.tr, snackPosition: SnackPosition.BOTTOM);
       return;
     }
     // 与 AddToPlaylistDialog 一致的 name|hash|albumId|mixSongId 格式
     final songData = '${song.name}|${song.hash}|0|${song.audio_id}';
     final addRes = await addToPlaylist(songsData: [songData], listId: listid);
     if (addRes.body?['status'] == 1) {
-      Get.snackbar('提示', '已收藏到「我喜欢」', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('提示'.tr, '已收藏到「我喜欢」'.tr, snackPosition: SnackPosition.BOTTOM);
     } else {
-      throw Exception(addRes.body?['msg'] ?? '收藏失败');
+      throw Exception(addRes.body?['msg'] ?? '收藏失败'.tr);
     }
   } catch (e) {
-    Get.snackbar('收藏失败', '$e', snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar('收藏失败'.tr, '$e', snackPosition: SnackPosition.BOTTOM);
   }
 }
 
@@ -138,14 +138,14 @@ class PlaylistScreen extends GetWidget {
                       IconButton(
                         onPressed: onPlayPlaylist,
                         iconSize: 28,
-                        tooltip: '播放全部',
+                        tooltip: '播放全部'.tr,
                         icon: Icon(Icons.play_circle_outline_rounded),
                       ),
                       IconButton(
                         onPressed: () =>
                             controller.toggleFavorite(gid: id, name: name),
                         iconSize: 28,
-                        tooltip: '收藏',
+                        tooltip: '收藏'.tr,
                         icon: Obx(
                           () => Icon(
                             controller.isFavorited.value
@@ -160,13 +160,13 @@ class PlaylistScreen extends GetWidget {
                       IconButton(
                         onPressed: () {},
                         iconSize: 28,
-                        tooltip: '下载',
+                        tooltip: '下载'.tr,
                         icon: Icon(Icons.download_outlined),
                       ),
                       IconButton(
                         onPressed: () {},
                         iconSize: 28,
-                        tooltip: '分享',
+                        tooltip: '分享'.tr,
                         icon: Icon(Icons.share_outlined),
                       ),
                     ],
@@ -345,7 +345,7 @@ class PlaylistScreen extends GetWidget {
                                 icon: const Icon(Icons.play_arrow_rounded),
                                 label: Obx(
                                   () => Text(
-                                    '播放全部 (${controller.playlist.length})',
+                                    '播放全部 (${controller.playlist.length})'.tr,
                                   ),
                                 ),
                                 style: FilledButton.styleFrom(
@@ -362,7 +362,7 @@ class PlaylistScreen extends GetWidget {
                                   controller.isFavorited.value
                                       ? Icons.favorite_rounded
                                       : Icons.favorite_outline_rounded,
-                                  controller.isFavorited.value ? '已收藏' : '收藏',
+                                  controller.isFavorited.value ? '已收藏'.tr : '收藏'.tr,
                                   onPressed: () => controller.toggleFavorite(
                                       gid: id, name: name),
                                   foreground: controller.isFavorited.value
@@ -371,9 +371,9 @@ class PlaylistScreen extends GetWidget {
                                 ),
                               ),
                               const SizedBox(width: 10),
-                              _bannerButton(Icons.download_outlined, '下载'),
+                              _bannerButton(Icons.download_outlined, '下载'.tr),
                               const SizedBox(width: 10),
-                              _bannerButton(Icons.share_outlined, '分享'),
+                              _bannerButton(Icons.share_outlined, '分享'.tr),
                             ],
                           ),
                         ],
@@ -536,12 +536,12 @@ class PlaylistView extends GetView<PlaylistController> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '歌单加载失败',
+                                '歌单加载失败'.tr,
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                               TextButton(
                                 onPressed: () => controller.getPlaylist(id),
-                                child: const Text('重试'),
+                                child:  Text('重试'.tr),
                               ),
                             ],
                           )
@@ -645,7 +645,7 @@ class PlaylistView extends GetView<PlaylistController> {
                   // 操作选项
                   _buildOptionTile(context,
                     icon: Icons.play_arrow,
-                    label: '立即播放',
+                    label: '立即播放'.tr,
                     onTap: () async {
                       Get.back();
                       await musicController.loadPlaylistMusic(controller.playlist);
@@ -656,7 +656,7 @@ class PlaylistView extends GetView<PlaylistController> {
                   ),
                   _buildOptionTile(context,
                     icon: Icons.queue_music,
-                    label: '下一首播放',
+                    label: '下一首播放'.tr,
                     onTap: () {
                       Get.back();
                       // TODO: 添加到下一首播放
@@ -664,7 +664,7 @@ class PlaylistView extends GetView<PlaylistController> {
                   ),
                   _buildOptionTile(context,
                     icon: Icons.playlist_add,
-                    label: '添加到歌单',
+                    label: '添加到歌单'.tr,
                     onTap: () {
                       Get.back();
                       showAddToPlaylistDialog(context, song);
@@ -672,7 +672,7 @@ class PlaylistView extends GetView<PlaylistController> {
                   ),
                   _buildOptionTile(context,
                     icon: Icons.favorite_border,
-                    label: '收藏',
+                    label: '收藏'.tr,
                     onTap: () {
                       Get.back();
                       collectSongToLike(song);
@@ -681,7 +681,7 @@ class PlaylistView extends GetView<PlaylistController> {
                   if (song.mvhash.isNotEmpty)
                     _buildOptionTile(context,
                       icon: Icons.music_video_outlined,
-                      label: '播放MV',
+                      label: '播放MV'.tr,
                       onTap: () {
                         Get.back();
                         Get.toNamed(
@@ -692,14 +692,14 @@ class PlaylistView extends GetView<PlaylistController> {
                     ),
                   _buildOptionTile(context,
                     icon: Icons.share,
-                    label: '分享',
+                    label: '分享'.tr,
                     onTap: () {
                       Get.back();
                     },
                   ),
                   _buildOptionTile(context,
                     icon: Icons.delete_outline,
-                    label: '从列表中移除',
+                    label: '从列表中移除'.tr,
                     textColor: Colors.red,
                     iconColor: Colors.red,
                     onTap: () {
@@ -768,7 +768,7 @@ class _PlaylistTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              '歌名',
+              '歌名'.tr,
               style: TextStyle(fontSize: 13, color: textColor),
             ),
           ),
@@ -777,7 +777,7 @@ class _PlaylistTableHeader extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Text(
-                '歌手',
+                '歌手'.tr,
                 style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
@@ -786,7 +786,7 @@ class _PlaylistTableHeader extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Text(
-                '专辑',
+                '专辑'.tr,
                 style: TextStyle(fontSize: 13, color: textColor),
               ),
             ),
@@ -794,7 +794,7 @@ class _PlaylistTableHeader extends StatelessWidget {
           SizedBox(
             width: 60,
             child: Text(
-              '时间',
+              '时间'.tr,
               style: TextStyle(fontSize: 13, color: textColor),
               textAlign: TextAlign.right,
             ),
@@ -1000,7 +1000,7 @@ class _PlaylistSongRow extends StatelessWidget {
               IconButton(
                 onPressed: onLongPress,
                 icon: Icon(Icons.more_vert, size: 20, color: subColor),
-                tooltip: '更多',
+                tooltip: '更多'.tr,
                 visualDensity: VisualDensity.compact,
               ),
           ],
@@ -1114,7 +1114,7 @@ class ExpandText extends GetView {
                 onPressed: () {
                   fullIntro.value = !fullIntro.value;
                 },
-                child: Text(fullIntro.value ? '加载更少' : '加载更多'),
+                child: Text(fullIntro.value ? '加载更少'.tr : '加载更多'.tr),
               ),
             ],
           );

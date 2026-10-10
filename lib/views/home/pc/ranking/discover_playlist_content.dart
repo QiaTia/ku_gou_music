@@ -48,10 +48,10 @@ class _DiscoverPlaylistContentState extends State<DiscoverPlaylistContent> {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.grey),
               const SizedBox(height: 12),
-              const Text('获取歌单失败'),
+               Text('获取歌单失败'.tr),
               TextButton(
                 onPressed: controller.ensurePlaylistData,
-                child: const Text('重试'),
+                child:  Text('重试'.tr),
               ),
             ],
           ),
@@ -252,8 +252,8 @@ class _PlaylistGrid extends StatelessWidget {
     return Obx(() {
       final items = controller.playlists;
       if (items.isEmpty) {
-        return const Center(
-          child: Text('暂无歌单', style: TextStyle(color: Colors.grey)),
+        return  Center(
+          child: Text('暂无歌单'.tr, style: TextStyle(color: Colors.grey)),
         );
       }
       return GridView.builder(

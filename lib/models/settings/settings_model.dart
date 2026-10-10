@@ -260,8 +260,6 @@ List<SettingSection> buildSettingSections() => [
             selectionTitle: '平衡音频响度(实验性)',
             emoji: '🎚️ ',
             options: [_on, _off],
-            showRefreshHint: true,
-            refreshHintText: '刷新后生效',
           ),
           SettingItem(
             key: 'pauseOnAudioOutputChange',

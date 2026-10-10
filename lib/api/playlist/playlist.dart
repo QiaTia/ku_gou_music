@@ -1,4 +1,5 @@
 import 'package:ku_gou_music/models/tag.dart';
+import 'package:get/get.dart';
 
 import '../request/request.dart';
 
@@ -66,6 +67,6 @@ Future<List<Tag>> getPlaylistTag() async {
     return res.body['data'].map<Tag>((item) => Tag.fromJson(item)).toList();
   }
   else {
-    throw Exception('获取歌单分类失败');
+    throw Exception('获取歌单分类失败'.tr);
   }
 }

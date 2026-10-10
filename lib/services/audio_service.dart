@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
 import 'package:ku_gou_music/api/song/song.dart';
+import 'package:ku_gou_music/controllers/settings_controller.dart';
 import 'package:ku_gou_music/store/user.dart';
 import 'package:ku_gou_music/views/playlist/playlist.controller.dart';
 import 'package:audio_session/audio_session.dart';
@@ -46,6 +48,23 @@ class AudioService extends GetxService {
   /// 当前期望音质（用户可切换，默认标准）
   final Rx<AudioQuality> preferredQuality = AudioQuality.standard.obs;
 
+  /// 蝰蛇音效 quality 原始值（viper_atmos/viper_clear/viper_tape），
+  /// 非空时优先于 preferredQuality 传给 getMusicUrls，且不读写本地缓存
+  final RxString viperEffectQuality = ''.obs;
+
+  /// 响度规格化开关（来自设置「平衡音频响度」）
+  final RxBool loudnessNormalizationEnabled = false.obs;
+
+  /// 当前歌曲的响度增益系数（线性，0.01~3.0），无数据时为 1.0
+  double _currentLoudnessGain = 1.0;
+
+  /// 已获取过的响度数据（hash -> {volume, volume_gain, volume_peak}），
+  /// 命中本地缓存时用于补齐当前歌曲的响度数据
+  final Map<String, Map<String, dynamic>> _loudnessByHash = {};
+
+  /// 记录最近一次应用的音质设置，用于检测设置变化
+  String _lastQualitySetting = '';
+
   /// 后台预缓存进行中标志
   bool _isPrefetchCaching = false;
 
@@ -60,6 +79,90 @@ class AudioService extends GetxService {
   void onInit() {
     super.onInit();
     _initPlayerListeners();
+    _syncSoundSettings();
+  }
+
+  /// 将设置页「声音」分组接入播放链路：
+  /// 启动时应用一次，之后监听设置变化实时生效（音质变化会重载当前歌曲）
+  void _syncSoundSettings() {
+    final settings = Get.find<SettingsController>();
+    _lastQualitySetting = settings.values['quality'] ?? '128';
+    _applyQualitySetting(_lastQualitySetting);
+    loudnessNormalizationEnabled.value =
+        settings.values['loudnessNormalization'] == 'on';
+    _applyEffectiveVolume();
+
+    ever(settings.values, (_) {
+      final quality = settings.values['quality'] ?? '128';
+      if (quality != _lastQualitySetting) {
+        _lastQualitySetting = quality;
+        _applyQualitySetting(quality);
+        _reloadForQualityChange();
+      }
+      final loudnessOn = settings.values['loudnessNormalization'] == 'on';
+      if (loudnessOn != loudnessNormalizationEnabled.value) {
+        loudnessNormalizationEnabled.value = loudnessOn;
+        _applyEffectiveVolume();
+      }
+    });
+  }
+
+  /// 将设置的 quality 值映射到播放器：
+  /// 128/320/flac/high → AudioQuality 枚举；viper_* → 蝰蛇音效直传
+  void _applyQualitySetting(String value) {
+    final mapped = AudioQuality.fromApiValue(value);
+    if (mapped != null) {
+      preferredQuality.value = mapped;
+      viperEffectQuality.value = '';
+    } else if (value.startsWith('viper_')) {
+      preferredQuality.value = AudioQuality.flac;
+      viperEffectQuality.value = value;
+    }
+  }
+
+  /// 音质切换后重载当前歌曲（保留播放进度与播放状态）
+  Future<void> _reloadForQualityChange() async {
+    final song = currentSong.value;
+    if (song == null || songList.isEmpty) return;
+    final index = currentIndex.value.clamp(0, songList.length - 1);
+    final wasPlaying = audioState.value == AudioState.playing;
+    final pos = position.value;
+    await setPlaylist(List<SongItemStruct>.from(songList), index: index);
+    if (pos > Duration.zero) {
+      await player.seek(pos, index: index);
+    }
+    if (wasPlaying) {
+      await player.play();
+    }
+  }
+
+  /// 实际应用到播放器的音量 = 用户音量 × 响度增益
+  /// （just_audio 音量上限 1.0，增益大于 1 的部分会被截断，衰减可完整生效）
+  void _applyEffectiveVolume() {
+    var gain = loudnessNormalizationEnabled.value ? _currentLoudnessGain : 1.0;
+    if (gain > 1.0) gain = 1.0;
+    player.setVolume((volume.value * gain).clamp(0.0, 1.0));
+  }
+
+  /// 响度规格化增益计算（对齐 Vue 版 AudioController.js）：
+  /// 目标响度 -14 LUFS，结合接口返回的 volume_gain 建议值与峰值防削波限制
+  double _computeLoudnessGain(Map<String, dynamic> loudness) {
+    final volumeLufs = (loudness['volume'] as num?)?.toDouble() ?? 0.0;
+    final volumeGain = (loudness['volume_gain'] as num?)?.toDouble() ?? 0.0;
+    final volumePeak = (loudness['volume_peak'] as num?)?.toDouble() ?? 1.0;
+    // 无有效响度数据时不做调整
+    if (volumeLufs == 0.0 && volumeGain == 0.0) return 1.0;
+
+    const targetLoudness = -14.0;
+    var gain = math.pow(10, (targetLoudness - volumeLufs) / 20).toDouble();
+    if (volumeGain != 0.0) {
+      gain *= math.pow(10, volumeGain / 20).toDouble();
+    }
+    // 防止削波：应用增益后峰值不超过 0.95
+    if (volumePeak > 0 && volumePeak * gain > 0.95) {
+      gain = 0.95 / volumePeak;
+    }
+    return gain.clamp(0.01, 3.0);
   }
 
   void _initPlayerListeners() async {
@@ -222,8 +325,8 @@ class AudioService extends GetxService {
   }
 
   Future<void> setVolume(double value) async {
-    await player.setVolume(value);
     volume.value = value;
+    _applyEffectiveVolume();
   }
 
   Future<void> toggleShuffle() async {
@@ -302,7 +405,7 @@ class AudioService extends GetxService {
       await player.play();
       return true;
     } catch (e) {
-      print('⚠️ 播放第 $index 首失败: $e');
+      print('⚠️ 播放第 $index 首失败: $e'.tr);
       return false;
     }
   }
@@ -317,9 +420,13 @@ class AudioService extends GetxService {
   /// 获取歌曲播放URL，带试听回退：
   /// 先用当前账号权限请求完整版，若返回空 URL（如 VIP 歌曲无权限），
   /// 自动回退到试听片段（freePart=1）重试。
-  Future<List<dynamic>> _fetchPlayUrls(String hash) async {
+  /// 返回 (url列表, 响度数据)——响度数据用于「平衡音频响度」设置。
+  Future<(List<dynamic>, Map<String, dynamic>?)> _fetchPlayUrls(
+      String hash) async {
     lastUrlError = null;
-    final quality = preferredQuality.value.apiValue;
+    final quality = viperEffectQuality.value.isNotEmpty
+        ? viperEffectQuality.value
+        : preferredQuality.value.apiValue;
     final primaryFreePart = userInstance.token.isEmpty ? 1 : 0;
 
     var res = await getMusicUrls(
@@ -329,12 +436,12 @@ class AudioService extends GetxService {
     );
     var urls = res.body?['url'];
     if (urls is List && urls.isNotEmpty) {
-      return urls;
+      return (urls, Map<String, dynamic>.from(res.body ?? {}));
     }
 
     // 未拿到 URL，打印响应便于排查
     final primaryCode = res.body?['error_code'];
-    print('⚠️ 获取播放URL为空 (hash=$hash, freePart=$primaryFreePart)，响应: ${res.body}');
+    print('⚠️ 获取播放URL为空 (hash=$hash, freePart=$primaryFreePart)，响应: ${res.body}'.tr);
 
     // 回退到试听片段重试
     int? fallbackCode;
@@ -346,28 +453,28 @@ class AudioService extends GetxService {
       );
       urls = res.body?['url'];
       if (urls is List && urls.isNotEmpty) {
-        print('✅ 已回退到试听片段播放');
-        return urls;
+        print('✅ 已回退到试听片段播放'.tr);
+        return (urls, Map<String, dynamic>.from(res.body ?? {}));
       }
       fallbackCode = res.body?['error_code'];
-      print('⚠️ 试听片段也为空，响应: ${res.body}');
+      print('⚠️ 试听片段也为空，响应: ${res.body}'.tr);
     }
 
     lastUrlError = _describeUrlError(primaryCode, fallbackCode);
-    return [];
+    return ([], null);
   }
 
   /// 根据酷狗返回的错误码生成可读的失败原因
   String _describeUrlError(int? primaryCode, int? fallbackCode) {
     // 20018：登录态失效/无权限（内置默认 token 已过期）
     if (primaryCode == 20018) {
-      return '当前登录状态已失效或无权限，请重新登录后再试';
+      return '当前登录状态已失效或无权限，请重新登录后再试'.tr;
     }
     // 31863：该歌曲没有试听片段
     if (fallbackCode == 31863 || primaryCode == 31863) {
-      return '该歌曲暂无试听资源，可能需要开通 VIP';
+      return '该歌曲暂无试听资源，可能需要开通 VIP'.tr;
     }
-    return '无法获取歌曲资源，可能为 VIP 歌曲或暂无版权';
+    return '无法获取歌曲资源，可能为 VIP 歌曲或暂无版权'.tr;
   }
 
   /// 核心方法：预加载歌曲URL，优先使用缓存
@@ -380,39 +487,59 @@ class AudioService extends GetxService {
     try {
       isLoadingIndices = true;
 
+      // 蝰蛇音效流不读写本地缓存（缓存的是普通音质文件，会产生无效音效）
+      final canUseLocalCache = viperEffectQuality.value.isEmpty;
+
       // ===== 优先检查本地缓存 =====
       Uri? audioUri;
-      final localUri = await _cacheService.getLocalFileUri(
-        song.hash,
-        preferredQuality: preferredQuality.value,
-      );
+      final localUri = canUseLocalCache
+          ? await _cacheService.getLocalFileUri(
+              song.hash,
+              preferredQuality: preferredQuality.value,
+            )
+          : null;
       if (localUri != null) {
         // 缓存命中：直接使用本地文件
         audioUri = localUri;
-        print('✅ 缓存命中: ${song.name} (${song.hash})');
+        // 用内存中已有的响度数据补齐（本地文件无响度信息）
+        final cachedLoudness = _loudnessByHash[song.hash];
+        if (cachedLoudness != null) {
+          _currentLoudnessGain = _computeLoudnessGain(cachedLoudness);
+          _applyEffectiveVolume();
+        }
+        print('✅ 缓存命中: ${song.name} (${song.hash})'.tr);
       } else {
         // 缓存未命中：走网络URL（带试听回退）
-        var urls = await _fetchPlayUrls(song.hash);
+        final (urls, loudness) = await _fetchPlayUrls(song.hash);
         if (urls.isEmpty) {
           throw Exception('No URL found for song: ${song.name}');
         }
         audioUri = Uri.parse(urls[0]);
 
-        // ===== 后台缓存下载（不阻塞播放） =====
-        _cacheService.cacheFromUrl(
-          hash: song.hash,
-          cdnUrl: urls[0],
-          quality: preferredQuality.value,
-          songName: song.name,
-          author: song.author,
-        ).then((path) {
-          if (path != null) {
-            print('💾 后台缓存完成: ${song.name} -> $path');
-          }
-        }).catchError((e) {
-          // 静默处理，不影响播放
-          print('⚠️ 后台缓存失败: $e');
-        });
+        // ===== 应用响度规格化数据 =====
+        if (loudness != null) {
+          _loudnessByHash[song.hash] = loudness;
+          _currentLoudnessGain = _computeLoudnessGain(loudness);
+          _applyEffectiveVolume();
+        }
+
+        // ===== 后台缓存下载（不阻塞播放；蝰蛇音效不落盘） =====
+        if (canUseLocalCache) {
+          _cacheService.cacheFromUrl(
+            hash: song.hash,
+            cdnUrl: urls[0],
+            quality: preferredQuality.value,
+            songName: song.name,
+            author: song.author,
+          ).then((path) {
+            if (path != null) {
+              print('💾 后台缓存完成: ${song.name} -> $path'.tr);
+            }
+          }).catchError((e) {
+            // 静默处理，不影响播放
+            print('⚠️ 后台缓存失败: $e'.tr);
+          });
+        }
       }
 
       // 关键：网络请求完成后，检查播放列表是否已被切换（代数不匹配）
@@ -439,7 +566,7 @@ class AudioService extends GetxService {
       await player.insertAudioSource(i, playlist[i]);
     } catch (e) {
       print(e);
-      print("⚠️ 预加载第 ${song.hash} 首歌失败，等用户真切到那首时再重试");
+      print("⚠️ 预加载第 ${song.hash} 首歌失败，等用户真切到那首时再重试".tr);
     } finally {
       isLoadingIndices = false;
     }
@@ -449,6 +576,8 @@ class AudioService extends GetxService {
   /// 在当前歌曲播放后触发，预下载队列中接下来的歌曲
   Future<void> _prefetchCacheForUpcoming() async {
     if (_isPrefetchCaching) return;
+    // 蝰蛇音效模式下不预缓存（音效流不落盘）
+    if (viperEffectQuality.value.isNotEmpty) return;
     _isPrefetchCaching = true;
 
     try {
@@ -461,7 +590,7 @@ class AudioService extends GetxService {
         // 只缓存尚未有缓存的歌
         if (!await _cacheService.hasCache(song.hash)) {
           try {
-            var urls = await _fetchPlayUrls(song.hash);
+            final (urls, _) = await _fetchPlayUrls(song.hash);
             if (urls.isNotEmpty) {
               await _cacheService.cacheFromUrl(
                 hash: song.hash,
@@ -470,10 +599,10 @@ class AudioService extends GetxService {
                 songName: song.name,
                 author: song.author,
               );
-              print('💾 预缓存完成: ${song.name}');
+              print('💾 预缓存完成: ${song.name}'.tr);
             }
           } catch (e) {
-            print('⚠️ 预缓存失败: ${song.name} - $e');
+            print('⚠️ 预缓存失败: ${song.name} - $e'.tr);
           }
         }
       }

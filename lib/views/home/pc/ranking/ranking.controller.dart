@@ -110,7 +110,7 @@ class DiscoverPlaylistController extends GetxController {
       try {
         categories.value = await getDiscoverPlaylistTags();
       } catch (e) {
-        print('⚠️ 获取歌单分类失败: $e');
+        print('⚠️ 获取歌单分类失败: $e'.tr);
       }
     }
     await fetchPlaylistList();
@@ -124,7 +124,7 @@ class DiscoverPlaylistController extends GetxController {
       playlists.value = list;
       isFailed.value = list.isEmpty;
     } catch (e) {
-      print('⚠️ 获取发现歌单失败: $e');
+      print('⚠️ 获取发现歌单失败: $e'.tr);
       isFailed.value = true;
     }
   }
@@ -206,7 +206,7 @@ class DiscoverRankingController extends GetxController {
         await _loadRandomRanks(rankList, 4);
       }
     } catch (e) {
-      print('⚠️ 获取榜单列表失败: $e');
+      print('⚠️ 获取榜单列表失败: $e'.tr);
     }
   }
 
@@ -250,7 +250,7 @@ class DiscoverRankingController extends GetxController {
       }
       state.currentPage = page;
     } catch (e) {
-      print('⚠️ 加载排行榜歌曲失败: $e');
+      print('⚠️ 加载排行榜歌曲失败: $e'.tr);
     } finally {
       state.loading.value = false;
     }
@@ -260,7 +260,7 @@ class DiscoverRankingController extends GetxController {
     final index = selectedRankIds.indexOf(rank.rankid);
     if (index == -1) {
       if (selectedRankIds.length >= maxSelectedRanks) {
-        Get.snackbar('提示', '最多同时展示 $maxSelectedRanks 个榜单');
+        Get.snackbar('提示'.tr, '最多同时展示 $maxSelectedRanks 个榜单'.tr);
         return;
       }
       await _addDisplayedRank(rank);
@@ -282,10 +282,10 @@ class DiscoverRankingController extends GetxController {
     String sortRule = '';
     String updateFreq = '';
     for (final p in parts) {
-      if (p.contains('排序方式：')) {
-        sortRule = p.replaceAll('排序方式：', '').trim();
-      } else if (p.contains('更新频率：')) {
-        updateFreq = p.replaceAll('更新频率：', '').trim();
+      if (p.contains('排序方式：'.tr)) {
+        sortRule = p.replaceAll('排序方式：'.tr, '').trim();
+      } else if (p.contains('更新频率：'.tr)) {
+        updateFreq = p.replaceAll('更新频率：'.tr, '').trim();
       }
     }
     if (sortRule.isNotEmpty && updateFreq.isNotEmpty) {
@@ -353,7 +353,7 @@ class DiscoverNewAlbumController extends GetxController {
       _allAlbums = await getDiscoverNewAlbums();
       _applyFilter();
     } catch (e) {
-      print('⚠️ 获取新碟上架失败: $e');
+      print('⚠️ 获取新碟上架失败: $e'.tr);
     } finally {
       isLoading.value = false;
     }
@@ -423,7 +423,7 @@ class DiscoverNewSongController extends GetxController {
       newSongs.value = result.songs;
       totalSongPages.value = max(1, (result.total / newSongPageSize).ceil());
     } catch (e) {
-      print('⚠️ 获取新歌速递失败: $e');
+      print('⚠️ 获取新歌速递失败: $e'.tr);
     } finally {
       isLoading.value = false;
     }

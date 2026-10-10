@@ -36,7 +36,7 @@ class _RecentlyPageState extends State<RecentlyPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TitleBar(
-        title: '最近播放',
+        title: '最近播放'.tr,
         actions: _buildActions(),
       ),
       body: Column(
@@ -81,12 +81,12 @@ class _RecentlyPageState extends State<RecentlyPage>
                   }
                 },
                 child: Obx(() => Text(
-                  _controller.isAllSelected ? '取消全选' : '全选',
+                  _controller.isAllSelected ? '取消全选'.tr : '全选'.tr,
                 )),
               ),
               TextButton(
                 onPressed: _controller.exitEditMode,
-                child: const Text('完成'),
+                child:  Text('完成'.tr),
               ),
             ],
           );
@@ -94,7 +94,7 @@ class _RecentlyPageState extends State<RecentlyPage>
         return IconButton(
           onPressed: _controller.enterEditMode,
           icon: const Icon(Icons.edit_outlined),
-          tooltip: '编辑',
+          tooltip: '编辑'.tr,
         );
       }),
     ];
@@ -156,7 +156,7 @@ class _RecentlyPageState extends State<RecentlyPage>
     return Obx(() {
       final songs = _controller.songHistory;
       if (songs.isEmpty) {
-        return _buildEmptyState('暂无最近播放的歌曲');
+        return _buildEmptyState('暂无最近播放的歌曲'.tr);
       }
       return ListView.builder(
         padding: _listPadding(),
@@ -180,7 +180,7 @@ class _RecentlyPageState extends State<RecentlyPage>
     return Obx(() {
       final playlists = _controller.playlistHistory;
       if (playlists.isEmpty) {
-        return _buildEmptyState('暂无最近播放的歌单');
+        return _buildEmptyState('暂无最近播放的歌单'.tr);
       }
       return ListView.builder(
         padding: _listPadding(),
@@ -204,7 +204,7 @@ class _RecentlyPageState extends State<RecentlyPage>
     return Obx(() {
       final albums = _controller.albumHistory;
       if (albums.isEmpty) {
-        return _buildEmptyState('暂无最近播放的专辑');
+        return _buildEmptyState('暂无最近播放的专辑'.tr);
       }
       return ListView.builder(
         padding: _listPadding(),
@@ -276,7 +276,7 @@ class _RecentlyPageState extends State<RecentlyPage>
                     _showDeleteConfirmDialog();
                   },
                   icon: const Icon(Icons.delete_outline, size: 18),
-                  label: const Text('删除'),
+                  label:  Text('删除'.tr),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.withValues(alpha: 0.1),
                     foregroundColor: Colors.red,
@@ -294,7 +294,7 @@ class _RecentlyPageState extends State<RecentlyPage>
                       _controller.addSelectedToNextPlay();
                     },
                     icon: const Icon(Icons.queue_music, size: 18),
-                    label: const Text('下一首播放'),
+                    label:  Text('下一首播放'.tr),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -312,26 +312,26 @@ class _RecentlyPageState extends State<RecentlyPage>
   void _showDeleteConfirmDialog() {
     final count = _controller.selectedIds.length;
     if (count == 0) {
-      Get.snackbar('提示', '请先选择要删除的项目');
+      Get.snackbar('提示'.tr, '请先选择要删除的项目'.tr);
       return;
     }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除选中的 $count 个项目吗？'),
+        title:  Text('确认删除'.tr),
+        content: Text('确定要删除选中的 $count 个项目吗？'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
+            child:  Text('取消'.tr),
           ),
           TextButton(
             onPressed: () {
               _controller.deleteSelected();
               Navigator.of(context).pop();
             },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            child:  Text('删除'.tr, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -453,10 +453,10 @@ class _SongListItem extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(date);
 
-    if (diff.inMinutes < 1) return '刚刚';
-    if (diff.inHours < 1) return '${diff.inMinutes}分钟前';
-    if (diff.inDays < 1) return '${diff.inHours}小时前';
-    if (diff.inDays < 7) return '${diff.inDays}天前';
+    if (diff.inMinutes < 1) return '刚刚'.tr;
+    if (diff.inHours < 1) return '${diff.inMinutes}分钟前'.tr;
+    if (diff.inDays < 1) return '${diff.inHours}小时前'.tr;
+    if (diff.inDays < 7) return '${diff.inDays}天前'.tr;
     if (date.year == now.year) {
       return '${_twoDigits(date.month)}-${_twoDigits(date.day)}';
     }
@@ -547,7 +547,7 @@ class _PlaylistListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    playlist.nickname != null ? 'by ${playlist.nickname}' : '歌单',
+                    playlist.nickname != null ? 'by ${playlist.nickname}' : '歌单'.tr,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
@@ -561,7 +561,7 @@ class _PlaylistListItem extends StatelessWidget {
             // 歌曲数量
             if (playlist.songCount != null)
               Text(
-                '${playlist.songCount}首',
+                '${playlist.songCount}首'.tr,
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.4),
@@ -655,7 +655,7 @@ class _AlbumListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    album.singerName ?? '未知歌手',
+                    album.singerName ?? '未知歌手'.tr,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
@@ -669,7 +669,7 @@ class _AlbumListItem extends StatelessWidget {
             // 歌曲数量
             if (album.songCount != null)
               Text(
-                '${album.songCount}首',
+                '${album.songCount}首'.tr,
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.4),

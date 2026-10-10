@@ -95,7 +95,7 @@ class PlaylistController extends GetxController {
   /// 收藏/取消收藏歌单（对应 Vue 的 toggleFavorite）
   Future<void> toggleFavorite({required String gid, required String name}) async {
     if (userInstance.userid == 0) {
-      Get.snackbar('提示', '请先登录', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('提示'.tr, '请先登录'.tr, snackPosition: SnackPosition.BOTTOM);
       return;
     }
     if (isTogglingFavorite.value) return;
@@ -113,9 +113,9 @@ class PlaylistController extends GetxController {
             _collected.removeWhere((e) => e['gid'] == gid);
             _box.write('collectedPlaylists', _collected);
             isFavorited.value = false;
-            Get.snackbar('提示', '取消收藏成功', snackPosition: SnackPosition.BOTTOM);
+            Get.snackbar('提示'.tr, '取消收藏成功'.tr, snackPosition: SnackPosition.BOTTOM);
           } else {
-            throw Exception(body['error_code'] ?? '操作失败');
+            throw Exception(body['error_code'] ?? '操作失败'.tr);
           }
         }
       } else {
@@ -128,15 +128,15 @@ class PlaylistController extends GetxController {
             _box.write('collectedPlaylists', _collected);
           }
           isFavorited.value = true;
-          Get.snackbar('提示', '收藏成功', snackPosition: SnackPosition.BOTTOM);
+          Get.snackbar('提示'.tr, '收藏成功'.tr, snackPosition: SnackPosition.BOTTOM);
         } else {
-          throw Exception(res.body?['error_code'] ?? '收藏失败');
+          throw Exception(res.body?['error_code'] ?? '收藏失败'.tr);
         }
       }
     } catch (e) {
       Get.snackbar(
-        '提示',
-        isFavorited.value ? '取消收藏失败' : '收藏失败',
+        '提示'.tr,
+        isFavorited.value ? '取消收藏失败'.tr : '收藏失败'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
@@ -183,14 +183,14 @@ class PlaylistController extends GetxController {
         }
       })
       .catchError((e) {
-        print('⚠️ 歌单详情请求失败: $e');
+        print('⚠️ 歌单详情请求失败: $e'.tr);
         isFailed.value = true;
       });
   }
 
   /// 标记加载失败，避免详情页无限 loading
   void _markFailed(String id, Object? errorCode) {
-    print('⚠️ 歌单详情为空: id=$id, error_code=$errorCode');
+    print('⚠️ 歌单详情为空: id=$id, error_code=$errorCode'.tr);
     playlist.clear();
     isFailed.value = true;
   }

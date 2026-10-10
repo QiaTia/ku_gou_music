@@ -198,8 +198,8 @@ class MyPlaylistController extends GetxController {
     listenHistory.clear();
     isLoading.value = false;
     Get.snackbar(
-      '提示',
-      '登录状态已失效，请重新登录',
+      '提示'.tr,
+      '登录状态已失效，请重新登录'.tr,
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 2),
     );
@@ -215,7 +215,7 @@ class MyPlaylistController extends GetxController {
             userInstance.setDfid(dfid);
           }
         } catch (e) {
-          print('[My] 重新注册设备失败: $e');
+          print('[My] 重新注册设备失败: $e'.tr);
         }
       }
       _loadData();
@@ -226,7 +226,7 @@ class MyPlaylistController extends GetxController {
     try {
       userInfo.value = await getUserDetail();
     } catch (e) {
-      print('[My] 获取用户详情失败: $e');
+      print('[My] 获取用户详情失败: $e'.tr);
     }
   }
 
@@ -234,7 +234,7 @@ class MyPlaylistController extends GetxController {
     try {
       vipInfo.value = await getUserVipInfo();
     } catch (e) {
-      print('[My] 获取用户VIP信息失败: $e');
+      print('[My] 获取用户VIP信息失败: $e'.tr);
       // VIP 信息接口失败视为登录失效（与 Vue 行为一致）
       _handleLoginExpired();
     }
@@ -255,7 +255,7 @@ class MyPlaylistController extends GetxController {
         listenHistory.value = songs.take(20).toList();
       }
     } catch (e) {
-      print('[My] 获取听歌历史失败: $e');
+      print('[My] 获取听歌历史失败: $e'.tr);
     }
   }
 
@@ -279,9 +279,9 @@ class MyPlaylistController extends GetxController {
 
       userPlaylists.value = items
           .where((p) =>
-              p.list_create_userid == userid || p.name == '我喜欢')
+              p.list_create_userid == userid || p.name == '我喜欢'.tr)
           .toList()
-        ..sort((a, b) => a.name == '我喜欢' ? -1 : 0);
+        ..sort((a, b) => a.name == '我喜欢'.tr ? -1 : 0);
 
       collectedPlaylists.value = items
           .where((p) => p.list_create_userid != userid && !p.has_authors)
@@ -291,8 +291,8 @@ class MyPlaylistController extends GetxController {
           .where((p) => p.list_create_userid != userid && p.has_authors)
           .toList();
     } catch (e) {
-      print('[My] 获取歌单失败: $e');
-      Get.snackbar('提示', '新增账号请先在官方客户端中登录一次');
+      print('[My] 获取歌单失败: $e'.tr);
+      Get.snackbar('提示'.tr, '新增账号请先在官方客户端中登录一次'.tr);
     }
   }
 
@@ -312,7 +312,7 @@ class MyPlaylistController extends GetxController {
       collectedFriends.value = all.where((u) => u.singerid == 0).toList();
       followedArtists.value = all.where((u) => u.source == 7).toList();
     } catch (e) {
-      print('[My] 获取关注列表失败: $e');
+      print('[My] 获取关注列表失败: $e'.tr);
     }
   }
 
@@ -330,12 +330,12 @@ class MyPlaylistController extends GetxController {
       final status = res.body?['status'];
       final hours = res.body?['data']?['award_vip_hour'] ?? 0;
       if (status == 1) {
-        Get.snackbar('签到', '签到成功，获得$hours小时VIP时长');
+        Get.snackbar('签到'.tr, '签到成功，获得$hours小时VIP时长'.tr);
       } else {
-        Get.snackbar('签到', '签到失败');
+        Get.snackbar('签到'.tr, '签到失败'.tr);
       }
     } catch (e) {
-      Get.snackbar('签到', '签到失败![该接口将在未来被移除]');
+      Get.snackbar('签到'.tr, '签到失败![该接口将在未来被移除]'.tr);
     }
   }
 
@@ -347,16 +347,16 @@ class MyPlaylistController extends GetxController {
       await receiveDayVip(today);
       final upgrade = await Get.dialog<bool>(
         AlertDialog(
-          title: const Text('升级 VIP'),
-          content: const Text('是否继续升级至概念版VIP，享受更高音质?'),
+          title:  Text('升级 VIP'.tr),
+          content:  Text('是否继续升级至概念版VIP，享受更高音质?'.tr),
           actions: [
             TextButton(
               onPressed: () => Get.back(result: false),
-              child: const Text('取消'),
+              child:  Text('取消'.tr),
             ),
             TextButton(
               onPressed: () => Get.back(result: true),
-              child: const Text('升级'),
+              child:  Text('升级'.tr),
             ),
           ],
         ),
@@ -365,16 +365,16 @@ class MyPlaylistController extends GetxController {
         try {
           final res = await upgradeVipReward();
           if (res.body?['status'] == 1) {
-            Get.snackbar('VIP', '升级成功，获得1天概念版VIP');
+            Get.snackbar('VIP', '升级成功，获得1天概念版VIP'.tr);
           }
         } catch (e) {
-          Get.snackbar('VIP', '升级VIP失败，一天仅限一次');
+          Get.snackbar('VIP', '升级VIP失败，一天仅限一次'.tr);
         }
       } else {
-        Get.snackbar('VIP', '签到成功，获得1天畅听VIP');
+        Get.snackbar('VIP', '签到成功，获得1天畅听VIP'.tr);
       }
     } catch (e) {
-      Get.snackbar('VIP', '获取VIP失败，请稍后再试');
+      Get.snackbar('VIP', '获取VIP失败，请稍后再试'.tr);
     }
   }
 
@@ -384,13 +384,13 @@ class MyPlaylistController extends GetxController {
     try {
       final res = await createUserPlaylist(name.trim());
       if (res.body?['status'] == 1) {
-        Get.snackbar('创建歌单', '创建成功');
+        Get.snackbar('创建歌单'.tr, '创建成功'.tr);
         _loadPlaylist();
       } else {
-        Get.snackbar('创建歌单', '创建失败');
+        Get.snackbar('创建歌单'.tr, '创建失败'.tr);
       }
     } catch (e) {
-      Get.snackbar('创建歌单', '创建失败');
+      Get.snackbar('创建歌单'.tr, '创建失败'.tr);
     }
   }
 
@@ -442,23 +442,23 @@ class MyPlaylistController extends GetxController {
     final textController = TextEditingController();
     Get.dialog<bool>(
       AlertDialog(
-        title: const Text('创建歌单'),
+        title:  Text('创建歌单'.tr),
         content: TextField(
           controller: textController,
           autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入新的歌单名称'),
+          decoration:  InputDecoration(hintText: '请输入新的歌单名称'.tr),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('取消'),
+            child:  Text('取消'.tr),
           ),
           TextButton(
             onPressed: () {
               Get.back(result: true);
               createPlaylist(textController.text);
             },
-            child: const Text('创建'),
+            child:  Text('创建'.tr),
           ),
         ],
       ),

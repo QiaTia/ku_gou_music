@@ -1,4 +1,5 @@
 import 'package:ku_gou_music/api/request/request.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 
 import 'package:dio/dio.dart' show ResponseType;
@@ -64,7 +65,7 @@ Future<UserInfo> getUserDetail() async {
   if (res.body['status'] == 1 && res.body['data'] is Object) {
     return UserInfo.fromJson(res.body['data']);
   } else {
-    throw Exception('获取用户信息失败');
+    throw Exception('获取用户信息失败'.tr);
   }
 }
 
@@ -82,7 +83,7 @@ Future<VipInfo> getUserVipInfo() async {
    if (res.body['status'] == 1 && res.body['data'] is Object) {
     return VipInfo.fromJson(res.body['data']);
   } else {
-    throw Exception('获取用户信息失败');
+    throw Exception('获取用户信息失败'.tr);
   }
 }
 

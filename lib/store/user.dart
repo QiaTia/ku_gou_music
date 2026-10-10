@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
 import 'package:ku_gou_music/config/config.dart' as config;
 
 class UserStruct {
@@ -66,7 +67,7 @@ class User {
 
   /// 登出（保留 dfid 设备标识，避免重新登录后接口因缺少 dfid 失效）
   void clearUser() {
-    print('[User] clearUser 登出: 清空 token/userid，保留 dfid=${_user.dfid}');
+    print('[User] clearUser 登出: 清空 token/userid，保留 dfid=${_user.dfid}'.tr);
     _user = UserStruct(token: '', dfid: _user.dfid, userid: 0);
     storage.write(_userStorageKey, _user.toJson());
   }

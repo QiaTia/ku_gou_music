@@ -71,14 +71,14 @@ class _HomePageState extends State<HomeTopPage> {
       lg: 5,
     );
     return Scaffold(
-      appBar: TitleBar(searchField: TitleSearchField(hintText: '搜索歌曲',),),
+      appBar: TitleBar(searchField: TitleSearchField(hintText: '搜索歌曲'.tr,),),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                '推荐歌曲',
+                '推荐歌曲'.tr,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomeTopPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                '推荐歌单',
+                '推荐歌单'.tr,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -131,10 +131,10 @@ class _HomePageState extends State<HomeTopPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.error, size: 32),
-                                  Text('获取歌单失败'),
+                                  Text('获取歌单失败'.tr),
                                   TextButton(
                                     onPressed: initPlayList,
-                                    child: Text('重试'),
+                                    child: Text('重试'.tr),
                                   ),
                                 ],
                               ),

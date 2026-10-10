@@ -152,7 +152,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                   children: [
                     Icon(Icons.queue_music),
                     SizedBox(width: 8),
-                    Text('播放列表'),
+                    Text('播放列表'.tr),
                   ],
                 ),
               ),
@@ -162,7 +162,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
                   children: [
                     Icon(Icons.share),
                     SizedBox(width: 8),
-                    Text('分享'),
+                    Text('分享'.tr),
                   ],
                 ),
               ),
@@ -185,7 +185,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
         child: Column(
           children: [
             Text(
-              song?.name ?? '暂无播放',
+              song?.name ?? '暂无播放'.tr,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -195,7 +195,7 @@ class MusicPlayerScreen extends GetView<MusicController> {
             ),
             SizedBox(height: 8),
             Text(
-              song?.author ?? '未知艺术家',
+              song?.author ?? '未知艺术家'.tr,
               style: TextStyle(color: Colors.grey[400], fontSize: 14),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -273,15 +273,15 @@ class MusicPlayerScreen extends GetView<MusicController> {
                   color: Colors.grey[400],
                   size: 24,
                 ),
-                tooltip: '收藏',
+                tooltip: '收藏'.tr,
                 onPressed: () {
-                  Get.snackbar('收藏', '暂未实现');
+                  Get.snackbar('收藏'.tr, '暂未实现'.tr);
                 },
               ),
               IconButton(
                 icon: Icon(Icons.skip_previous, color: Colors.white, size: 32),
                 onPressed: controller.previousSong,
-                tooltip: '上一曲',
+                tooltip: '上一曲'.tr,
               ),
               IconButton(
                 icon: Icon(
@@ -291,13 +291,13 @@ class MusicPlayerScreen extends GetView<MusicController> {
                   color: Colors.white,
                   size: 32,
                 ),
-                tooltip: '播放 / 暂停',
+                tooltip: '播放 / 暂停'.tr,
                 onPressed: controller.togglePlayPause,
               ),
               IconButton(
                 icon: Icon(Icons.skip_next, color: Colors.white, size: 32),
                 onPressed: controller.nextSong,
-                tooltip: '下一曲',
+                tooltip: '下一曲'.tr,
               ),
               Obx(() {
                 IconData icon;
@@ -305,15 +305,15 @@ class MusicPlayerScreen extends GetView<MusicController> {
                 switch (controller.loopMode) {
                   case LoopMode.one:
                     icon = Icons.repeat_one;
-                    tooltip = '单曲循环';
+                    tooltip = '单曲循环'.tr;
                     break;
                   case LoopMode.all:
                     icon = Icons.repeat;
-                    tooltip = '列表循环';
+                    tooltip = '列表循环'.tr;
                     break;
                   default:
                     icon = Icons.shuffle;
-                    tooltip = '随机播放';
+                    tooltip = '随机播放'.tr;
                 }
                 return IconButton(
                   icon: Icon(icon, color: Colors.white, size: 32),
@@ -383,7 +383,7 @@ class _SongLyricState extends State<_SongLyric> {
           ((await searchLyrics(hash: hash)).body!['candidates'] ?? [])[0];
       final lrcContent = await getMusicLyrics(
           accesskey: lrcPre['accesskey'], id: lrcPre['id'], fmt: 'lrc');
-      final lyricText = lrcContent['content'] ?? '[00:00.000] 暂无歌词';
+      final lyricText = lrcContent['content'] ?? '[00:00.000] 暂无歌词'.tr;
 
       // 加载到歌词控制器
       lrcController.loadLyric(lyricText);
@@ -393,7 +393,7 @@ class _SongLyricState extends State<_SongLyric> {
       await lyricCache.saveLyric(hash, lyricText);
     } catch (e) {
       // 网络请求失败，显示默认歌词
-      lrcController.loadLyric('[00:00.000] 暂无歌词');
+      lrcController.loadLyric('[00:00.000] 暂无歌词'.tr);
       loadHash = hash;
     }
   }

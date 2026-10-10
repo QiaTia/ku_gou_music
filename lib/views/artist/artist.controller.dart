@@ -65,7 +65,7 @@ class ArtistController extends GetxController {
         detail.value = Map<String, dynamic>.from(body!['data']);
       }
     } catch (e) {
-      print('[Artist] 获取歌手信息失败: $e');
+      print('[Artist] 获取歌手信息失败: $e'.tr);
     }
   }
 
@@ -119,7 +119,7 @@ class ArtistController extends GetxController {
       _hasMore = formatted.length >= 30;
       if (reset && songs.isEmpty) isFailed.value = true;
     } catch (e) {
-      print('[Artist] 获取歌手歌曲失败: $e');
+      print('[Artist] 获取歌手歌曲失败: $e'.tr);
       if (reset) isFailed.value = true;
       _hasMore = false;
     }
@@ -150,12 +150,12 @@ class ArtistController extends GetxController {
           : await followArtist(singerid: singerid);
       if (res.body?['status'] == 1) {
         isFollowed.value = !followed;
-        Get.snackbar('关注', followed ? '已取消关注' : '关注成功');
+        Get.snackbar('关注'.tr, followed ? '已取消关注'.tr : '关注成功'.tr);
       } else {
-        Get.snackbar('关注', followed ? '取消关注失败' : '关注失败');
+        Get.snackbar('关注'.tr, followed ? '取消关注失败'.tr : '关注失败'.tr);
       }
     } catch (e) {
-      Get.snackbar('关注', followed ? '取消关注失败' : '关注失败');
+      Get.snackbar('关注'.tr, followed ? '取消关注失败'.tr : '关注失败'.tr);
     }
   }
 

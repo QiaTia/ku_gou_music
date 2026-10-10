@@ -1,4 +1,5 @@
 import '../request/request.dart';
+import 'package:get/get.dart';
 import 'package:ku_gou_music/config/util.dart';
 import 'package:ku_gou_music/models/search/search_song_response.dart';
 import 'package:ku_gou_music/models/search/search_special_response.dart';
@@ -80,7 +81,7 @@ Future<Map<String, dynamic>> _webSearch(
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
   }
-  throw Exception('搜索$type失败: ${body is Map ? body['error_code'] : body}');
+  throw Exception('搜索$type失败: ${body is Map ? body['error_code'] : body}'.tr);
 }
 
 /// 搜索单曲

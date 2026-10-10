@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/models/settings/settings_model.dart';
+import 'package:ku_gou_music/store/user.dart';
 
 /// 设置控制器：负责设置值的持久化、主题联动与网络测试
 class SettingsController extends GetxController {
@@ -28,7 +29,7 @@ class SettingsController extends GetxController {
   /// 快捷键（action -> 组合键字符串）
   final RxMap<String, String> shortcuts = <String, String>{}.obs;
 
-  /// 字体可选项（静态常见字体清单，value 为字体族名）
+  /// 字体可选项（静态常见字体清单，value 为字体族名；字体名为专有名词不做翻译）
   static const List<SettingOption> fontOptions = [
     SettingOption('默认字体', ''),
     SettingOption('微软雅黑', 'Microsoft YaHei'),
@@ -54,6 +55,33 @@ class SettingsController extends GetxController {
     super.onInit();
     _box = GetStorage(boxName);
     _loadAll();
+    // 启动问候语：等首帧渲染完成后再弹（UI 依赖 context）
+    Future.delayed(const Duration(milliseconds: 1500), _showStartupGreeting);
+  }
+
+  /// 「启动问候语」设置：按时间段拼接问候文案，登录后带上昵称
+  void _showStartupGreeting() {
+    if (values['greetings'] != 'on') return;
+    final hour = DateTime.now().hour;
+    String period;
+    if (hour < 6) {
+      period = '夜深了'.tr;
+    } else if (hour < 12) {
+      period = '早上好'.tr;
+    } else if (hour < 14) {
+      period = '中午好'.tr;
+    } else if (hour < 18) {
+      period = '下午好'.tr;
+    } else {
+      period = '晚上好'.tr;
+    }
+    final nickname = userInstance.nickname ?? '';
+    Get.snackbar(
+      '👋 $period',
+      nickname.isEmpty ? '欢迎回来，祝你听歌愉快'.tr : '$nickname，欢迎回来，祝你听歌愉快'.tr,
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 3),
+    );
   }
 
   // ==================== 读取 / 写入 ====================
@@ -86,6 +114,30 @@ class SettingsController extends GetxController {
     if (item != null && item.showRefreshHint) {
       refreshHints.add(key);
     }
+    // 语言切换实时生效（已迁移 tr() 的文本即时更新）
+    if (key == 'language') _applyLanguage(value);
+  }
+
+  /// 语言设置值 → Locale；'en' 需显式补国家码才能命中 en_US 词典
+  static Locale? localeFromLanguage(String value) {
+    if (value.isEmpty) return null;
+    if (value == 'en') return const Locale('en', 'US');
+    final parts = value.split('-');
+    return Locale(parts[0], parts.length > 1 ? parts[1] : null);
+  }
+
+  /// 应用语言设置：空值恢复跟随系统语言
+  void _applyLanguage(String value) {
+    final locale = localeFromLanguage(value);
+    if (locale != null) {
+      Get.updateLocale(locale);
+    } else {
+      final deviceLocale = Get.deviceLocale;
+      if (deviceLocale != null) Get.updateLocale(deviceLocale);
+    }
+    // updateLocale 只切换本地化环境，不会重建路由内已构建的 .tr 文本，
+    // 需强制整树重建才能让侧边栏等已渲染文本立即切换
+    Get.forceAppUpdate();
   }
 
   /// 切换 on/off 项
@@ -124,7 +176,7 @@ class SettingsController extends GetxController {
     final value = values[item.key] ?? '';
     if (item.customText != null) return item.customText!;
     if (item.type == SettingItemType.font) {
-      if (value.isEmpty) return '默认字体';
+      if (value.isEmpty) return '默认字体'.tr;
       return fontOptions
           .firstWhere(
             (o) => o.value == value,
@@ -182,15 +234,15 @@ class SettingsController extends GetxController {
   /// 测试代理连通性，返回 (是否成功, 结果文案)
   Future<(bool, String)> testProxy(String proxyUrl) async {
     final url = proxyUrl.trim();
-    if (url.isEmpty) return (false, '请输入代理地址');
+    if (url.isEmpty) return (false, '请输入代理地址'.tr);
     Uri? uri;
     try {
       uri = Uri.parse(url);
       if (uri.scheme != 'http' && uri.scheme != 'https') {
-        return (false, '仅支持 http/https 代理');
+        return (false, '仅支持 http/https 代理'.tr);
       }
     } catch (_) {
-      return (false, '请输入有效的 URL');
+      return (false, '请输入有效的 URL'.tr);
     }
 
     final client = HttpClient()
@@ -205,13 +257,13 @@ class SettingsController extends GetxController {
       final body = await response.transform(const SystemEncoding().decoder).join();
       if (response.statusCode == 200) {
         final ip = RegExp(r'"ip"\s*:\s*"([^"]+)"').firstMatch(body)?.group(1);
-        return (true, '代理连接成功: ${ip ?? body}');
+        return (true, '代理连接成功: ${ip ?? body}'.tr);
       }
-      return (false, '代理连接失败: HTTP ${response.statusCode}');
+      return (false, '代理连接失败: HTTP ${response.statusCode}'.tr);
     } on TimeoutException {
-      return (false, '连接超时');
+      return (false, '连接超时'.tr);
     } catch (e) {
-      return (false, '连接错误: $e');
+      return (false, '连接错误: $e'.tr);
     } finally {
       client.close(force: true);
     }
@@ -220,15 +272,15 @@ class SettingsController extends GetxController {
   /// 测试 RPC 地址连通性，返回 (是否成功, 结果文案)
   Future<(bool, String)> testApiBaseUrl(String baseUrl) async {
     final url = baseUrl.trim();
-    if (url.isEmpty) return (false, '请输入 RPC 地址');
+    if (url.isEmpty) return (false, '请输入 RPC 地址'.tr);
     Uri? uri;
     try {
       uri = Uri.parse(url);
       if (!uri.hasScheme || uri.host.isEmpty) {
-        return (false, '请输入有效的 URL');
+        return (false, '请输入有效的 URL'.tr);
       }
     } catch (_) {
-      return (false, '请输入有效的 URL');
+      return (false, '请输入有效的 URL'.tr);
     }
 
     final dio = Dio(BaseOptions(
@@ -238,15 +290,15 @@ class SettingsController extends GetxController {
     ));
     try {
       final response = await dio.getUri(uri);
-      return (true, '连接成功 (HTTP ${response.statusCode})');
+      return (true, '连接成功 (HTTP ${response.statusCode})'.tr);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
-        return (false, '连接超时');
+        return (false, '连接超时'.tr);
       }
-      return (false, '连接错误: ${e.message ?? e.type.name}');
+      return (false, '连接错误: ${e.message ?? e.type.name}'.tr);
     } catch (e) {
-      return (false, '连接错误: $e');
+      return (false, '连接错误: $e'.tr);
     } finally {
       dio.close();
     }

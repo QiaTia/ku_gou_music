@@ -21,11 +21,12 @@ class LiquidGlassBottomBar extends StatelessWidget {
     required this.musicController,
   });
 
-  static const _items = [
-    _BarItem(icon: Icons.home, label: '首页'),
-    _BarItem(icon: Icons.explore, label: '发现'),
-    _BarItem(icon: Icons.history, label: '最近播放'),
-    _BarItem(icon: Icons.playlist_play, label: '我的'),
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static List<_BarItem> get _items => [
+    _BarItem(icon: Icons.home, label: '首页'.tr),
+    _BarItem(icon: Icons.explore, label: '发现'.tr),
+    _BarItem(icon: Icons.history, label: '最近播放'.tr),
+    _BarItem(icon: Icons.playlist_play, label: '我的'.tr),
   ];
 
   /// 单个选项卡的最大宽度（窄屏会按可用宽度收敛，避免溢出）

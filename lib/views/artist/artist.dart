@@ -225,7 +225,7 @@ class _ArtistBanner extends StatelessWidget {
                 children: [
                   if (fansText.isNotEmpty)
                     Text(
-                      '粉丝: $fansText',
+                      '粉丝: $fansText'.tr,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.white.withValues(alpha: 0.87),
@@ -285,7 +285,7 @@ class _ArtistBanner extends StatelessWidget {
           children: [
             if (fansText.isNotEmpty)
               Text(
-                '粉丝: $fansText',
+                '粉丝: $fansText'.tr,
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.white.withValues(alpha: 0.87),
@@ -359,7 +359,7 @@ class _ArtistBanner extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                followed ? '已关注' : '关注',
+                followed ? '已关注'.tr : '关注'.tr,
                 style: const TextStyle(fontSize: 12, color: Colors.white),
               ),
             ],
@@ -373,10 +373,10 @@ class _ArtistBanner extends StatelessWidget {
 
   String _formatFans(num fans) {
     if (fans >= 100000000) {
-      return '${(fans / 100000000).toStringAsFixed(1)}亿';
+      return '${(fans / 100000000).toStringAsFixed(1)}亿'.tr;
     }
     if (fans >= 10000) {
-      return '${(fans / 10000).toStringAsFixed(1)}万';
+      return '${(fans / 10000).toStringAsFixed(1)}万'.tr;
     }
     return '$fans';
   }
@@ -387,7 +387,8 @@ class _SortBar extends StatelessWidget {
   final ArtistController controller;
   const _SortBar({required this.controller});
 
-  static const _sorts = {'hot': '最热', 'new': '最新'};
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static Map<String, String> get _sorts => {'hot': '最热'.tr, 'new': '最新'.tr};
 
   @override
   Widget build(BuildContext context) {
@@ -438,7 +439,7 @@ class _SortBar extends StatelessWidget {
             onPressed: controller.playAll,
             icon: Icon(Icons.play_circle_outline_rounded, size: 20, color: primary),
             label: Text(
-              '播放全部',
+              '播放全部'.tr,
               style: TextStyle(fontSize: 13, color: primary),
             ),
           ),
@@ -493,7 +494,7 @@ class _SongList extends StatelessWidget {
               onTap: () async {
                 final ok = await controller.playSong(song);
                 if (!ok) {
-                  Get.snackbar('无法播放', '《${song.name}》暂时无法播放');
+                  Get.snackbar('无法播放'.tr, '《${song.name}》暂时无法播放'.tr);
                 }
               },
             );
@@ -655,7 +656,7 @@ class _EmptyView extends StatelessWidget {
           Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
-            '暂无歌曲',
+            '暂无歌曲'.tr,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white.withValues(alpha: 0.4) : const Color(0xFF909399),
@@ -679,7 +680,7 @@ class _FailureView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '加载失败，请稍后重试',
+            '加载失败，请稍后重试'.tr,
             style: TextStyle(
               fontSize: 14,
               color: Theme.of(context).brightness == Brightness.dark
@@ -691,7 +692,7 @@ class _FailureView extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('重试'),
+            label:  Text('重试'.tr),
           ),
         ],
       ),

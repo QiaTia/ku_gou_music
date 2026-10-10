@@ -81,7 +81,7 @@ class BottomControl extends GetView<MusicController> {
                   crossAxisAlignment: .start,
                   children: [
                     Text(
-                      song?.name ?? '无',
+                      song?.name ?? '无'.tr,
                       style: TextStyle(color: Colors.white, fontSize: 13),
                       overflow: TextOverflow.ellipsis,
                       textAlign: .left,
@@ -113,14 +113,14 @@ class BottomControl extends GetView<MusicController> {
               icon: Icon(Icons.favorite_border, color: Colors.white, size: 25),
               // tooltip: '收藏',
               onPressed: () {
-                Get.snackbar('收藏', '暂未实现');
+                Get.snackbar('收藏'.tr, '暂未实现'.tr);
               },
             ),
             IconButton(
               color: iconColor,
               icon: Icon(Icons.skip_previous, color: Colors.white, size: 25),
               onPressed: controller.previousSong,
-              tooltip: '上一曲',
+              tooltip: '上一曲'.tr,
             ),
             IconButton(
               color: iconColor,
@@ -133,14 +133,14 @@ class BottomControl extends GetView<MusicController> {
                   size: 32,
                 ),
               ),
-              tooltip: '播放 / 暂停',
+              tooltip: '播放 / 暂停'.tr,
               onPressed: controller.togglePlayPause,
             ),
             IconButton(
               color: iconColor,
               icon: Icon(Icons.skip_next, color: Colors.white, size: 25),
               onPressed: controller.nextSong,
-              tooltip: '下一曲',
+              tooltip: '下一曲'.tr,
             ),
             Obx(() {
               IconData icon;
@@ -148,15 +148,15 @@ class BottomControl extends GetView<MusicController> {
               switch (controller.loopMode) {
                 case LoopMode.one:
                   icon = Icons.repeat_one;
-                  tooltip = '单曲循环';
+                  tooltip = '单曲循环'.tr;
                   break;
                 case LoopMode.all:
                   icon = Icons.repeat;
-                  tooltip = '列表循环';
+                  tooltip = '列表循环'.tr;
                   break;
                 default:
                   icon = Icons.shuffle;
-                  tooltip = '随机播放';
+                  tooltip = '随机播放'.tr;
               }
               return IconButton(
                 color: iconColor,
@@ -192,7 +192,7 @@ class BottomControl extends GetView<MusicController> {
           IconButton(
             color: iconColor,
             icon: Icon(Icons.list_alt, color: Colors.white, size: 25),
-            tooltip: '播放列表',
+            tooltip: '播放列表'.tr,
             onPressed: () {
               Get.toNamed('/playlist');
             },

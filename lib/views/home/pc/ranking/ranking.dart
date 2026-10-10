@@ -181,11 +181,12 @@ class _CollapsingHeader extends StatelessWidget {
 class _DiscoverSwitch extends StatelessWidget {
   const _DiscoverSwitch();
 
-  static const _tabs = [
-    (DiscoverTab.playlist, '发现歌单'),
-    (DiscoverTab.ranking, '音乐榜单'),
-    (DiscoverTab.newAlbum, '新碟上架'),
-    (DiscoverTab.newSong, '新歌速递'),
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static List<(DiscoverTab, String)> get _tabs => [
+    (DiscoverTab.playlist, '发现歌单'.tr),
+    (DiscoverTab.ranking, '音乐榜单'.tr),
+    (DiscoverTab.newAlbum, '新碟上架'.tr),
+    (DiscoverTab.newSong, '新歌速递'.tr),
   ];
 
   @override
@@ -318,7 +319,7 @@ class _BackToTopButton extends StatelessWidget {
                     Icon(Icons.arrow_upward, size: 16, color: primary),
                     const SizedBox(width: 6),
                     Text(
-                      '回到顶部',
+                      '回到顶部'.tr,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,

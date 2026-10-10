@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 
 /// 播放记录项基类
@@ -299,7 +300,7 @@ class PlayHistoryService {
           .map((e) => SongPlayHistory.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('读取歌曲播放记录失败: $e');
+      print('读取歌曲播放记录失败: $e'.tr);
       return [];
     }
   }
@@ -346,7 +347,7 @@ class PlayHistoryService {
           .map((e) => PlaylistPlayHistory.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('读取歌单播放记录失败: $e');
+      print('读取歌单播放记录失败: $e'.tr);
       return [];
     }
   }
@@ -393,7 +394,7 @@ class PlayHistoryService {
           .map((e) => AlbumPlayHistory.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('读取专辑播放记录失败: $e');
+      print('读取专辑播放记录失败: $e'.tr);
       return [];
     }
   }

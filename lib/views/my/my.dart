@@ -50,11 +50,11 @@ class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({required this.controller, required this.onBack});
 
   String _formatListenDuration(int minutes) {
-    if (minutes <= 0) return '0分钟';
+    if (minutes <= 0) return '0分钟'.tr;
     final h = minutes ~/ 60;
     final m = minutes % 60;
-    if (h > 0) return '$h小时 $m分钟';
-    return '$m分钟';
+    if (h > 0) return '$h小时 $m分钟'.tr;
+    return '$m分钟'.tr;
   }
 
   String _musicAge() {
@@ -62,7 +62,7 @@ class _ProfileHeader extends StatelessWidget {
     if (rtime <= 0) return '';
     final registerDate = DateTime.fromMillisecondsSinceEpoch(rtime * 1000);
     final years = DateTime.now().year - registerDate.year;
-    return '$years 年';
+    return '$years 年'.tr;
   }
 
   @override
@@ -226,10 +226,10 @@ class _ProfileHeader extends StatelessWidget {
                                     const SizedBox(height: 10),
                                     Row(
                                       children: [
-                                        _StatItem(label: '关注', value: '${info?.follows ?? 0}'),
-                                        _StatItem(label: '粉丝', value: '${info?.fans ?? 0}'),
-                                        _StatItem(label: '好友', value: '${info?.friends ?? info?.friendTotal ?? 0}'),
-                                        _StatItem(label: '访问', value: '${info?.hvisitors ?? info?.visitors ?? 0}'),
+                                        _StatItem(label: '关注'.tr, value: '${info?.follows ?? 0}'),
+                                        _StatItem(label: '粉丝'.tr, value: '${info?.fans ?? 0}'),
+                                        _StatItem(label: '好友'.tr, value: '${info?.friends ?? info?.friendTotal ?? 0}'),
+                                        _StatItem(label: '访问'.tr, value: '${info?.hvisitors ?? info?.visitors ?? 0}'),
                                       ],
                                     ),
                                   ],
@@ -252,16 +252,16 @@ class _ProfileHeader extends StatelessWidget {
                                   icon: gender == 1 ? Icons.male : Icons.female,
                                 ),
                               if (duration > 0)
-                                _InfoTag(text: '${_formatListenDuration(duration)} 听歌时长'),
+                                _InfoTag(text: '${_formatListenDuration(duration)} 听歌时长'.tr),
                               if (age.isNotEmpty)
-                                _InfoTag(text: '乐龄 $age'),
+                                _InfoTag(text: '乐龄 $age'.tr),
                             ],
                           );
                         }),
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            _ActionChip(label: '签到', onTap: controller.signIn),
+                            _ActionChip(label: '签到'.tr, onTap: controller.signIn),
                             const SizedBox(width: 10),
                             _ActionChip(label: 'VIP', onTap: controller.getVip),
                           ],
@@ -282,7 +282,7 @@ class _ProfileHeader extends StatelessWidget {
   List<Widget> _buildVipBadges() {
     final busiVip = controller.vipInfo.value?.busiVip ?? [];
     final badges = <Widget>[];
-    const names = ['概念版', '畅听版'];
+    final names = ['概念版'.tr, '畅听版'.tr];
     for (var i = 0; i < busiVip.length && i < 2; i++) {
       final item = busiVip[i];
       if (item.isVip != 1) continue;
@@ -424,7 +424,7 @@ class _ListenHistorySection extends StatelessWidget {
                 GestureDetector(
                   onTap: controller.addAllSongsToQueue,
                   child: Text(
-                    '我喜欢听',
+                    '我喜欢听'.tr,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -437,7 +437,7 @@ class _ListenHistorySection extends StatelessWidget {
                   onPressed: controller.hideListenSection,
                   icon: Icon(Icons.close, size: 14, color: isDark ? Colors.white38 : Colors.grey),
                   label: Text(
-                    '关闭',
+                    '关闭'.tr,
                     style: TextStyle(fontSize: 12, color: isDark ? Colors.white38 : Colors.grey),
                   ),
                 ),
@@ -463,7 +463,7 @@ class _ListenHistorySection extends StatelessWidget {
                     onTap: () async {
                       final ok = await controller.playListenSong(song);
                       if (!ok) {
-                        Get.snackbar('无法播放', '《${song.displayName}》暂时无法播放');
+                        Get.snackbar('无法播放'.tr, '《${song.displayName}》暂时无法播放'.tr);
                       }
                     },
                   );
@@ -605,12 +605,13 @@ class _CategoryTabs extends StatelessWidget {
   final MyPlaylistController controller;
   const _CategoryTabs({required this.controller});
 
-  static const _tabs = [
-    '我创建的歌单',
-    '我收藏的歌单',
-    '我收藏的专辑',
-    '我关注的歌手',
-    '我关注的好友',
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static List<String> get _tabs => [
+    '我创建的歌单'.tr,
+    '我收藏的歌单'.tr,
+    '我收藏的专辑'.tr,
+    '我关注的歌手'.tr,
+    '我关注的好友'.tr,
   ];
 
   @override
@@ -700,9 +701,9 @@ class _ContentGrid extends StatelessWidget {
                     isDark: isDark,
                     primary: primary,
                     icon: Icons.cloud_outlined,
-                    title: '我的云盘',
+                    title: '我的云盘'.tr,
                     subtitle: '(*/ω＼*)',
-                    onTap: () => Get.snackbar('提示', '云盘功能开发中'),
+                    onTap: () => Get.snackbar('提示'.tr, '云盘功能开发中'.tr),
                   );
                 }
                 if (index == 1) {
@@ -710,9 +711,9 @@ class _ContentGrid extends StatelessWidget {
                     isDark: isDark,
                     primary: primary,
                     icon: Icons.library_music_outlined,
-                    title: '本地音乐',
+                    title: '本地音乐'.tr,
                     subtitle: "(〃'▽'〃)",
-                    onTap: () => Get.snackbar('提示', '本地音乐功能开发中'),
+                    onTap: () => Get.snackbar('提示'.tr, '本地音乐功能开发中'.tr),
                   );
                 }
                 final itemIndex = index - 2;
@@ -729,7 +730,7 @@ class _ContentGrid extends StatelessWidget {
                   isDark: isDark,
                   primary: primary,
                   icon: Icons.add,
-                  title: '创建歌单',
+                  title: '创建歌单'.tr,
                   subtitle: '(≧∀≦)♪',
                   onTap: controller.showCreatePlaylistDialog,
                 );
@@ -864,7 +865,7 @@ class _PlaylistCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '${item.count} 首歌',
+              '${item.count} 首歌'.tr,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? Colors.white.withValues(alpha: 0.5) : Colors.grey,
@@ -1018,7 +1019,7 @@ class _EmptyPlaceholder extends StatelessWidget {
           Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
-            '这里什么都还没有',
+            '这里什么都还没有'.tr,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? Colors.white.withValues(alpha: 0.4) : const Color(0xFF909399),

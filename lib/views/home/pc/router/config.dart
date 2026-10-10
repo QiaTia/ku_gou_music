@@ -1,5 +1,6 @@
 
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:ku_gou_music/views/artist/artist.dart';
 import 'package:ku_gou_music/views/home/pc/plaza/plaza.dart';
 import 'package:ku_gou_music/views/home/pc/ranking/ranking.dart';
@@ -42,7 +43,7 @@ Map<String, Widget Function(BuildContext)> routes = {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     return MvScreen(
       hash: args?['hash']?.toString() ?? '',
-      title: args?['title']?.toString() ?? '视频播放',
+      title: args?['title']?.toString() ?? '视频播放'.tr,
     );
   },
 };

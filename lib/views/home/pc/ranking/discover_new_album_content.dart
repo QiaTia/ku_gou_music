@@ -60,12 +60,13 @@ class _DiscoverNewAlbumContentState extends State<DiscoverNewAlbumContent> {
 class _AlbumTypeBar extends StatelessWidget {
   const _AlbumTypeBar();
 
-  static const _types = [
-    ('', '推荐'),
-    ('1', '华语'),
-    ('2', '欧美'),
-    ('3', '日本'),
-    ('4', '韩国'),
+  // getter 每次访问时求值，.tr 随当前语言动态翻译
+  static List<(String, String)> get _types => [
+    ('', '推荐'.tr),
+    ('1', '华语'.tr),
+    ('2', '欧美'.tr),
+    ('3', '日本'.tr),
+    ('4', '韩国'.tr),
   ];
 
   @override
@@ -185,8 +186,8 @@ class _AlbumGrid extends StatelessWidget {
     return Obx(() {
       final albums = controller.albums;
       if (albums.isEmpty) {
-        return const Center(
-          child: Text('暂无新碟', style: TextStyle(color: Colors.grey)),
+        return  Center(
+          child: Text('暂无新碟'.tr, style: TextStyle(color: Colors.grey)),
         );
       }
       return GridView.builder(
@@ -216,7 +217,7 @@ class _AlbumCard extends StatelessWidget {
     final description = [
       album.singername,
       album.publishtime.split(' ').first,
-      if (album.songcount > 0) '${album.songcount}首',
+      if (album.songcount > 0) '${album.songcount}首'.tr,
     ].where((e) => e.isNotEmpty).join(' · ');
 
     return Material(

@@ -58,7 +58,7 @@ class SearchPage extends StatelessWidget {
     return Scaffold(
       appBar: TitleBar(
         searchField: TitleSearchField(
-          hintText: '搜索歌曲、歌手、歌单...',
+          hintText: '搜索歌曲、歌手、歌单...'.tr,
           initialKeyword: initialKeyword,
         ),
       ),
@@ -84,7 +84,7 @@ class SearchPage extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.grey),
           const SizedBox(height: 12),
-          const Text('搜索失败'),
+           Text('搜索失败'.tr),
           TextButton(
             onPressed: () {
               final index = controller.selectedTabIndex.value;
@@ -94,7 +94,7 @@ class SearchPage extends StatelessWidget {
                 controller.search(controller.keyword.value);
               }
             },
-            child: const Text('重试'),
+            child:  Text('重试'.tr),
           ),
         ],
       ),
@@ -102,13 +102,13 @@ class SearchPage extends StatelessWidget {
   }
 
   Widget _buildEmptyWidget() {
-    return const Center(
+    return  Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search, size: 64, color: Colors.grey),
           SizedBox(height: 16),
-          Text('输入关键词开始搜索', style: TextStyle(color: Colors.grey)),
+          Text('输入关键词开始搜索'.tr, style: TextStyle(color: Colors.grey)),
         ],
       ),
     );
@@ -246,7 +246,7 @@ class SearchPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('歌手', authorGroup.total, () => controller.selectTab(5)),
+        _buildSectionHeader('歌手'.tr, authorGroup.total, () => controller.selectTab(5)),
         SizedBox(
           height: 180,
           child: ListView.builder(
@@ -269,7 +269,7 @@ class SearchPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('单曲', songGroup.total, () => controller.selectTab(1)),
+        _buildSectionHeader('单曲'.tr, songGroup.total, () => controller.selectTab(1)),
         ...songs.take(5).map((song) => _SongListItem(song: song)),
       ],
     );
@@ -282,7 +282,7 @@ class SearchPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('歌单', specialGroup.total, () => controller.selectTab(2)),
+        _buildSectionHeader('歌单'.tr, specialGroup.total, () => controller.selectTab(2)),
         SizedBox(
           height: 220,
           child: ListView.builder(
@@ -354,7 +354,7 @@ class SearchPage extends StatelessWidget {
           GestureDetector(
             onTap: onTapMore,
             child: Text(
-              '查看更多($count)',
+              '查看更多($count)'.tr,
               style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
           ),
@@ -394,8 +394,8 @@ class SearchPage extends StatelessWidget {
                 child: _buildTabBar(controller),
               ),
             ),
-            const SliverFillRemaining(
-              child: Center(child: Text('暂无单曲', style: TextStyle(color: Colors.grey))),
+             SliverFillRemaining(
+              child: Center(child: Text('暂无单曲'.tr, style: TextStyle(color: Colors.grey))),
             ),
           ],
         );
@@ -451,8 +451,8 @@ class SearchPage extends StatelessWidget {
                 child: _buildTabBar(controller),
               ),
             ),
-            const SliverFillRemaining(
-              child: Center(child: Text('暂无歌单', style: TextStyle(color: Colors.grey))),
+             SliverFillRemaining(
+              child: Center(child: Text('暂无歌单'.tr, style: TextStyle(color: Colors.grey))),
             ),
           ],
         );
@@ -529,8 +529,8 @@ class SearchPage extends StatelessWidget {
                 child: _buildTabBar(controller),
               ),
             ),
-            const SliverFillRemaining(
-              child: Center(child: Text('暂无专辑', style: TextStyle(color: Colors.grey))),
+             SliverFillRemaining(
+              child: Center(child: Text('暂无专辑'.tr, style: TextStyle(color: Colors.grey))),
             ),
           ],
         );
@@ -595,8 +595,8 @@ class SearchPage extends StatelessWidget {
                 child: _buildTabBar(controller),
               ),
             ),
-            const SliverFillRemaining(
-              child: Center(child: Text('暂无MV', style: TextStyle(color: Colors.grey))),
+             SliverFillRemaining(
+              child: Center(child: Text('暂无MV'.tr, style: TextStyle(color: Colors.grey))),
             ),
           ],
         );
@@ -661,8 +661,8 @@ class SearchPage extends StatelessWidget {
                 child: _buildTabBar(controller),
               ),
             ),
-            const SliverFillRemaining(
-              child: Center(child: Text('暂无歌手', style: TextStyle(color: Colors.grey))),
+             SliverFillRemaining(
+              child: Center(child: Text('暂无歌手'.tr, style: TextStyle(color: Colors.grey))),
             ),
           ],
         );
@@ -730,9 +730,9 @@ class _SongListItem extends StatelessWidget {
     final ok = await musicController.addAndPlaySong(_searchSongToItem(song));
     if (!ok) {
       Get.snackbar(
-        '无法播放',
+        '无法播放'.tr,
         musicController.audioService.lastUrlError ??
-            '《${song.displaySongName}》暂时无法播放',
+            '《${song.displaySongName}》暂时无法播放'.tr,
       );
       return;
     }
@@ -896,7 +896,7 @@ class _AuthorCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '歌曲: ${author.audioCount}',
+                '歌曲: ${author.audioCount}'.tr,
                 style: TextStyle(fontSize: 11, color: Colors.grey[500]),
               ),
             ],
@@ -951,7 +951,7 @@ class _AuthorListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '歌曲: ${author.audioCount} · 粉丝: ${author.fansNum}',
+                    '歌曲: ${author.audioCount} · 粉丝: ${author.fansNum}'.tr,
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],
@@ -1039,7 +1039,7 @@ class _SpecialCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$songCount首 · $nickname',
+                  '$songCount首 · $nickname'.tr,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 11, color: Colors.grey[500]),

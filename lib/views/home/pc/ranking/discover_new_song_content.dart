@@ -38,7 +38,7 @@ class _DiscoverNewSongContentState extends State<DiscoverNewSongContent> {
   Future<void> _playSong(DiscoverNewSong song) async {
     final ok = await controller.playSong(song);
     if (!ok && mounted) {
-      Get.snackbar('无法播放', '《${song.songname}》暂时无法播放');
+      Get.snackbar('无法播放'.tr, '《${song.songname}》暂时无法播放'.tr);
     }
   }
 
@@ -250,7 +250,7 @@ class _SongPagination extends StatelessWidget {
               child: Row(
                 children: [
                   _PageNavButton(
-                    label: '上一页',
+                    label: '上一页'.tr,
                     enabled: currentPage > 1,
                     onPressed: controller.prevSongPage,
                   ),
@@ -267,7 +267,7 @@ class _SongPagination extends StatelessWidget {
                   ],
                   const SizedBox(width: 10),
                   _PageNavButton(
-                    label: '下一页',
+                    label: '下一页'.tr,
                     enabled: currentPage < totalPages,
                     onPressed: controller.nextSongPage,
                   ),
@@ -421,7 +421,7 @@ class _NewSongPlaceholder extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '新歌速递',
+              '新歌速递'.tr,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
@@ -430,7 +430,7 @@ class _NewSongPlaceholder extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '暂无数据',
+              '暂无数据'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.white.withValues(alpha: 0.6) : const Color(0xFF8B8F9C),

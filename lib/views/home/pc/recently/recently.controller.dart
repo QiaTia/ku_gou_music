@@ -23,7 +23,7 @@ class RecentlyController extends GetxController {
   final RxList<AlbumPlayHistory> albumHistory = <AlbumPlayHistory>[].obs;
 
   // Tab标题
-  final List<String> tabTitles = ['歌曲', '歌单', '专辑'];
+  final List<String> tabTitles = ['歌曲'.tr, '歌单'.tr, '专辑'.tr];
 
   @override
   void onInit() {
@@ -172,15 +172,15 @@ class RecentlyController extends GetxController {
       final ok = await _musicController.playSong(0);
       if (!ok) {
         final reason = _musicController.audioService.lastUrlError ??
-            '《${song.name}》暂时无法播放';
-        Get.snackbar('无法播放', reason);
+            '《${song.name}》暂时无法播放'.tr;
+        Get.snackbar('无法播放'.tr, reason);
         return;
       }
       // 确保播放器已开始播放（与歌单页保持一致）
       _musicController.audioService.play();
       Get.toNamed('/player');
     } catch (e) {
-      Get.snackbar('播放失败', '无法播放该歌曲，请稍后重试');
+      Get.snackbar('播放失败'.tr, '无法播放该歌曲，请稍后重试'.tr);
     }
   }
 
@@ -209,7 +209,7 @@ class RecentlyController extends GetxController {
       albumHistory.insert(0, album);
     }
     // 暂无专辑详情页，提示用户
-    Get.snackbar('提示', '专辑详情页开发中，敬请期待');
+    Get.snackbar('提示'.tr, '专辑详情页开发中，敬请期待'.tr);
   }
 
   /// 将选中的歌曲加入下一首播放
@@ -236,7 +236,7 @@ class RecentlyController extends GetxController {
       await _musicController.insertNextPlay(songItem);
     }
 
-    Get.snackbar('提示', '已添加 ${selectedSongs.length} 首歌曲到下一首播放');
+    Get.snackbar('提示'.tr, '已添加 ${selectedSongs.length} 首歌曲到下一首播放'.tr);
     // 完成后退出编辑模式
     exitEditMode();
   }

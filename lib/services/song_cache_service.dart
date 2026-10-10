@@ -79,12 +79,12 @@ class SongCacheService extends GetxService {
       await _refreshCacheStats();
 
       _isAvailable = true;
-      print('✅ 歌曲缓存服务初始化成功 (平台: ${Platform.operatingSystem})');
+      print('✅ 歌曲缓存服务初始化成功 (平台: ${Platform.operatingSystem})'.tr);
     } catch (e) {
       _isAvailable = false;
       _db = null;
       _cacheDir = null;
-      print('⚠️ 歌曲缓存服务初始化失败，缓存功能不可用: $e');
+      print('⚠️ 歌曲缓存服务初始化失败，缓存功能不可用: $e'.tr);
     }
 
     return this;
@@ -275,14 +275,25 @@ class SongCacheService extends GetxService {
       // 5. 验证下载文件
       final tempFile = File(tempPath);
       if (!tempFile.existsSync()) {
-        throw Exception('下载文件不存在');
+        throw Exception('下载文件不存在'.tr);
       }
       final fileSize = tempFile.lengthSync();
+      // 模板翻译后注入变量：\${fileSize} 保持字面以命中词典模板键
       if (fileSize < 1024) {
-        throw Exception('文件过小(${fileSize}B)，可能下载失败');
+        throw Exception(
+          '文件过小(\${fileSize}B)，可能下载失败'.tr.replaceAll(
+            r'${fileSize}',
+            fileSize.toString(),
+          ),
+        );
       }
       if (fileSize > _maxFileSizeBytes) {
-        throw Exception('文件过大(${fileSize}B)，超过上限');
+        throw Exception(
+          '文件过大(\${fileSize}B)，超过上限'.tr.replaceAll(
+            r'${fileSize}',
+            fileSize.toString(),
+          ),
+        );
       }
 
       // 6. 原子重命名：.tmp -> 正式文件
@@ -328,7 +339,7 @@ class SongCacheService extends GetxService {
       if (tempFile.existsSync()) {
         tempFile.deleteSync();
       }
-      print('⚠️ 缓存下载失败: $hash $quality - $e');
+      print('⚠️ 缓存下载失败: $hash $quality - $e'.tr);
       return null;
     }
   }

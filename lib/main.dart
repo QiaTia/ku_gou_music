@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
@@ -12,6 +13,8 @@ import 'package:ku_gou_music/views/playlist/playlist.dart';
 import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
+import 'i18n/app_translations.dart';
+import 'services/window_service.dart';
 import 'views/music/player_screen.dart';
 import 'views/music/playlist_screen.dart';
 import 'views/home/pc/layout/layout.dart';
@@ -55,9 +58,30 @@ void main() async {
 
   await GetStorage.init();
   await GetStorage.init(SettingsController.boxName);
+
+  // 注册翻译（托盘菜单在 runApp 前构建也需要 .tr）
+  // JSON 词典覆盖基础词典；zh_CN 无词典，key 即中文原文
+  Get.addTranslations(await loadAppTranslations());
+
+  // 语言设置：空值跟随系统语言
+  final settingsBox = GetStorage(SettingsController.boxName);
+  final appLocale = SettingsController.localeFromLanguage(
+    settingsBox.read<String>('language') ?? '',
+  );
+
+  // 桌面窗口与托盘（原生标题栏/最小化到托盘/托盘菜单）
+  // SettingsController 需先注册（WindowService 内监听设置变化）
+  Get.put(SettingsController());
+  await WindowService.instance.init(
+    nativeTitleBar:
+        (settingsBox.read<String>('nativeTitleBar') ?? 'off') == 'on',
+    minimizeToTray: (settingsBox.read<String>('minimizeToTray') ?? 'on') == 'on',
+    customTrayMenu:
+        (settingsBox.read<String>('customTrayMenu') ?? 'native') == 'custom',
+  );
+
   // 初始化歌曲缓存服务（必须在 runApp 之前，AudioService 依赖它）
   await Get.putAsync<SongCacheService>(() => SongCacheService().init());
-  Get.put(SettingsController());
   userInstance.init();
   if (userInstance.dfid.isEmpty) {
     registerDevice()
@@ -68,11 +92,13 @@ void main() async {
           print('Device registration failed: $error');
         });
   }
-  runApp(MyApp());
+  runApp(MyApp(appLocale: appLocale));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Locale? appLocale;
+
+  const MyApp({super.key, this.appLocale});
 
   ThemeData _buildTheme(SettingsController settings, Brightness brightness) {
     final primary = settings.primaryColor;
@@ -101,6 +127,18 @@ class MyApp extends StatelessWidget {
           return GetMaterialApp(
             debugShowCheckedModeBanner: false,
             scrollBehavior: DesktopScrollBehavior(),
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            fallbackLocale: const Locale('zh', 'CN'),
+            supportedLocales: const [
+              Locale('zh', 'CN'),
+              Locale('zh', 'TW'),
+              Locale('en', 'US'),
+            ],
+            locale: appLocale, // null 时跟随系统语言
             themeMode: settings.themeMode,
             theme: _buildTheme(settings, Brightness.light),
             darkTheme: _buildTheme(settings, Brightness.dark),
@@ -137,7 +175,7 @@ class MyApp extends StatelessWidget {
                         as Map<String, dynamic>?;
                 return MvScreen(
                   hash: args?['hash']?.toString() ?? '',
-                  title: args?['title']?.toString() ?? '视频播放',
+                  title: args?['title']?.toString() ?? '视频播放'.tr,
                 );
               },
             },

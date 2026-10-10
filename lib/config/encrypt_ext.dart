@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:get/get.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/export.dart' as pc;
 import 'dart:convert';
@@ -55,6 +56,7 @@ String encryptRSANoPadding(Uint8List bytes, pc.RSAPublicKey publicKey) {
     final encrypted = encryptNoPadding(bytes, publicKey);
     return base64Encode(encrypted.bytes);
   } catch (e) {
-    throw Exception('加密失败: $e');
+    // 模板翻译后注入变量：\$e 保持字面 $e 以命中词典模板键
+    throw Exception('加密失败: \$e'.tr.replaceAll(r'$e', e.toString()));
   }
 }

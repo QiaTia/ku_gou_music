@@ -42,7 +42,7 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  '播放列表为空',
+                  '播放列表为空'.tr,
                   style: TextStyle(
                     fontSize: 18,
                   ),
@@ -137,7 +137,7 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
           children: [
             ListTile(
               leading: Icon(Icons.play_arrow, color: Colors.white),
-              title: Text('立即播放', style: TextStyle(color: Colors.white)),
+              title: Text('立即播放'.tr, style: TextStyle(color: Colors.white)),
               onTap: ()async {
                 await controller.playSong(index);
                 Get.back();
@@ -146,28 +146,28 @@ class CurrentPlaylistScreen extends GetView<MusicController> {
             ),
             ListTile(
               leading: Icon(Icons.queue_music, color: Colors.white),
-              title: Text('下一首播放', style: TextStyle(color: Colors.white)),
+              title: Text('下一首播放'.tr, style: TextStyle(color: Colors.white)),
               onTap: () {
                 Get.back();
               },
             ),
             ListTile(
               leading: Icon(Icons.playlist_add, color: Colors.white),
-              title: Text('添加到播放列表', style: TextStyle(color: Colors.white)),
+              title: Text('添加到播放列表'.tr, style: TextStyle(color: Colors.white)),
               onTap: () {
                 Get.back();
               },
             ),
             ListTile(
               leading: Icon(Icons.favorite_border, color: Colors.white),
-              title: Text('喜欢', style: TextStyle(color: Colors.white)),
+              title: Text('喜欢'.tr, style: TextStyle(color: Colors.white)),
               onTap: () {
                 Get.back();
               },
             ),
             ListTile(
               leading: Icon(Icons.delete, color: Colors.red),
-              title: Text('从列表中移除', style: TextStyle(color: Colors.red)),
+              title: Text('从列表中移除'.tr, style: TextStyle(color: Colors.red)),
               onTap: () {
                 Get.back();
               },

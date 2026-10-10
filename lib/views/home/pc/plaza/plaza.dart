@@ -34,10 +34,10 @@ class PlazaPage extends StatelessWidget {
               children: [
                 const Icon(Icons.error_outline, size: 48, color: Colors.grey),
                 const SizedBox(height: 12),
-                const Text('获取分类失败'),
+                 Text('获取分类失败'.tr),
                 TextButton(
                   onPressed: controller.loadTags,
-                  child: const Text('重试'),
+                  child:  Text('重试'.tr),
                 ),
               ],
             ),
@@ -335,8 +335,8 @@ class _PlaylistGrid extends StatelessWidget {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.playlistResults.isEmpty) {
-        return const Center(
-          child: Text('暂无歌单', style: TextStyle(color: Colors.grey)),
+        return  Center(
+          child: Text('暂无歌单'.tr, style: TextStyle(color: Colors.grey)),
         );
       }
       return GridView.builder(

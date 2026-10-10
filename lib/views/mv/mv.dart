@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ku_gou_music/api/mv/mv.dart';
 import 'package:video_player/video_player.dart';
 
@@ -37,7 +38,7 @@ class _MvScreenState extends State<MvScreen> {
   Future<void> _fetchVideoUrl() async {
     if (widget.hash.isEmpty) {
       setState(() {
-        _error = '缺少视频参数';
+        _error = '缺少视频参数'.tr;
         _isLoading = false;
       });
       return;
@@ -71,12 +72,12 @@ class _MvScreenState extends State<MvScreen> {
         }
       }
       setState(() {
-        _error = '获取视频播放地址失败';
+        _error = '获取视频播放地址失败'.tr;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = '加载视频失败，请稍后重试';
+        _error = '加载视频失败，请稍后重试'.tr;
         _isLoading = false;
       });
     }
@@ -96,7 +97,7 @@ class _MvScreenState extends State<MvScreen> {
     } catch (e) {
       controller.dispose();
       setState(() {
-        _error = '视频播放失败，可能是视频格式不支持或网络问题';
+        _error = '视频播放失败，可能是视频格式不支持或网络问题'.tr;
         _isLoading = false;
       });
     }
@@ -127,13 +128,13 @@ class _MvScreenState extends State<MvScreen> {
 
   Widget _buildBody(bool isDark) {
     if (_isLoading) {
-      return const Center(
+      return  Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CircularProgressIndicator(color: Color(0xFF42B983)),
             SizedBox(height: 16),
-            Text('正在加载视频...', style: TextStyle(color: Colors.white70)),
+            Text('正在加载视频...'.tr, style: TextStyle(color: Colors.white70)),
           ],
         ),
       );
@@ -154,7 +155,7 @@ class _MvScreenState extends State<MvScreen> {
                 backgroundColor: const Color(0xFF42B983),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('重试'),
+              child:  Text('重试'.tr),
             ),
           ],
         ),

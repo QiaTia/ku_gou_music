@@ -1,4 +1,5 @@
 import 'package:ku_gou_music/config/util.dart';
+import 'package:get/get.dart';
 
 import '../request/request.dart';
 
@@ -15,7 +16,7 @@ Future<ResponseOptions<Map<String, dynamic>>> checkQrStatus(String qrcode) async
     url: '/v2/get_userinfo_qrcode',
     encryptType: 'web',
   ));
-  print('[QR] checkQrStatus 响应: status=${response.body?['status']} data=${response.body?['data']}');
+  print('[QR] checkQrStatus 响应: status=${response.body?['status']} data=${response.body?['data']}'.tr);
   if (response.body!['data']?['status'] == 4) {
     final cookies = response.cookie;
     cookies.add('token=${response.body!['data']?['token']}');
@@ -51,5 +52,5 @@ Future<Map<String, String?>> createQrByLogin([String? type]) async {
     String url = 'https://h5.kugou.com/apps/loginQRCode/html/index.html?qrcode=${qrCode}';
     return { 'url': url, 'qrImg': qrImg, 'qrCode': qrCode };
   }
-  return Future.error('创建二维码失败');
+  return Future.error('创建二维码失败'.tr);
 }

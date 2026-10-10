@@ -407,7 +407,7 @@ class _RankSongListState extends State<_RankSongList> {
     final controller = Get.find<DiscoverRankingController>();
     final ok = await controller.playSong(song);
     if (!ok && mounted) {
-      Get.snackbar('无法播放', '《${song.songname}》暂时无法播放');
+      Get.snackbar('无法播放'.tr, '《${song.songname}》暂时无法播放'.tr);
     }
   }
 
@@ -422,7 +422,7 @@ class _RankSongListState extends State<_RankSongList> {
             if (index == state.songs.length) {
               // 底部状态：加载中 / 已全部加载
               if (state.loading.value) {
-                return const Padding(
+                return  Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -433,7 +433,7 @@ class _RankSongListState extends State<_RankSongList> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       SizedBox(width: 8),
-                      Text('加载中...', style: TextStyle(fontSize: 14)),
+                      Text('加载中...'.tr, style: TextStyle(fontSize: 14)),
                     ],
                   ),
                 );
@@ -448,7 +448,7 @@ class _RankSongListState extends State<_RankSongList> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     alignment: Alignment.center,
                     child: Text(
-                      '已加载全部歌曲',
+                      '已加载全部歌曲'.tr,
                       style: TextStyle(
                         fontSize: 13,
                         color: Theme.of(context).brightness == Brightness.dark

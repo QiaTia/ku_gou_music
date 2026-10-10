@@ -1,5 +1,6 @@
 // models/user_info.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:get/get.dart';
 import '../converters/int_from_string_converter.dart';
 import 'medal_info.dart';
 import 'knock_info.dart';
@@ -163,11 +164,11 @@ abstract class UserInfo with _$UserInfo {
   String get genderLabel {
     switch (gender) {
       case 1:
-        return '男';
+        return '男'.tr;
       case 2:
-        return '女';
+        return '女'.tr;
       default:
-        return '未知';
+        return '未知'.tr;
     }
   }
 
@@ -187,24 +188,24 @@ abstract class UserInfo with _$UserInfo {
 
   /// 星座名称
   String get constellationName {
-    const names = [
+    final names = [
       '',
-      '白羊座',
-      '金牛座',
-      '双子座',
-      '巨蟹座',
-      '狮子座',
-      '处女座',
-      '天秤座',
-      '天蝎座',
-      '射手座',
-      '摩羯座',
-      '水瓶座',
-      '双鱼座',
+      '白羊座'.tr,
+      '金牛座'.tr,
+      '双子座'.tr,
+      '巨蟹座'.tr,
+      '狮子座'.tr,
+      '处女座'.tr,
+      '天秤座'.tr,
+      '天蝎座'.tr,
+      '射手座'.tr,
+      '摩羯座'.tr,
+      '水瓶座'.tr,
+      '双鱼座'.tr,
     ];
     return constellation >= 1 && constellation <= 12
         ? names[constellation]
-        : '未知';
+        : '未知'.tr;
   }
 
   /// 是否已实名认证

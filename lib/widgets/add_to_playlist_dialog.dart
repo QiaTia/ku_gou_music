@@ -74,7 +74,7 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
       final body = response.body;
 
       if (body == null || body['status'] != 1) {
-        throw Exception(body?['msg'] ?? '获取歌单失败');
+        throw Exception(body?['msg'] ?? '获取歌单失败'.tr);
       }
 
       final listData = body['data']?['list'];
@@ -114,17 +114,17 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
         Get.back();
         widget.onSuccess?.call();
         Get.snackbar(
-          '添加成功',
-          '已添加到「${playlist.specialname}」',
+          '添加成功'.tr,
+          '已添加到「${playlist.specialname}」'.tr,
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 2),
         );
       } else {
-        throw Exception(response.body?['msg'] ?? '添加失败');
+        throw Exception(response.body?['msg'] ?? '添加失败'.tr);
       }
     } catch (e) {
       Get.snackbar(
-        '添加失败',
+        '添加失败'.tr,
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[50],
@@ -188,9 +188,9 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
     try {
       return (song as dynamic).songName ??
           (song as dynamic).name ??
-          '未知歌曲';
+          '未知歌曲'.tr;
     } catch (_) {
-      return '未知歌曲';
+      return '未知歌曲'.tr;
     }
   }
 
@@ -287,7 +287,7 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '添加到歌单',
+                  '添加到歌单'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -337,13 +337,13 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
           const Icon(Icons.error_outline, size: 48, color: Colors.grey),
           const SizedBox(height: 12),
           Text(
-            '获取歌单失败',
+            '获取歌单失败'.tr,
             style: TextStyle(color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: _loadUserPlaylists,
-            child: const Text('重试'),
+            child:  Text('重试'.tr),
           ),
         ],
       ),
@@ -359,7 +359,7 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
           Icon(Icons.queue_music, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 12),
           Text(
-            '暂无歌单',
+            '暂无歌单'.tr,
             style: TextStyle(color: Colors.grey[600]),
           ),
         ],
@@ -400,12 +400,12 @@ class _AddToPlaylistDialogState extends State<AddToPlaylistDialog> {
                   ),
           ),
           title: Text(
-            playlist.specialname ?? '未命名歌单',
+            playlist.specialname ?? '未命名歌单'.tr,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            '${playlist.collectcount ?? 0}首',
+            '${playlist.collectcount ?? 0}首'.tr,
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
           trailing: isAdding

@@ -26,11 +26,14 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final sections = _settings.sections;
+    // 与 login_page 一致的移动端断点：窄屏时左侧栏改为顶部分组 Tab
+    final isMobile = MediaQuery.sizeOf(context).width < 600;
     return Scaffold(
-      appBar: TitleBar(title: '设置', actions: const []),
+      appBar: TitleBar(title: '设置'.tr, actions: const []),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Container(
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(8),
@@ -41,13 +44,81 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
-          child: Row(
-            children: [
-              _buildSidebar(sections),
-              Expanded(child: _buildContent(sections)),
-            ],
-          ),
+          child: isMobile
+              ? Column(
+                  children: [
+                    _buildTopTabs(sections),
+                    Expanded(child: _buildContent(sections)),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _buildSidebar(sections),
+                    Expanded(child: _buildContent(sections)),
+                  ],
+                ),
         ),
+      ),
+    );
+  }
+
+  // ==================== 移动端顶部分组 Tab ====================
+
+  /// 窄屏下替代左侧栏：分组以图标+文字芯片横向滑动切换（样式对齐左侧栏激活态）
+  Widget _buildTopTabs(List<SettingSection> sections) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: _borderLight, width: 0.5)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 52,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: sections.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final section = sections[index];
+          final active = _activeTab == index;
+          return GestureDetector(
+            onTap: () => setState(() => _activeTab = index),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: active
+                    ? primary.withValues(alpha: 0.12)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    section.icon,
+                    size: 16,
+                    color: active ? primary : _textMuted,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    section.title.tr,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: active
+                          ? primary
+                          : (isDark ? Colors.white70 : _textMuted),
+                      fontWeight:
+                          active ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -95,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        section.title,
+                        section.title.tr,
                         style: TextStyle(
                           fontSize: 14,
                           color: active ? primary : null,
@@ -136,7 +207,7 @@ class _SettingsPageState extends State<SettingsPage> {
               border: Border(bottom: BorderSide(color: _borderLight)),
             ),
             child: Text(
-              section.title,
+              section.title.tr,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
             ),
           ),
@@ -177,7 +248,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ElevatedButton.icon(
               onPressed: _openResetConfirmation,
               icon: const Icon(Icons.sync_alt, size: 16),
-              label: const Text('恢复出厂设置'),
+              label:  Text('恢复出厂设置'.tr),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF44336),
                 foregroundColor: Colors.white,
@@ -236,10 +307,10 @@ class _SettingsPageState extends State<SettingsPage> {
         Get.dialog(_ShortcutDialog(settings: _settings));
         break;
       case 'onboardingGuide':
-        Get.snackbar('提示', '新手引导即将上线');
+        Get.snackbar('提示'.tr, '新手引导即将上线'.tr);
         break;
       case 'pwa':
-        Get.snackbar('提示', '请在 Web 环境下安装');
+        Get.snackbar('提示'.tr, '请在 Web 环境下安装'.tr);
         break;
       default:
         break;
@@ -258,10 +329,10 @@ class _SettingsPageState extends State<SettingsPage> {
           await Process.start('xdg-open', [dir.path]);
         }
       } catch (e) {
-        Get.snackbar('提示', '打开目录失败: $e');
+        Get.snackbar('提示'.tr, '打开目录失败: $e'.tr);
       }
     } else if (action == 'export-log') {
-      Get.snackbar('提示', '当前无运行日志可导出');
+      Get.snackbar('提示'.tr, '当前无运行日志可导出'.tr);
     }
   }
 
@@ -273,20 +344,20 @@ class _SettingsPageState extends State<SettingsPage> {
             ? Theme.of(context).colorScheme.surface
             : Colors.white,
         surfaceTintColor: Colors.transparent,
-        title: const Text('提示'),
-        content: const Text('你确认要恢复出厂设置吗？此操作会清空所有本地设置。'),
+        title:  Text('提示'.tr),
+        content:  Text('你确认要恢复出厂设置吗？此操作会清空所有本地设置。'.tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
+            child:  Text('取消'.tr),
           ),
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
               await _settings.resetAll();
-              Get.snackbar('提示', '恢复出厂设置成功');
+              Get.snackbar('提示'.tr, '恢复出厂设置成功'.tr);
             },
-            child: const Text('确定', style: TextStyle(color: Colors.red)),
+            child:  Text('确定'.tr, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -370,7 +441,7 @@ class _SettingCardState extends State<_SettingCard> {
                   const SizedBox(width: 10),
                   Flexible(
                     child: Text(
-                      item.label,
+                      item.label.tr,
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -378,7 +449,7 @@ class _SettingCardState extends State<_SettingCard> {
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Text(
-                        item.refreshHintText,
+                        item.refreshHintText.tr,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFFFF4D4F),
@@ -417,7 +488,7 @@ class _SettingCardState extends State<_SettingCard> {
       children: [
         Flexible(
           child: Text(
-            '${item.emoji}${enabled ? '开启' : '关闭'}',
+            '${item.emoji}${enabled ? '开启'.tr : '关闭'.tr}',
             style: const TextStyle(fontSize: 14),
             overflow: TextOverflow.ellipsis,
           ),
@@ -434,7 +505,7 @@ class _SettingCardState extends State<_SettingCard> {
   Widget _buildSelectValue() {
     final item = widget.item;
     final text =
-        '${item.emoji}${widget.settings.displayTextOf(item)}';
+        '${item.emoji}${widget.settings.displayTextOf(item).tr}';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -468,7 +539,7 @@ class _SettingCardState extends State<_SettingCard> {
         Process.start('xdg-open', [url]);
       }
     } catch (_) {
-      Get.snackbar('帮助链接', url);
+      Get.snackbar('帮助链接'.tr, url);
     }
   }
 }
@@ -614,7 +685,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    item.selectionTitle ?? item.label,
+                    (item.selectionTitle ?? item.label).tr,
                     style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(height: 20),
@@ -622,7 +693,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
                   if (item.type == SettingItemType.font)
                     TextField(
                       decoration: InputDecoration(
-                        hintText: '搜索字体...',
+                        hintText: '搜索字体...'.tr,
                         filled: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -650,7 +721,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('关闭', style: TextStyle(fontSize: 16)),
+                    child:  Text('关闭'.tr, style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -671,7 +742,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
                         Process.start('xdg-open', [item.helpLink!]);
                       }
                     } catch (_) {
-                      Get.snackbar('帮助链接', item.helpLink!);
+                      Get.snackbar('帮助链接'.tr, item.helpLink!);
                     }
                   },
                   child: Icon(Icons.help_outline, size: 18, color: primary),
@@ -742,7 +813,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
           onTap: () => _selectOption(option),
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Text(option.displayText),
+            child: Text(option.displayText.tr),
           ),
         ),
       ),
@@ -758,7 +829,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
             query.isEmpty || o.displayText.toLowerCase().contains(query))
         .toList();
     if (fonts.isEmpty) {
-      return const Center(child: Text('默认字体'));
+      return  Center(child: Text('默认字体'.tr));
     }
     return ListView(
       shrinkWrap: true,
@@ -781,7 +852,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  option.displayText,
+                  option.displayText.tr,
                   style: TextStyle(
                     fontFamily: option.value.isEmpty ? null : option.value,
                   ),
@@ -798,19 +869,19 @@ class _SelectionDialogState extends State<_SelectionDialog> {
 
   Widget _buildAudioList() {
     if (_audioLoading) {
-      return const Padding(
+      return  Padding(
         padding: EdgeInsets.all(12),
-        child: Text('正在获取设备列表...'),
+        child: Text('正在获取设备列表...'.tr),
       );
     }
     return ListView(
       shrinkWrap: true,
       children: [
-        _optionTile(const SettingOption('默认', 'default')),
-        const Padding(
+        _optionTile( SettingOption('默认'.tr, 'default')),
+         Padding(
           padding: EdgeInsets.all(12),
           child: Text(
-            '未检测到其他音频输出设备',
+            '未检测到其他音频输出设备'.tr,
             style: TextStyle(color: Color(0xFF999999), fontSize: 13),
           ),
         ),
@@ -834,12 +905,12 @@ class _SelectionDialogState extends State<_SelectionDialog> {
           Row(
             children: [
               Text(
-                '缩放因子: ${_dpiScale.toStringAsFixed(1)}',
+                '缩放因子: ${_dpiScale.toStringAsFixed(1)}'.tr,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
-              const Text(
-                '调整后需重启',
+               Text(
+                '调整后需重启'.tr,
                 style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
               ),
             ],
@@ -879,11 +950,11 @@ class _SelectionDialogState extends State<_SelectionDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _readonlyField('API地址', '内置接口服务'),
-          _readonlyField('WebSocket地址', 'ws://127.0.0.1:6520'),
+          _readonlyField('API地址'.tr, '内置接口服务'.tr),
+          _readonlyField('WebSocket地址'.tr, 'ws://127.0.0.1:6520'),
           const SizedBox(height: 5),
-          const Text(
-            '默认 API 提示：当前使用内置接口服务，地址仅供查看。',
+           Text(
+            '默认 API 提示：当前使用内置接口服务，地址仅供查看。'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: Color(0xFF999999)),
           ),
@@ -922,11 +993,11 @@ class _SelectionDialogState extends State<_SelectionDialog> {
 
   Widget _buildApiUrlForm() {
     return _buildForm(
-      placeholder: 'RPC地址（留空使用默认）',
+      placeholder: 'RPC地址（留空使用默认）'.tr,
       onTest: () async {
         setState(() {
           _testing = true;
-          _testResult = '正在测试...';
+          _testResult = '正在测试...'.tr;
         });
         final (ok, msg) =
             await settings.testApiBaseUrl(_formController.text);
@@ -948,7 +1019,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
             uri = Uri.parse(url);
           } catch (_) {}
           if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
-            Get.snackbar('提示', '请输入有效的 URL');
+            Get.snackbar('提示'.tr, '请输入有效的 URL'.tr);
             return;
           }
           settings.setValue('apiBaseUrlMode', 'custom');
@@ -963,11 +1034,11 @@ class _SelectionDialogState extends State<_SelectionDialog> {
 
   Widget _buildProxyForm() {
     return _buildForm(
-      placeholder: '代理地址，如 http://127.0.0.1:7890',
+      placeholder: '代理地址，如 http://127.0.0.1:7890'.tr,
       onTest: () async {
         setState(() {
           _testing = true;
-          _testResult = '正在测试...';
+          _testResult = '正在测试...'.tr;
         });
         final (ok, msg) = await settings.testProxy(_formController.text);
         if (!mounted) return;
@@ -986,7 +1057,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
           } catch (_) {}
           if (uri == null ||
               (uri.scheme != 'http' && uri.scheme != 'https')) {
-            Get.snackbar('提示', '仅支持 http/https 代理');
+            Get.snackbar('提示'.tr, '仅支持 http/https 代理'.tr);
             return;
           }
         }
@@ -1025,7 +1096,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: _testing ? null : onTest,
-                  child: Text(_testing ? '正在测试...' : '测试连接'),
+                  child: Text(_testing ? '正在测试...'.tr : '测试连接'.tr),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1036,7 +1107,7 @@ class _SelectionDialogState extends State<_SelectionDialog> {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('保存设置'),
+                  child:  Text('保存设置'.tr),
                 ),
               ),
             ],
@@ -1176,7 +1247,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
     if (isModifier) {
       if (keys.isNotEmpty) {
         setState(() {
-          _temp[recording] = '${keys.join('+')}+请按下其他键';
+          _temp[recording] = '${keys.join('+')}+请按下其他键'.tr;
         });
       }
       return KeyEventResult.handled;
@@ -1184,7 +1255,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
 
     final label = _specialKeys[key] ?? key.keyLabel.toUpperCase();
     if (keys.isEmpty) {
-      Get.snackbar('提示', '快捷键必须包含至少一个修饰键 (Ctrl/Alt/Shift/Win)');
+      Get.snackbar('提示'.tr, '快捷键必须包含至少一个修饰键 (Ctrl/Alt/Shift/Win)'.tr);
       return KeyEventResult.handled;
     }
 
@@ -1196,8 +1267,8 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
     );
     if (conflict.key.isNotEmpty) {
       final conflictLabel =
-          settings.shortcutConfigs[conflict.key]?.label ?? conflict.key;
-      Get.snackbar('提示', '该快捷键与「$conflictLabel」的快捷键冲突');
+          settings.shortcutConfigs[conflict.key]?.label.tr ?? conflict.key;
+      Get.snackbar('提示'.tr, '该快捷键与「$conflictLabel」的快捷键冲突'.tr);
       return KeyEventResult.handled;
     }
 
@@ -1217,7 +1288,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
               ),
     );
     if (invalid.isNotEmpty) {
-      Get.snackbar('提示', '存在无效的快捷键设置，请确保每个快捷键都包含修饰键');
+      Get.snackbar('提示'.tr, '存在无效的快捷键设置，请确保每个快捷键都包含修饰键'.tr);
       return;
     }
     settings.saveShortcuts(_temp);
@@ -1250,8 +1321,8 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  '快捷键设置',
+                 Text(
+                  '快捷键设置'.tr,
                   style: TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
@@ -1272,12 +1343,12 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(config.label),
+                                Text(config.label.tr),
                                 GestureDetector(
                                   onTap: () {
                                     setState(() {
                                       _recordingKey = key;
-                                      _temp[key] = '请按下修饰键';
+                                      _temp[key] = '请按下修饰键'.tr;
                                     });
                                     _keyFocus.requestFocus();
                                   },
@@ -1302,7 +1373,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
                                         Flexible(
                                           child: Text(
                                             display.isEmpty
-                                                ? '点击设置快捷键'
+                                                ? '点击设置快捷键'.tr
                                                 : display,
                                             style: TextStyle(
                                               fontSize: 15,
@@ -1354,7 +1425,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
                   children: [
                     OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('取消'),
+                      child:  Text('取消'.tr),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
@@ -1363,7 +1434,7 @@ class _ShortcutDialogState extends State<_ShortcutDialog> {
                         backgroundColor: primary,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('保存'),
+                      child:  Text('保存'.tr),
                     ),
                   ],
                 ),
