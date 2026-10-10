@@ -482,7 +482,7 @@ class _GlassTrackShape extends RoundedRectSliderTrackShape {
   @override
   void paint(
     PaintingContext context,
-    Offset offset, {
+    Offset offset, { 
     double? additionalActiveTrackHeight,
     required RenderBox parentBox,
     required SliderThemeData sliderTheme,

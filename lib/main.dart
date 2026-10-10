@@ -5,8 +5,11 @@ import 'package:get_storage/get_storage.dart';
 import 'package:ku_gou_music/api/login/register_dev.dart';
 import 'package:ku_gou_music/config/config.dart';
 import 'package:ku_gou_music/controllers/settings_controller.dart';
+import 'package:ku_gou_music/views/artist/artist.dart';
 import 'package:ku_gou_music/views/home/mobile/layout.dart';
+import 'package:ku_gou_music/views/mv/mv.dart';
 import 'package:ku_gou_music/views/playlist/playlist.dart';
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:layout/layout.dart';
 import 'bindings/music_binding.dart';
 import 'views/music/player_screen.dart';
@@ -27,6 +30,16 @@ class DesktopScrollBehavior extends MaterialScrollBehavior {
 }
 
 void main() async {
+
+  // video_player 官方插件不支持 Windows 桌面，接入 media_kit 后端
+  // （必须在使用 VideoPlayerController 之前初始化）
+  VideoPlayerMediaKit.ensureInitialized(
+    android: true,
+    iOS: true,
+    macOS: true,
+    windows: true,
+    linux: true,
+  );
 
   // 1. 初始化后台播放 (必须在 runApp 之前)
   await JustAudioBackground.init(
@@ -106,6 +119,25 @@ class MyApp extends StatelessWidget {
                   name: args?['name'],
                   id: args?['id'],
                   pic: args?['pic'],
+                );
+              },
+              '/artist/detail': (context) {
+                final args =
+                    ModalRoute.of(context)?.settings.arguments
+                        as Map<String, dynamic>?;
+                return ArtistScreen(
+                  singerid:
+                      (args?['singerid'] is num) ? args!['singerid'].toInt() : 0,
+                  initialFollowed: args?['unfollow'] == true,
+                );
+              },
+              '/mv': (context) {
+                final args =
+                    ModalRoute.of(context)?.settings.arguments
+                        as Map<String, dynamic>?;
+                return MvScreen(
+                  hash: args?['hash']?.toString() ?? '',
+                  title: args?['title']?.toString() ?? '视频播放',
                 );
               },
             },

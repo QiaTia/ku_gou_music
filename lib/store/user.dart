@@ -38,6 +38,7 @@ class User {
   int get userid => _user.userid;
   String? get mid => _user.mid ?? config.mid;
   String? get nickname => _user.nickname;
+  String? get pic => _user.pic;
 
   /// 登录成功
   void setNewUser(Map<String, dynamic> json) {

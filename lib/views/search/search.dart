@@ -789,11 +789,52 @@ class _SongListItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      song.displayArtistName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            song.displayArtistName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey[600]),
+                          ),
+                        ),
+                        // MV 角标：点击直接进 MV 播放页（与歌单详情页一致）
+                        if (song.mvHash.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          GestureDetector(
+                            onTap: () => Get.toNamed(
+                              '/mv',
+                              arguments: {
+                                'hash': song.mvHash,
+                                'title': song.displaySongName,
+                              },
+                            ),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: Colors.pink.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(3),
+                                  border: Border.all(
+                                      color: Colors.pink, width: 0.8),
+                                ),
+                                child: const Text(
+                                  'MV',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.pink,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -820,38 +861,47 @@ class _AuthorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: 80,
-              height: 80,
-              child: CachedNetworkImage(
-                imageUrl: getImageUri(author.avatar),
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Container(
-                  color: _greyBgColor,
-                  child: const Icon(Icons.person, color: Colors.grey),
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+        '/artist/detail',
+        arguments: {'singerid': author.authorId},
+      ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          width: 120,
+          margin: const EdgeInsets.only(right: 12),
+          child: Column(
+            children: [
+              ClipOval(
+                child: SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: CachedNetworkImage(
+                    imageUrl: getImageUri(author.avatar),
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => Container(
+                      color: _greyBgColor,
+                      child: const Icon(Icons.person, color: Colors.grey),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                author.authorName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '歌曲: ${author.audioCount}',
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            author.authorName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '歌曲: ${author.audioCount}',
-            style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -866,9 +916,10 @@ class _AuthorListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        // TODO: 跳转到歌手详情页
-      },
+      onTap: () => Get.toNamed(
+        '/artist/detail',
+        arguments: {'singerid': author.authorId},
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
@@ -908,7 +959,10 @@ class _AuthorListItem extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right, color: Colors.grey),
-              onPressed: () {},
+              onPressed: () => Get.toNamed(
+                '/artist/detail',
+                arguments: {'singerid': author.authorId},
+              ),
             ),
           ],
         ),

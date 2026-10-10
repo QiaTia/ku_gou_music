@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ku_gou_music/api/playlist/track.dart';
+import 'package:ku_gou_music/api/user/user.dart';
 import 'package:ku_gou_music/controllers/music_controller.dart';
 import 'package:ku_gou_music/services/play_history_service.dart';
 import 'package:ku_gou_music/utils/utils.dart';
@@ -8,6 +10,43 @@ import 'package:ku_gou_music/widgets/add_to_playlist_dialog.dart';
 import 'playlist.controller.dart';
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
+
+/// 收藏歌曲到"我喜欢"歌单（MoeKoe 的单曲收藏 = 加入"我喜欢"歌单）
+Future<void> collectSongToLike(SongItemStruct song) async {
+  try {
+    final res = await getUserPlaylist(page: 1, pagesize: 100);
+    final list = res.body?['data']?['list'];
+    if (list is! List) {
+      throw Exception(res.body?['msg'] ?? '获取歌单失败');
+    }
+    Map<String, dynamic>? like;
+    for (final item in list) {
+      if (item is Map && item['name']?.toString() == '我喜欢') {
+        like = Map<String, dynamic>.from(item);
+        break;
+      }
+    }
+    if (like == null) {
+      Get.snackbar('提示', '未找到「我喜欢」歌单', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    final listid = like['listid'];
+    if (listid is! int) {
+      Get.snackbar('提示', '「我喜欢」歌单信息异常', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    // 与 AddToPlaylistDialog 一致的 name|hash|albumId|mixSongId 格式
+    final songData = '${song.name}|${song.hash}|0|${song.audio_id}';
+    final addRes = await addToPlaylist(songsData: [songData], listId: listid);
+    if (addRes.body?['status'] == 1) {
+      Get.snackbar('提示', '已收藏到「我喜欢」', snackPosition: SnackPosition.BOTTOM);
+    } else {
+      throw Exception(addRes.body?['msg'] ?? '收藏失败');
+    }
+  } catch (e) {
+    Get.snackbar('收藏失败', '$e', snackPosition: SnackPosition.BOTTOM);
+  }
+}
 
 class PlaylistScreen extends GetWidget {
   final String id;
@@ -103,10 +142,20 @@ class PlaylistScreen extends GetWidget {
                         icon: Icon(Icons.play_circle_outline_rounded),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () =>
+                            controller.toggleFavorite(gid: id, name: name),
                         iconSize: 28,
                         tooltip: '收藏',
-                        icon: Icon(Icons.favorite_outline_rounded),
+                        icon: Obx(
+                          () => Icon(
+                            controller.isFavorited.value
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_outline_rounded,
+                            color: controller.isFavorited.value
+                                ? Colors.pinkAccent
+                                : null,
+                          ),
+                        ),
                       ),
                       IconButton(
                         onPressed: () {},
@@ -308,9 +357,18 @@ class PlaylistScreen extends GetWidget {
                                 ),
                               ),
                               const SizedBox(width: 10),
-                              _bannerButton(
-                                Icons.favorite_outline_rounded,
-                                '收藏',
+                              Obx(
+                                () => _bannerButton(
+                                  controller.isFavorited.value
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_outline_rounded,
+                                  controller.isFavorited.value ? '已收藏' : '收藏',
+                                  onPressed: () => controller.toggleFavorite(
+                                      gid: id, name: name),
+                                  foreground: controller.isFavorited.value
+                                      ? Colors.pinkAccent
+                                      : Colors.white,
+                                ),
                               ),
                               const SizedBox(width: 10),
                               _bannerButton(Icons.download_outlined, '下载'),
@@ -332,14 +390,17 @@ class PlaylistScreen extends GetWidget {
   }
 
   /// PC 横幅中的次级操作按钮
-  Widget _bannerButton(IconData icon, String label) {
+  Widget _bannerButton(IconData icon, String label,
+      {VoidCallback? onPressed, Color? foreground}) {
     return OutlinedButton.icon(
-      onPressed: () {},
+      onPressed: onPressed,
       icon: Icon(icon, size: 18),
       label: Text(label),
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+        foregroundColor: foreground ?? Colors.white,
+        side: BorderSide(
+          color: (foreground ?? Colors.white).withValues(alpha: 0.5),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       ),
     );
@@ -614,8 +675,21 @@ class PlaylistView extends GetView<PlaylistController> {
                     label: '收藏',
                     onTap: () {
                       Get.back();
+                      collectSongToLike(song);
                     },
                   ),
+                  if (song.mvhash.isNotEmpty)
+                    _buildOptionTile(context,
+                      icon: Icons.music_video_outlined,
+                      label: '播放MV',
+                      onTap: () {
+                        Get.back();
+                        Get.toNamed(
+                          '/mv',
+                          arguments: {'hash': song.mvhash, 'title': song.name},
+                        );
+                      },
+                    ),
                   _buildOptionTile(context,
                     icon: Icons.share,
                     label: '分享',
@@ -963,11 +1037,20 @@ class _PlaylistSongRow extends StatelessWidget {
       ));
     }
 
-    // MV 角标
+    // MV 角标：可点击，直接跳 MV 播放页
     if (song.mvhash.isNotEmpty) {
-      badges.add(_SongBadge(
-        text: 'MV',
-        color: Colors.pink,
+      badges.add(GestureDetector(
+        onTap: () => Get.toNamed(
+          '/mv',
+          arguments: {'hash': song.mvhash, 'title': song.name},
+        ),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: _SongBadge(
+            text: 'MV',
+            color: Colors.pink,
+          ),
+        ),
       ));
     }
 
